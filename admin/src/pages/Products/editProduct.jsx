@@ -7,7 +7,7 @@ import { FormControl, MenuItem, Select } from '@mui/material';
 import Button from '@mui/material/Button';
 import Rating from '@mui/material/Rating';
 import { FaCloudUploadAlt, FaRegImages } from 'react-icons/fa';
-import { fetchDataFromApi, postData } from '../../utils/api';
+import { editData, fetchDataFromApi, postData } from '../../utils/api';
 import { MyContext } from '../../App';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom'
@@ -198,6 +198,7 @@ const EditProduct = () => {
                 setFiles(imgArr);
                 setImgFiles(e.target.files);
                 setIsSelectedFiles(true);
+                setIsSelectedImages(true);
                 console.log(imgArr);
 
                 // Perform the upload
@@ -326,10 +327,10 @@ const EditProduct = () => {
         setIsLoading(true)
 
 
-        postData('/api/products/create', formFields).then((res) => {
+        editData(`/api/products/${id}`, formFields).then((res) => {
             context.setAlertBox({
                 open: true,
-                msg: 'The product is created!',
+                msg: 'The product is update success!',
                 error: false
             })
 

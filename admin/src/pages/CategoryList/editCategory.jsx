@@ -130,6 +130,7 @@ const EditCategory = () => {
                 setFiles(imgArr);
                 setImgFiles(e.target.files);
                 setIsSelectedFiles(true);
+                setIsSelectedImages(true)
                 console.log(imgArr);
     
                 // Perform the upload
@@ -163,7 +164,7 @@ const EditCategory = () => {
 
 
 
-    const addCategory = (e) => {
+    const editCategory = (e) => {
         e.preventDefault();
         
         formdata.append('name', formFields.name);
@@ -174,6 +175,11 @@ const EditCategory = () => {
             
             axios.put(`http://localhost:4000/api/category/${id}`, formFields)
             .then(res => {
+                context.setAlertBox({
+                    open: true,
+                    msg: 'Category is update success!',
+                    error: false
+                })
                 setIsLoading(false);
                 history('/category');
             })
@@ -226,7 +232,7 @@ const EditCategory = () => {
                 </div>
             </div>
 
-            <form className='form w-[100%] mt-4' onSubmit={addCategory} style={{ width: '75%' }}>
+            <form className='form w-[100%] mt-4' onSubmit={editCategory} style={{ width: '75%' }}>
                 <div className='card shadow my-4 border-0 flex-center p-3'>
 
                     <div className='row'>
@@ -257,7 +263,7 @@ const EditCategory = () => {
                                         return (
                                             <div className='uploadBox' key={index}>
                                                 {
-                                                    isSelectedFiles === true ?
+                                                    isSelectedImages === true ?
                                                         <img src={`${img}`} className="w-100" />
                                                         :
                                                         <img src={`${context.baseUrl}/uploads/${img}`} className="w-100" />

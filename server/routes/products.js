@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const cloudinary = require("cloudinary").v2;
-const pLimit = require("p-limit");
 const { Category } = require("../models/category");
 const { Product } = require("../models/products");
 const multer = require("multer");
@@ -9,6 +8,7 @@ const path = require("path");
 const fs = require("fs");
 
 var imagesArr = [];
+var productEditId;
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "C:/Users/Tai Nguyen/Desktop/fullstack-ecom/server/uploads");
@@ -35,14 +35,34 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
+// POST 
 router.post(`/upload`, upload.array("images"), async (req, res) => {
+  let images;
+
+  if (productEditId !== undefined) {
+    const product = await Product.findById(productEditId);
+
+    if (product) {
+      images = product.images;
+      console.log("images",images)
+    }
+
+    if (images.length !== 0) {
+      for (const image of images) {
+        fs.unlinkSync(`uploads/${image}`);
+      }
+      productEditId=""
+    }
+  }
+
   imagesArr = [];
   const files = req.files;
+
   for (let i = 0; i < files.length; i++) {
     imagesArr.push(files[i].filename);
   }
-  console.log(imagesArr);
-  res.json(imagesArr);
+
+  res.send(imagesArr);
 });
 
 // GET all products with populated category
@@ -77,6 +97,8 @@ router.get(`/`, async (req, res) => {
 // GET id
 router.get("/:id", async (req, res) => {
   try {
+    productEditId = req.params.id
+
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res
@@ -177,35 +199,14 @@ router.put("/:id", async (req, res) => {
       req.body.dateCreated = new Date(year, month - 1, day);
     }
 
-    // Upload images to Cloudinary
-    const imagesToUpload = req.body.images.map((image) => {
-      return limit(async () => {
-        try {
-          const result = await cloudinary.uploader.upload(image);
-          return result.secure_url;
-        } catch (error) {
-          console.error(`Error uploading ${image} - ${error.message}`);
-          throw new Error(`Error uploading ${image} - ${error.message}`);
-        }
-      });
-    });
-
-    const imgurl = await Promise.all(imagesToUpload);
-
-    if (!imgurl || imgurl.length === 0) {
-      return res.status(400).json({
-        error: "No images uploaded!",
-        status: false,
-      });
-    }
 
     // Update the product
-    const updatedProduct = await Product.findByIdAndUpdate(
+    const product = await Product.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
         description: req.body.description,
-        images: images, // Use the uploaded image URLs
+        images: imagesArr, // Use the uploaded image URLs
         brand: req.body.brand,
         price: req.body.price,
         oldPrice: req.body.oldPrice,
@@ -217,14 +218,14 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
 
-    if (!updatedProduct) {
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found!",
       });
     }
 
-    res.status(200).json(updatedProduct);
+    res.status(200).json(product);
   } catch (error) {
     res.status(500).json({
       success: false,
