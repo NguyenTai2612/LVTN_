@@ -30,9 +30,11 @@ import { Link } from 'react-router-dom';
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const ProductList = () => {
+    const [catData, setCatData] = useState([]);
 
     const [perPage, setPerPage] = useState(10);
-    const [showBy, setShowBy] = useState(10);
+    const [showBy, setShowBy] = useState("None");
+
     const [isAllChecked, setIsAllChecked] = useState(false);
 
     const [productList, setProductList] = useState([]);
@@ -111,13 +113,14 @@ const ProductList = () => {
             </div>
             <div className='card shadow my-4 border-0'>
                 <div className='flex items-center mb-4 justify-between pt-3 px-4'>
-                    <h2 className='mb-0 font-bold text-md '>Best Selling Products</h2>
+                    {/* <h2 className='mb-0 font-bold text-md '>Best Selling Products</h2> */}
 
-                    <div className='ml-auto flex items-center gap-4'>
-                        <SearchBox />
 
-                        <div className=''>
+                    <div className='mr-auto flex items-center gap-4'>
 
+
+                        <div className='col-md-5'>
+                            <h6 className='mb-2'>Category By</h6>
                             <FormControl size="small" className="w-100">
 
                                 <Select
@@ -127,16 +130,26 @@ const ProductList = () => {
                                     inputProps={{ 'aria-label': 'Without label' }}
                                     labelId="demo-select-small-label"
                                     className="w-100">
-                                    <MenuItem value=""> <em>None</em> I
+                                    <MenuItem value="None">
+                                        <em>None</em>
                                     </MenuItem>
-                                    <MenuItem value={10}>10</MenuItem>
-                                    <MenuItem value={20}>20</MenuItem>
-                                    <MenuItem value={30}>30</MenuItem>
+                                    {
+                                        context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
+                                            return (
+                                                <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
+                                            )
+                                        })
+                                    }
                                 </Select>
+
 
                             </FormControl>
 
+
+
                         </div>
+
+                        <SearchBox />
 
                     </div>
 
@@ -148,6 +161,7 @@ const ProductList = () => {
                                 <th><Checkbox {...label} size='small' onChange={selectAll} /></th>
                                 <th>PRODUCTS</th>
                                 <th>CATEGORY</th>
+                                <th>SUB CATEGORY</th>
                                 <th>BRAND</th>
                                 <th>PRICE</th>
                                 <th>STOCK</th>
@@ -178,6 +192,7 @@ const ProductList = () => {
                                                 </div>
                                             </td>
                                             <td>{item.category?.name}</td>
+                                            <td>{item.subCat?.subCat}</td>
                                             <td>{item.brand}</td>
                                             <td>
                                                 <div className='w-[90px]'>
@@ -192,12 +207,12 @@ const ProductList = () => {
                                             <td>
                                                 <div className='actions flex items-center gap-2'>
                                                     <TooltipBox title="Edit" placement="top">
-                                                       <Link to={`/product/edit/${item.id}`}>
+                                                        <Link to={`/product/edit/${item.id}`}>
                                                             <button
                                                                 className='edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'
-                                                                // onClick={() => toggleDrawer(true)}
+                                                            // onClick={() => toggleDrawer(true)}
                                                             ><FiEdit3 /></button>
-                                                       </Link>
+                                                        </Link>
                                                     </TooltipBox>
                                                     <TooltipBox title="View" placement="top">
                                                         <button className='view-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'><MdOutlineRemoveRedEye /></button>
@@ -221,12 +236,12 @@ const ProductList = () => {
                         </tbody>
                     </table>
                     {productList?.totalPages > 1 &&
-        <div className='table-footer flex items-center justify-end py-2 px-3 mb-2 ml-auto'>
-            <Pagination count={productList?.totalPages} color="primary" className="pagination" showFirstButton showLastButton onChange={handleChange} />
-        </div>
-    }
+                        <div className='table-footer flex items-center justify-end py-2 px-3 mb-2 ml-auto'>
+                            <Pagination count={productList?.totalPages} color="primary" className="pagination" showFirstButton showLastButton onChange={handleChange} />
+                        </div>
+                    }
                 </div>
-                
+
 
             </div>
             <Drawer open={open} onClose={() => toggleDrawer(false)} anchor={"right"} className='sidepanel'>
@@ -361,7 +376,7 @@ const ProductList = () => {
 
                     </div>
 
-                 
+
 
                     <br />
                     <br />

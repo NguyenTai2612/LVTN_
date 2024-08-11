@@ -50,6 +50,7 @@ const EditProduct = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [isSelectedFiles, setIsSelectedFiles] = useState(false);
     const [isSelectedImages, setIsSelectedImages] = useState(false)
+    const [subCatData, setSubCatData] = useState([]);
 
 
     const [files, setFiles] = useState([])
@@ -66,6 +67,7 @@ const EditProduct = () => {
 
     const [formFields, setFormFields] = useState({
         name: '',
+        subCat: '',
         description: '',
         images: [],
         brand: '',
@@ -100,14 +102,8 @@ const EditProduct = () => {
     useEffect(() => {
         window.scrollTo(0, 0)
         context.setProgress(20)
-
-
-        fetchDataFromApi('/api/category').then((res) => {
-            setCatData(res)
-
-            context.setProgress(100)
-
-        })
+        setCatData(context.catData)
+        
 
         fetchDataFromApi(`/api/products/${id}`).then((res) => {
 
@@ -120,6 +116,7 @@ const EditProduct = () => {
                 price: res.price,
                 oldPrice: res.oldPrice,
                 category: res.category,
+                subCat: res.subCat,
                 countInStock: res.countInStock,
                 rating: res.rating,
                 isFeatured: res.isFeatured,
@@ -127,6 +124,7 @@ const EditProduct = () => {
 
             setRatingsValue(res.rating);
             setCategoryVal(res.category);
+            setSubCategoryVal(res.subCat);
             setIsFeaturedValue(res.isFeatured);
             setPreviews(res.images);
             context.setProgress(100);
@@ -143,6 +141,14 @@ const EditProduct = () => {
         setFormFields(() => ({
             ...formFields,
             category: event.target.value
+        }))
+    }
+
+    const handleChangeSubCategory = (event) => {
+        setSubCategoryVal(event.target.value)
+        setFormFields(() => ({
+            ...formFields,
+            subCat: event.target.value
         }))
     }
 
@@ -224,6 +230,7 @@ const EditProduct = () => {
         e.preventDefault()
 
         formdata.append('name', formFields.name);
+        formdata.append('subCat', formFields.subCat);
         formdata.append('description', formFields.description);
         formdata.append('brand', formFields.brand);
         formdata.append('price', formFields.price);
@@ -292,6 +299,16 @@ const EditProduct = () => {
 
         }
 
+        if (formFields.subCat === "") {
+            context.setAlertBox({
+                open: true,
+                msg: 'Please select a sub category',
+                error: true
+            })
+            return false
+
+        }
+
         if (formFields.countInStock === null) {
             context.setAlertBox({
                 open: true,
@@ -335,21 +352,7 @@ const EditProduct = () => {
             })
 
             setIsLoading(false)
-
-
-            setFormFields({
-                name: '',
-                description: '',
-                images: [],
-                brand: '',
-                price: 0,
-                oldPrice: 0,
-                category: '',
-                countInStock: 0,
-                rating: 0,
-                isFeatured: false,
-                images: [],
-            })
+   
             history('/product/list')
 
 
@@ -413,7 +416,7 @@ const EditProduct = () => {
                                                 <MenuItem value=""> <em value={null}>None</em>
                                                 </MenuItem>
                                                 {
-                                                    catData?.categoryList?.length !== 0 && catData?.categoryList?.map((cat, index) => {
+                                                    context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
                                                         return (
 
                                                             <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
@@ -425,13 +428,34 @@ const EditProduct = () => {
                                         </FormControl>
                                     </div>
                                 </div>
+
                                 <div className='col-md-4 col_'>
-                                    <h4>Brand</h4>
+                                    <h4>Sub Category</h4>
                                     <div className='form-group'>
-                                        <input type='text'
-                                            value={formFields.brand} className='input' name='brand' onChange={inputChange} />
+                                        <FormControl size="small" className="w-100">
+                                            <Select
+                                                value={subCategoryVal}
+                                                onChange={handleChangeSubCategory}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100">
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {
+                                                    context.subCatData?.subCategoryList?.length !== 0 && context.subCatData?.subCategoryList?.map((subCat, index) => {
+                                                        return (
+
+                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}>{subCat.subCat}</MenuItem>
+                                                        )
+                                                    })
+                                                }
+
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                 </div>
+
                                 <div className='col-md-4 col_'>
                                     <h4>Is Featured</h4>
                                     <div className='form-group'>
@@ -451,6 +475,7 @@ const EditProduct = () => {
                                         </FormControl>
                                     </div>
                                 </div>
+
                             </div>
 
                             <div className='row'>
@@ -487,7 +512,13 @@ const EditProduct = () => {
                                         <input type='text' className='input' />
                                     </div>
                                 </div> */}
-
+                                <div className='col-md-4 col_'>
+                                    <h4>Brand</h4>
+                                    <div className='form-group'>
+                                        <input type='text'
+                                            value={formFields.brand} className='input' name='brand' onChange={inputChange} />
+                                    </div>
+                                </div>
                                 <div className='col-md-4 col_'>
                                     <h4>Rating</h4>
                                     <div className='form-group'>

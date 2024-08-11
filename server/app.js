@@ -10,11 +10,13 @@ app.options("*", cors());
 app.use(bodyParser.json());
 
 const categoryRoutes = require('./routes/categories');
+const subCatSchema = require('./routes/subCat');
 const productRoutes = require('./routes/products');
 
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/category', categoryRoutes);
+app.use('/api/subCat', subCatSchema);
 app.use('/api/products', productRoutes);
 
 mongoose.connect(process.env.CONNECTION_STRING)

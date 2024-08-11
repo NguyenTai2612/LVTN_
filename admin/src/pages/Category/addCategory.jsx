@@ -149,13 +149,15 @@ const AddCategory = () => {
         formdata.append('name', formFields.name);
         formdata.append('color', formFields.color);
 
-        if (formFields.name !== "" && formFields.color !== "") {
+        if (formFields.name !== "" && formFields.color !== "" && isSelectedFiles !== false) {
             setIsLoading(true)
 
             postData('/api/category/create', formFields).then(res => {
                 setIsLoading(false)
                 history('/category')
             })
+
+            context.fetchCategory()
 
         } else {
             context.setAlertBox({
@@ -207,16 +209,18 @@ const AddCategory = () => {
 
                             <h4>Category Name</h4>
                             <div className='form-group'>
-                                <input type='text' className='input' name='name' onChange={changeInput} />
+                                <input type='text' className='input' name='name' value={formFields.name} onChange={changeInput} />
                             </div>
                         </div>
+
+                   
 
 
 
                         <div className='col-md-12 col_'>
                             <h4>Color</h4>
                             <div className='form-group'>
-                                <input type='text' className='input' name='color' onChange={changeInput} />
+                                <input type='text' className='input' name='color' value={formFields.color} onChange={changeInput} />
                             </div>
                         </div>
 

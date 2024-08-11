@@ -56,11 +56,13 @@ const ProductUpload = () => {
 
 
     const [catData, setCatData] = useState([]);
+    const [subCatData, setSubCatData] = useState([]);
 
     const context = useContext(MyContext)
 
     const [formFields, setFormFields] = useState({
         name: '',
+        subCat: '',
         description: '',
         images: [],
         brand: '',
@@ -94,18 +96,9 @@ const ProductUpload = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0)
-        context.setProgress(20)
-
-
-        fetchDataFromApi('/api/category').then((res) => {
-            setCatData(res)
-
-            context.setProgress(100)
-
-        })
-
+        setCatData(context.catData)
+        setSubCatData(context.subCatData)
     }, [])
-
 
 
     const handleChangeCategory = (event) => {
@@ -113,6 +106,14 @@ const ProductUpload = () => {
         setFormFields(() => ({
             ...formFields,
             category: event.target.value
+        }))
+    }
+
+    const handleChangeSubCategory = (event) => {
+        setSubCategoryVal(event.target.value)
+        setFormFields(() => ({
+            ...formFields,
+            subCat: event.target.value
         }))
     }
 
@@ -198,6 +199,7 @@ const ProductUpload = () => {
         formdata.append('price', formFields.price);
         formdata.append('oldPrice', formFields.oldPrice);
         formdata.append('category', formFields.category);
+        formdata.append('subCat', formFields.subCat);
         formdata.append('countInStock', formFields.countInStock);
         formdata.append('rating', formFields.rating);
         formdata.append('isFeatured', formFields.isFeatured);
@@ -210,6 +212,8 @@ const ProductUpload = () => {
             })
             return false
         }
+
+      
 
         if (formFields.description === "") {
             context.setAlertBox({
@@ -261,6 +265,15 @@ const ProductUpload = () => {
 
         }
 
+        if (formFields.subCat === "") {
+            context.setAlertBox({
+                open: true,
+                msg: 'Please select sub category',
+                error: true
+            })
+            return false
+        }
+
         if (formFields.countInStock === null) {
             context.setAlertBox({
                 open: true,
@@ -306,19 +319,19 @@ const ProductUpload = () => {
             setIsLoading(false)
 
 
-            setFormFields({
-                name: '',
-                description: '',
-                images: [],
-                brand: '',
-                price: 0,
-                oldPrice: 0,
-                category: '',
-                countInStock: 0,
-                rating: 0,
-                isFeatured: false,
-                images: [],
-            })
+            // setFormFields({
+            //     name: '',
+            //     description: '',
+            //     images: [],
+            //     brand: '',
+            //     price: 0,
+            //     oldPrice: 0,
+            //     category: '',
+            //     countInStock: 0,
+            //     rating: 0,
+            //     isFeatured: false,
+            //     images: [],
+            // })
             history('/product/list')
             
 
@@ -382,7 +395,7 @@ const ProductUpload = () => {
                                                 <MenuItem value=""> <em value={null}>None</em>
                                                 </MenuItem>
                                                 {
-                                                    catData?.categoryList?.length !== 0 && catData?.categoryList?.map((cat, index) => {
+                                                    context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
                                                         return (
 
                                                             <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
@@ -394,11 +407,31 @@ const ProductUpload = () => {
                                         </FormControl>
                                     </div>
                                 </div>
+                                                      
                                 <div className='col-md-4 col_'>
-                                    <h4>Brand</h4>
+                                    <h4>Sub Category</h4>
                                     <div className='form-group'>
-                                        <input type='text'
-                                            value={formFields.brand} className='input' name='brand' onChange={inputChange} />
+                                        <FormControl size="small" className="w-100">
+                                            <Select
+                                                value={subCategoryVal}
+                                                onChange={handleChangeSubCategory}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100">
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {
+                                                    context.subCatData?.subCategoryList?.length !== 0 && context.subCatData?.subCategoryList?.map((subCat, index) => {
+                                                        return (
+
+                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}>{subCat.subCat}</MenuItem>
+                                                        )
+                                                    })
+                                                }
+
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                 </div>
                                 <div className='col-md-4 col_'>
@@ -448,15 +481,13 @@ const ProductUpload = () => {
                             </div>
 
                             <div className='row'>
-
-
-                                {/* <div className='col-md-4 col_'>
-                                    <h4>Discount</h4>
+                            <div className='col-md-4 col_'>
+                                    <h4>Brand</h4>
                                     <div className='form-group'>
-                                        <input type='text' className='input' />
+                                        <input type='text'
+                                            value={formFields.brand} className='input' name='brand' onChange={inputChange} />
                                     </div>
-                                </div> */}
-
+                                </div>
                                 <div className='col-md-4 col_'>
                                     <h4>Rating</h4>
                                     <div className='form-group'>
@@ -476,20 +507,8 @@ const ProductUpload = () => {
                                     </div>
                                 </div>
                             </div>
-
-
-
-
-
-
                         </div>
-
-
                     </div>
-
-
-
-
                 </div>
 
                 <div className='card shadow my-4 border-0 flex-center p-3'>

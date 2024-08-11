@@ -51,22 +51,14 @@ function handleClick(event) {
 
 const CategoryList = () => {
 
-    const [perPage, setPerPage] = useState(10);
-    const [showBy, setShowBy] = useState(10);
     const [isAllChecked, setIsAllChecked] = useState(false);
     const [open, setOpen] = React.useState(false);
-
-    const [page, setPage] = useState(1)
+    
+    const [catData, setCatData] = useState([]);
 
     const context = useContext(MyContext)
 
-    const [catData, setCatData] = useState([]);
-    const [editId, setEditId] = useState(null);
-    const [formFields, setFormFields] = useState({
-        name: '',
-        images: [],
-        color: ''
-    });
+
 
     // const handleChange = (event) => {
     //     setPerPage(event.target.value);
@@ -94,24 +86,7 @@ const CategoryList = () => {
     }, [])
 
 
-    const editCategory = (id) => {
-        setFormFields({
-            name: '',
-            images: '',
-            color: ''
-        })
-        setOpen(true)
-        setEditId(id)
-
-        fetchDataFromApi(`/api/category/${id}`).then((res) => {
-            setFormFields({
-                name: res.name,
-                images: res.images,
-                color: res.color
-            })
-            console.log(res)
-        })
-    }
+  
     const handleClickOpen = () => {
         setOpen(true);
     };

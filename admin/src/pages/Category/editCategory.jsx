@@ -59,6 +59,7 @@ const EditCategory = () => {
 
     const [formFields, setFormFields] = useState({
         name: '',
+        subCat:'',
         images: [],
         color: ''
     });
@@ -94,6 +95,7 @@ const EditCategory = () => {
             setcategory(res);
             setFormFields({
                 name: res.name,
+                subCat: res.subCat,
                 color: res.color
             });
             setPreviews(res.images);
@@ -168,9 +170,10 @@ const EditCategory = () => {
         e.preventDefault();
         
         formdata.append('name', formFields.name);
+        formdata.append('subCat', formFields.subCat);
         formdata.append('color', formFields.color);
     
-        if (formFields.name !== "" && formFields.color !== "") {
+        if (formFields.name !== "" && formFields.color !== "" && formFields.subCat !== "") {
             setIsLoading(true);
             
             axios.put(`http://localhost:4000/api/category/${id}`, formFields)
@@ -244,6 +247,14 @@ const EditCategory = () => {
                                 <input type='text' className='input' name='name' value={formFields.name} onChange={changeInput} />
                             </div>
                         </div>
+
+                        {/* <div className='col-md-12 col_'>
+
+                            <h4>Sub Category</h4>
+                            <div className='form-group'>
+                                <input type='text' className='input' name='subCat' value={formFields.subCat} onChange={changeInput} />
+                            </div>
+                        </div> */}
 
 
 

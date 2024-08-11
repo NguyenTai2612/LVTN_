@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import { MdOutlineDashboard } from "react-icons/md";
 import { FaAngleRight } from "react-icons/fa6";
 import { TbBrandProducthunt } from "react-icons/tb";
-
 import { MdOutlineShoppingCart } from "react-icons/md";
 import { AiTwotoneMessage } from "react-icons/ai";
 import { IoMdNotificationsOutline } from "react-icons/io";
@@ -14,17 +13,19 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { FiUser } from "react-icons/fi";
 import { TbCategoryPlus } from "react-icons/tb";
 
-
-
 const Sidebar = () => {
 
   const [activeTab, setActiveTab] = useState(0);
   const [isToggleSubmenu, setIsToggleSubmenu] = useState(false);
 
   const isOpenSubmenu = (index) => {
-    setActiveTab(index);
-    setIsToggleSubmenu(!isToggleSubmenu)
-  }
+    if (activeTab === index) {
+      setIsToggleSubmenu(!isToggleSubmenu);
+    } else {
+      setActiveTab(index);
+      setIsToggleSubmenu(true);
+    }
+  };
 
   return (
     <div className='sidebar fixed top-0 left-0 z-[100] w-[15%]'>
@@ -38,28 +39,27 @@ const Sidebar = () => {
         <ul className='flex gap-3 flex-col'>
           <li>
             <Link to="/">
-              <Button className={`w-100 ${activeTab == 0 ? 'active' : ''}`} onClick={() => isOpenSubmenu(0)}>
+              <Button className={`w-100 ${activeTab === 0 ? 'active' : ''}`} onClick={() => isOpenSubmenu(0)}>
                 <span className='icon w-[25px] h-[30px] flex items-center justify-center 
                  rounded-md'><MdOutlineDashboard /></span> &nbsp;
                 Dashboard
               </Button>
             </Link>
           </li>
-          <li className={`${activeTab === 1 && isToggleSubmenu === true ? 'colapse' : 'colapsed'}`}>
-            <Button className={`w-100 ${activeTab == 1 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(1)}>
+
+          <li className={`${activeTab === 1 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
+            <Button className={`w-100 ${activeTab === 1 ? 'active' : ''}`} onClick={() => isOpenSubmenu(1)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                  rounded-md'><TbBrandProducthunt /></span> &nbsp;
               Products
-
               <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
-              justify-center ${activeTab === 1 && isToggleSubmenu === true ? 'rotate' : ''}`}>
+              justify-center ${activeTab === 1 && isToggleSubmenu ? 'rotate' : ''}`}>
                 <FaAngleRight /></span>
             </Button>
 
-            <div className={`submenuWrapper ${activeTab === 1 && isToggleSubmenu === true
+            <div className={`submenuWrapper ${activeTab === 1 && isToggleSubmenu
               ? "colapse"
               : "colapsed"
-
               }`}
             >
               <div className='submenu'>
@@ -72,26 +72,23 @@ const Sidebar = () => {
                 <Link to="/product/upload">
                   <Button className='w-100 '>Product Upload</Button>
                 </Link>
-
               </div>
             </div>
           </li>
 
-          <li className={`${activeTab === 2 && isToggleSubmenu === true ? 'colapse' : 'colapsed'}`}>
-            <Button className={`w-100 ${activeTab == 2 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(2)}>
+          <li className={`${activeTab === 2 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
+            <Button className={`w-100 ${activeTab === 2 ? 'active' : ''}`} onClick={() => isOpenSubmenu(2)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                  rounded-md'><TbCategoryPlus /></span> &nbsp;
               Category
-
               <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
-              justify-center ${activeTab === 2 && isToggleSubmenu === true ? 'rotate' : ''}`}>
+              justify-center ${activeTab === 2 && isToggleSubmenu ? 'rotate' : ''}`}>
                 <FaAngleRight /></span>
             </Button>
 
-            <div className={`submenuWrapper ${activeTab === 2 && isToggleSubmenu === true
+            <div className={`submenuWrapper ${activeTab === 2 && isToggleSubmenu
               ? "colapse"
               : "colapsed"
-
               }`}
             >
               <div className='submenu'>
@@ -101,25 +98,28 @@ const Sidebar = () => {
                 <Link to="/category/add">
                   <Button className='w-100 '>Add Category</Button>
                 </Link>
-
+                <Link to="/subCategory">
+                  <Button className='w-100 '>Sub Category List</Button>
+                </Link>
+                <Link to="/subCategory/add">
+                  <Button className='w-100 '>Add Sub Category</Button>
+                </Link>
               </div>
             </div>
           </li>
 
           <li>
-
-            <Button className={`w-100 ${activeTab == 3 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(3)}>
+            <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                 rounded-md'><MdOutlineShoppingCart /></span> &nbsp;
               Order
-
-              <span className='arrow ml-auto w-[25px] h-[25px] flex items-center justify-center'><FaAngleRight /></span>
-
+              <span className='arrow ml-auto w-[25px] h-[25px] flex items-center justify-center'>
+                <FaAngleRight /></span>
             </Button>
           </li>
-          <li>
 
-            <Button className={`w-100 ${activeTab == 4 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(4)}>
+          <li>
+            <Button className={`w-100 ${activeTab === 4 ? 'active' : ''}`} onClick={() => isOpenSubmenu(4)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                 rounded-md'><IoMdNotificationsOutline /></span> &nbsp;
               Notifications
@@ -131,7 +131,7 @@ const Sidebar = () => {
           </li>
 
           <li>
-            <Button className={`w-100 ${activeTab == 5 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(5)}>
+            <Button className={`w-100 ${activeTab === 5 ? 'active' : ''}`} onClick={() => isOpenSubmenu(5)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                 rounded-md'><FiUser /></span> &nbsp;
               Login
@@ -139,8 +139,7 @@ const Sidebar = () => {
           </li>
 
           <li>
-
-            <Button className={`w-100 ${activeTab == 6 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(6)}>
+            <Button className={`w-100 ${activeTab === 6 ? 'active' : ''}`} onClick={() => isOpenSubmenu(6)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                rounded-md'><FiUser /></span> &nbsp;
               Sign Up
@@ -148,15 +147,15 @@ const Sidebar = () => {
           </li>
 
           <li>
-            <Button className={`w-100 ${activeTab == 7 ? 'active' : ''}`} onClick={() => isOpenSubmenu(7)}>
+            <Button className={`w-100 ${activeTab === 7 ? 'active' : ''}`} onClick={() => isOpenSubmenu(7)}>
               <span className='icon w-[25px] h-[30px] flex items-center justify-center 
                rounded-md'><RiLockPasswordLine /></span> &nbsp;
-              Forgot PassWord
+              Forgot Password
             </Button>
           </li>
 
           <li>
-            <Button className={`w-100 ${activeTab == 8 ? 'active' : ''}`} onClick={() => isOpenSubmenu(8)}>
+            <Button className={`w-100 ${activeTab === 8 ? 'active' : ''}`} onClick={() => isOpenSubmenu(8)}>
               <span className='icon w-[25px] h-[30px] flex items-center justify-center 
                rounded-md'><AiTwotoneMessage /></span> &nbsp;
               OTP Page
@@ -164,19 +163,16 @@ const Sidebar = () => {
           </li>
 
           <li>
-
-            <Button className={`w-100 ${activeTab == 4 ? 'active' : ''}'`} onClick={() => isOpenSubmenu(4)}>
+            <Button className={`w-100 ${activeTab === 9 ? 'active' : ''}`} onClick={() => isOpenSubmenu(9)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
-    rounded-md'><IoSettingsOutline /></span> &nbsp;
-              Settting
+                rounded-md'><IoSettingsOutline /></span> &nbsp;
+              Setting
             </Button>
           </li>
-
-
         </ul>
       </div>
     </div>
   )
 }
 
-export default Sidebar
+export default Sidebar;

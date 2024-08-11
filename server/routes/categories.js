@@ -63,7 +63,7 @@ router.get(`/`, async (req, res) => {
     const totalPosts = await Category.countDocuments();
     const totalPages = Math.ceil(totalPosts / perPage);
 
-    if (page > totalPages) { return res.status(404).json({ message: "Page not found" })}
+    if (page > totalPages) { return res.status(404).json({ message: "No data found" })}
 
 
     const categoryList = await Category.find()
@@ -88,37 +88,7 @@ router.get(`/`, async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
-  try {
 
-    const category = await Category.findById(req.params.id);
-    const images = category.images;
-
-    if (images.length !== 0) {
-      for (image of images) {
-        fs.unlinkSync(`uploads/${image}`);
-      }
-    }
-
-
-    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
-    if (!deletedCategory) {
-      return res.status(404).json({
-        success: false,
-        message: "Category not found!",
-      });
-    }
-    res.status(200).json({
-      success: true,
-      message: "Category deleted!",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
 
 router.get("/:id", async (req, res) => {
   try {
@@ -151,6 +121,38 @@ router.post("/create", async (req, res) => {
     res.status(500).json({
       error: err.message,
       success: false,
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+
+    const category = await Category.findById(req.params.id);
+    const images = category.images;
+
+    if (images.length !== 0) {
+      for (image of images) {
+        fs.unlinkSync(`uploads/${image}`);
+      }
+    }
+
+
+    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
+    if (!deletedCategory) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found!",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Category deleted!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
     });
   }
 });
