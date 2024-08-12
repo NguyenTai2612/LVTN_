@@ -14,6 +14,7 @@ import { PiExport } from "react-icons/pi";
 import { IoMdAdd } from "react-icons/io";
 import Checkbox from '@mui/material/Checkbox';
 import Drawer from '@mui/material/Drawer';
+import HomeIcon from '@mui/icons-material/Home';
 
 import { IoCloseSharp } from "react-icons/io5";
 
@@ -26,6 +27,29 @@ import { IoMdClose } from "react-icons/io";
 import { deleteData, fetchDataFromApi } from '../../utils/api';
 import { MyContext } from '../../App';
 import { Link } from 'react-router-dom';
+import { Breadcrumbs } from '@mui/material';
+import { emphasize, styled } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
+
+const StyledBreadcrumb = styled(Chip)(({ theme }) => {
+    const backgroundColor =
+        theme.palette.mode === 'light'
+            ? theme.palette.grey[100]
+            : theme.palette.grey[800];
+    return {
+        backgroundColor,
+        height: theme.spacing(3),
+        color: theme.palette.text.primary,
+        fontWeight: theme.typography.fontWeightRegular,
+        '&:hover, &:focus': {
+            backgroundColor: emphasize(backgroundColor, 0.06),
+        },
+        '&:active': {
+            boxShadow: theme.shadows[1],
+            backgroundColor: emphasize(backgroundColor, 0.12),
+        },
+    };
+});
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -34,6 +58,7 @@ const ProductList = () => {
 
     const [perPage, setPerPage] = useState(10);
     const [showBy, setShowBy] = useState("None");
+    const [categoryBy, setCategoryBy] = useState('None');
 
     const [isAllChecked, setIsAllChecked] = useState(false);
 
@@ -105,8 +130,23 @@ const ProductList = () => {
                 <div className='flex items-center justify-between'>
                     <h1 className='font-weight-bold text-white'>Products List</h1>
 
-                    <div className='ml-auto flex items-center gap-3'>
-                        <Button className='btn-border btn-sm bg-white'><PiExport /> Export</Button>
+                    <div className='ml-auto '>
+                        <Breadcrumbs aria-label="breadcrumb">
+                            <StyledBreadcrumb
+                                component={Link}
+                                href="#"
+                                label="Dashboard"
+                                to="/"
+                                icon={<HomeIcon fontSize="small"
+                                />}
+                            />
+                            <StyledBreadcrumb component={Link} href="#" label="Product" to='http://localhost:5173/product/list' />
+
+
+                        </Breadcrumbs>
+                    </div>
+                    <div className='ml-4 flex items-center gap-3'>
+                        {/* <Button className='btn-border btn-sm bg-white'><PiExport /> Export</Button> */}
                         <Link to={'/product/upload'}><Button className='btn-blue btn-sm'><IoMdAdd /> Add Product</Button></Link>
                     </div>
                 </div>
@@ -120,12 +160,42 @@ const ProductList = () => {
 
 
                         <div className='col-md-5'>
-                            <h6 className='mb-2'>Category By</h6>
+                            <h6 className='mb-2'>Show By</h6>
                             <FormControl size="small" className="w-100">
 
                                 <Select
                                     value={showBy}
                                     onChange={(e) => setShowBy(e.target.value)}
+                                    displayEmpty
+                                    inputProps={{ 'aria-label': 'Without label' }}
+                                    labelId="demo-select-small-label"
+                                    className="w-100">
+                                    <MenuItem value="None">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {
+                                        context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
+                                            return (
+                                                <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
+                                            )
+                                        })
+                                    }
+                                </Select>
+
+
+                            </FormControl>
+
+
+
+                        </div>
+
+                        <div className='col-md-5'>
+                            <h6 className='mb-2'>Category By</h6>
+                            <FormControl size="small" className="w-100">
+
+                                <Select
+                                    value={categoryBy}
+                                    onChange={(e) => setCategoryBy(e.target.value)}
                                     displayEmpty
                                     inputProps={{ 'aria-label': 'Without label' }}
                                     labelId="demo-select-small-label"
@@ -215,7 +285,9 @@ const ProductList = () => {
                                                         </Link>
                                                     </TooltipBox>
                                                     <TooltipBox title="View" placement="top">
-                                                        <button className='view-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'><MdOutlineRemoveRedEye /></button>
+                                                        <Link to={`/product/detail/${item.id}`}>
+                                                            <button className='view-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'><MdOutlineRemoveRedEye /></button>
+                                                        </Link>
                                                     </TooltipBox>
                                                     <TooltipBox title="Delete" placement="top">
                                                         <button

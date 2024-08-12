@@ -8,13 +8,13 @@ import Button from '@mui/material/Button';
 import { FaRegImages } from 'react-icons/fa';
 import { IoCloseSharp } from "react-icons/io5";
 
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation } from 'swiper/modules';
 import { FaCloudUploadAlt, FaImage } from "react-icons/fa";
-import { postData } from '../../utils/api';
+import { deleteData, fetchDataFromApi, postData } from '../../utils/api';
 import CircularProgress from '@mui/material/CircularProgress';
 import { MyContext } from '../../App'
 
@@ -46,10 +46,12 @@ function handleClick(event) {
 
 const AddCategory = () => {
     const [isLoading, setIsLoading] = useState(false)
+    const [uploading, setUploading] = useState(false)
 
     const [files, setFiles] = useState([])
     const [imgFiles, setImgFiles] = useState();
-    const [previews, setPreviews] = useState();
+    const [previews, setPreviews] = useState([]);
+
     const [isSelectedFiles, setIsSelectedFiles] = useState(false);
 
     const [formFields, setFormFields] = useState({
@@ -58,13 +60,14 @@ const AddCategory = () => {
         color: ''
     });
 
-    const formdata = new FormData()
+
     const history = useNavigate()
+    const formData = new FormData();
 
     const context = useContext(MyContext)
 
     useEffect(() => {
-        if (!imgFiles) return
+        if (!imgFiles) return;
 
         let tmp = [];
 
@@ -73,63 +76,75 @@ const AddCategory = () => {
         }
         const objectUrls = tmp;
         setPreviews(objectUrls);
-        //free memory
-        for (let i = 0; i < objectUrls.length; i++) {
 
-            return () => {
-                URL.revokeObjectURL(objectUrls[i])
-            }
-        }
-    }, [imgFiles])
+        // Cleanup function để hủy bỏ URL object sau khi không sử dụng nữa
+        return () => {
+            objectUrls.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [imgFiles]);
+
+
+    // Đảm bảo rằng img_arr và uniqueArray được đặt lại đúng cách
+    let img_arr = [];
+    let uniqueArray = [];
 
     const onChangeFile = async (e, apiEndPoint) => {
-        try {
-            const imgArr = [];
-            const files = e.target.files;
-            const formData = new FormData();
-    
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileType = file.type;
-    
-                if (fileType === 'image/jpeg' || fileType === 'image/jpg' || fileType === 'image/png') {
-                    imgArr.push(file);
-                    formData.append('images', file);
-                } else {
-                    context.setAlertBox({
-                        open: true,
-                        error: true,
-                        msg: 'Please select a valid JPG or PNG image file.'
-                    });
-                    return; // Exit if an invalid file is encountered
-                }
-            }
-    
-            if (imgArr.length > 0) {
-                setFiles(imgArr);
-                setImgFiles(e.target.files);
-                setIsSelectedFiles(true);
-                console.log(imgArr);
-    
-                // Perform the upload
-                await postData(apiEndPoint, formData);
-    
+        const files = e.target.files;
+        setUploading(true);
+        setPreviews([]);
+
+        const formData = new FormData();
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i] && (files[i].type === 'image/jpeg' || files[i].type === 'image/jpg' ||
+                files[i].type === 'image/png' || files[i].type === 'image/webp')) {
+                formData.append('images', files[i]);
+            } else {
                 context.setAlertBox({
                     open: true,
-                    error: false,
-                    msg: 'Images uploaded successfully!'
+                    error: true,
+                    msg: 'Please select a valid JPG or PNG image file.'
                 });
+                return false;
             }
+        }
+
+        try {
+            await postData(apiEndPoint, formData);
+            const response = await fetchDataFromApi("/api/imageUpload");
+            if (response && response.length) {
+                let newImages = response.map(item => item.images).flat();
+                setPreviews(newImages);
+            } else {
+                setPreviews([]);
+            }
+            setUploading(false);
+            context.setAlertBox({
+                open: true,
+                error: false,
+                msg: "Images Uploaded!"
+            });
         } catch (error) {
-            console.error(error);
+            console.error('Upload Error:', error);
             context.setAlertBox({
                 open: true,
                 error: true,
-                msg: 'An error occurred during file upload.'
+                msg: 'Failed to upload images.'
             });
         }
     };
-    
+
+
+
+
+
+    // Hàm để xóa ảnh khỏi danh sách previews
+    const removeImg = (index) => {
+        const updatedPreviews = previews.filter((_, i) => i !== index);
+        setPreviews(updatedPreviews);
+        URL.revokeObjectURL(previews[index]);
+    };
+
 
 
     const changeInput = (e) => {
@@ -143,35 +158,47 @@ const AddCategory = () => {
 
 
 
-    const addCategory = (e) => {
-        e.preventDefault()
 
-        formdata.append('name', formFields.name);
-        formdata.append('color', formFields.color);
+    const addCategory = async (e) => {
+        e.preventDefault();
 
-        if (formFields.name !== "" && formFields.color !== "" && isSelectedFiles !== false) {
-            setIsLoading(true)
+        // Reset trạng thái khi bắt đầu một lần tải lên mới
+        setPreviews([]);
+        setImgFiles([]);
 
-            postData('/api/category/create', formFields).then(res => {
-                setIsLoading(false)
-                history('/category')
-            })
+        const appendedArray = [...previews]; // Thay đổi từ uniqueArray nếu cần
 
-            context.fetchCategory()
+        formData.append('name', formFields.name);
+        formData.append('color', formFields.color);
+        formData.append('images', JSON.stringify(appendedArray)); // Đảm bảo chuyển đổi thành chuỗi
 
+        if (formFields.name !== "" || formFields.color !== "" || previews.length !== 0) {
+            setIsLoading(true);
+
+            try {
+                await postData(`/api/category/create`, formFields);
+                setIsLoading(false);
+                context.fetchCategory();
+                context.fetchSubCategory();
+                await deleteData("/api/imageUpload/deleteAllImages");
+                history('/category');
+            } catch (error) {
+                console.error('Error adding category:', error);
+                context.setAlertBox({
+                    open: true,
+                    error: true,
+                    msg: 'Failed to add category.'
+                });
+            }
         } else {
             context.setAlertBox({
                 open: true,
                 error: true,
                 msg: 'Please fill all the details',
-            })
-            return false
+            });
         }
+    };
 
-
-
-
-    }
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -186,12 +213,14 @@ const AddCategory = () => {
                     <div className='ml-auto flex items-center gap-3'>
                         <Breadcrumbs aria-label="breadcrumb">
                             <StyledBreadcrumb
-                                component="a"
+                                component={Link}
                                 href="#"
-                                label="Home"
-                                icon={<HomeIcon fontSize="small" />}
+                                label="Dashboard"
+                                to="/"
+                                icon={<HomeIcon fontSize="small"
+                                />}
                             />
-                            <StyledBreadcrumb component="a" href="#" label="Category" />
+                            <StyledBreadcrumb component={Link} href="#" label="Category" to='http://localhost:5173/category' />
                             <StyledBreadcrumb
                                 label="Add Category"
                             />
@@ -213,7 +242,7 @@ const AddCategory = () => {
                             </div>
                         </div>
 
-                   
+
 
 
 
@@ -229,39 +258,59 @@ const AddCategory = () => {
 
                             <div className='imgUploadBox d-flex align-items-center'>
                                 {
-                                    previews?.length !== 0 && previews?.map((img, index) => {
-                                        return (
-                                            <div className='uploadBox' key={index}>
+                                    previews?.length > 0 && previews.map((img, index) => (
+                                        <div className='uploadBox' key={index}>
+                                            <span className="remove" onClick={() => removeImg(index, img)}>
+                                                <IoCloseSharp />
+                                            </span>
+                                            <div className='box'>
                                                 <img src={img} className="w-100" />
                                             </div>
-                                        )
-                                    })
+                                        </div>
+                                    ))
                                 }
 
-
                                 <div className='uploadBox'>
-                                    <input type="file" multiple onChange={(e) => onChangeFile
-                                        (e, '/api/category/upload')} name="images" />
-                                    <div className='info'>
-                                        <FaRegImages />
-                                        <h5>image upload</h5>
-                                    </div>
+                                    {uploading === true ?
+                                        <div className="progressBar text-center d-flex align-items-center justify-content-center flex-column">
+                                            <CircularProgress />
+                                            <span>Uploading...</span>
+                                        </div>
+                                        :
+                                        <>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                onChange={(e) => onChangeFile(e, '/api/category/upload')}
+                                                name="images"
+                                            />
+                                            <div className='info'>
+                                                <FaRegImages />
+                                                <h5>Image Upload</h5>
+                                            </div>
+                                        </>
+                                    }
                                 </div>
-
                             </div>
-
-                            <br />
-                            <Button type="submit" className="btn-blue btn-lg btn-big w-100"
-
-                            ><FaCloudUploadAlt /> &nbsp;
-                                {
-                                    isLoading === true ?
-                                        <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
-                                }</Button>
                         </div>
 
+
+
+
+
+
+                        <br />
+                        <Button type="submit" className="btn-blue btn-lg btn-big w-100"
+
+                        ><FaCloudUploadAlt /> &nbsp;
+                            {
+                                isLoading === true ?
+                                    <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
+                            }</Button>
                     </div>
+
                 </div>
+
             </form >
             <br />
             <br />

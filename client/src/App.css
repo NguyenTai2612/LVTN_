@@ -333,7 +333,7 @@ nav .navPart1 .catWrapper .sidebarNav {
   top: 136%;
   left: 0px;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 0px 0px;
+  padding: 0px 10px;
   transition: all 0.2s;
   visibility: hidden;
   z-index: 100;
@@ -478,14 +478,15 @@ nav .navPart2 ul li .submenu a button:hover{background: #2bbef9 !important;}
 
 nav .navPart2 ul li:hover .submenu{opacity: 1; visibility: inherit; top: 100%;}
 
-.pageBottomRightBannerContainer {
+/* .pageBottomRightBannerContainer {
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
   width: 100%;
-  padding: 20px; /* Optional: Add padding to space out from other content */
-}
+  padding: 0px; 
+  margin-top: -12px;} */
 
+/* 111 */
 .pageBottomRightBannerSection {
   width: 100%; /* Adjust width as needed */
   max-width: 1000px; /* Max width for larger banner */
@@ -524,15 +525,16 @@ nav .navPart2 ul li:hover .submenu{opacity: 1; visibility: inherit; top: 100%;}
 }
 
 .pageBottomRightBannerSection .item img {
-  width: 83%; /* Increased width for larger images */
-  height: 300px; /* Fixed height */
+  width: 100%; /* Increased width for larger images */
+  height: 350px; /* Fixed height */
   object-fit: cover;
-  margin-left: 66px;
+  margin-left: 20px;
+  /* margin-left: 66px; */
 }
 
 
 .homeProducts {
-  padding: 25px 0;
+  padding: 0px 0px;
   width: 100%;
 }
 
@@ -556,6 +558,9 @@ nav .navPart2 ul li:hover .submenu{opacity: 1; visibility: inherit; top: 100%;}
 
 
 
+
+
+
 .viewAllBtn{padding: 5px 20px !important; background: #fff; border: 1px solid rgba(0, 0, 0, 0.1) !important;
 border-radius: 30px !important; color: #4d4747 !important; font-weight: 600; 
 text-transform: capitalize !important;}
@@ -564,8 +569,7 @@ text-transform: capitalize !important;}
 .viewAllBtn svg{font-style: 20px; }
 
 
-.productItem{width: 100%; height: auto; border: 1px solid rgba(0, 0, 0, 0.1); cursor: pointer; 
-position: relative;}
+
 
 .productItem .badge{display: inline-block; padding: 10px 9px; position: absolute; top: 0px; 
 left: 0px; z-index: 100; background: #A70000 !important; color: white !important; font-weight: normal; 
@@ -663,6 +667,48 @@ font-size:medium;}
 
 
 
+.product_row .productItem {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* Ensures borders and padding are included in the width/height */
+  padding: 15px;
+  background-color: #fff;
+  margin-right: 10px; /* Spacing between products */
+  overflow: hidden; /* Ensures content doesn't overflow the border */
+  transition: box-shadow 0.3s ease;
+}
+
+.product_row .productItem:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.1); /* Keep the border consistent */
+  transition: transform 0.3s ease;
+
+}
+
+.product_row .productContent {
+  transition: transform 0.3s ease;
+}
+
+.product_row .productItem:hover .productContent {
+  transform: scale(1.05); /* Enlarge the content slightly on hover */
+}
+
+.product_row .productItem img {
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.product_row .productItem:hover img {
+  transform: scale(1.05);
+}
+
+.product_row .swiper-slide {
+  padding-right: 10px; /* Ensure spacing between slides */
+}
+
+.productItem{width: 100%; height: auto; border: 1px solid rgba(0, 0, 0, 0.1); cursor: pointer; 
+  position: relative;}
+
 .productItem .info{padding: 15px;}
 .productItem .info h4{font-size: 16px; font-weight: 600;}
 .info .oldPrice{font-size: 15px; font-weight: 400 ; color: rgba(0, 0, 0, 0.7);
@@ -675,7 +721,7 @@ text-decoration: line-through; margin-bottom: 0rem;}
   position: relative;
   border: 1px solid rgba(0, 0, 0, 0.2) !important;
   transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
-  will-change: transform, box-shadow;
+
 }
 
 .productItem:hover {
@@ -692,7 +738,7 @@ text-decoration: line-through; margin-bottom: 0rem;}
   flex-direction: column;
   gap: 10px;
   opacity: 0;
-  transition: opacity 0.2s ease-in-out, right 0.2s ease-in-out;
+  transition: opacity 0.0s ease-in-out, right 0.0s ease-in-out;
 }
 
 .productItem .actions button {
@@ -706,7 +752,6 @@ text-decoration: line-through; margin-bottom: 0rem;}
   border-radius: 50% !important;
   background: #fff !important;
   box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%) !important;
-  transition: background 0.2s ease-in-out;
 }
 
 .productItem .actions button svg {
@@ -747,8 +792,7 @@ text-decoration: line-through; margin-bottom: 0rem;}
 
 
 
-.product_row .productItem{border-right: 1px solid transparent !important;}
-.product_row  .swiper-slide:last-child .productItem{ border: 1px solid rgba(0, 0, 0, 0.1) !important;}
+
 
 .swiper{padding-right: 2px !important;}
 
@@ -792,7 +836,14 @@ text-decoration: line-through; margin-bottom: 0rem;}
 }
 
 .homeCat {
-  padding: 80px 20px -1px;
+  padding: 0px 0px;
+
+  margin: 20px auto; /* Optional: Center the component and add space around it */
+  margin-left: 150px;
+  margin-right: 150px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  
 }
 
 .homeCat .container {

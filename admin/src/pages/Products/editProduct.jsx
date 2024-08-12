@@ -103,7 +103,7 @@ const EditProduct = () => {
         window.scrollTo(0, 0)
         context.setProgress(20)
         setCatData(context.catData)
-        
+
 
         fetchDataFromApi(`/api/products/${id}`).then((res) => {
 
@@ -352,7 +352,7 @@ const EditProduct = () => {
             })
 
             setIsLoading(false)
-   
+
             history('/product/list')
 
 
@@ -368,14 +368,16 @@ const EditProduct = () => {
                     <div className='ml-auto flex items-center gap-3'>
                         <Breadcrumbs aria-label="breadcrumb">
                             <StyledBreadcrumb
-                                component="a"
+                                component={Link}
                                 href="#"
-                                label="Home"
+                                label="Dashboard"
+                                to="/"
                                 icon={<HomeIcon fontSize="small" />}
                             />
-                            <StyledBreadcrumb component="a" href="#" label="Product" />
+                            <StyledBreadcrumb component={Link} href="#" label="Product" to='http://localhost:5173/product/list' />
+
                             <StyledBreadcrumb
-                                label="Create"
+                                label="Edit Product"
                             />
                         </Breadcrumbs>
                     </div>

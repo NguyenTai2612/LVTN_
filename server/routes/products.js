@@ -35,7 +35,7 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-// POST 
+// POST
 router.post(`/upload`, upload.array("images"), async (req, res) => {
   let images;
 
@@ -44,14 +44,14 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
 
     if (product) {
       images = product.images;
-      console.log("images",images)
+      console.log("images", images);
     }
 
     if (images.length !== 0) {
       for (const image of images) {
         fs.unlinkSync(`uploads/${image}`);
       }
-      productEditId=""
+      productEditId = "";
     }
   }
 
@@ -67,37 +67,48 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
 
 // GET all products with populated category
 router.get(`/`, async (req, res) => {
-
   const page = parseInt(req.query.page) || 1;
-    const perPage = 10;
-    const totalPosts = await Product.countDocuments();
-    const totalPages = Math.ceil(totalPosts / perPage);
+  const perPage = 12;
+  const totalPosts = await Product.countDocuments();
+  const totalPages = Math.ceil(totalPosts / perPage);
 
-    if (page > totalPages) { return res.status(404).json({ message: "Page not found" })}
+  if (page > totalPages) {
+    return res.status(404).json({ message: "Page not found" });
+  }
 
-    const productList = await Product.find().populate("category subCat")
-    .skip((page - 1) * perPage)     
+  const productList = await Product.find()
+    .populate("category subCat")
+    .skip((page - 1) * perPage)
     .limit(perPage)
     .exec();
 
-    if(!productList){
-      res.status(500).json({ success: false })
-    }
+  if (!productList) {
+    res.status(500).json({ success: false });
+  }
 
- 
-    return res.status(200).json({
-      "products":productList,     
-      "totalPages": totalPages,     
-      "page": page    
-    });
+  return res.status(200).json({
+    products: productList,
+    totalPages: totalPages,
+    page: page,
+  });
 
-    res.send(productList)
+  res.send(productList);
+});
+
+router.get(`/featured`, async (req, res) => {
+  const productList = await Product.find({ isFeatured: true });
+
+  if (!productList) {
+    res.status(500).json({ success: false });
+  }
+
+  return res.status(200).json(productList);
 });
 
 // GET id
 router.get("/:id", async (req, res) => {
   try {
-    productEditId = req.params.id
+    productEditId = req.params.id;
 
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -199,7 +210,6 @@ router.put("/:id", async (req, res) => {
       const [day, month, year] = req.body.dateCreated.split("-");
       req.body.dateCreated = new Date(year, month - 1, day);
     }
-
 
     // Update the product
     const product = await Product.findByIdAndUpdate(

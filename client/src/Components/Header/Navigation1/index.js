@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import { IoIosMenu } from "react-icons/io";
 import { Link } from "react-router-dom";
+import HomeBanner from "../../HomeBanner/index.js";
 
 const Navigation = () => {
   const [isOpenSidebarNav, setIsOpenSidebarNav] = useState(true);
@@ -24,7 +25,7 @@ const Navigation = () => {
     <nav>
       <div className="container">
         <div className="row">
-          <div className="col-sm-2 navPart1 mt-1">
+          <div className="col-sm-3 navPart1 mt-1">
             <div className="catWrapper">
               <Button className="allCatTab align-items-center" onClick={() => setIsOpenSidebarNav(!isOpenSidebarNav)}>
                 <span className="icon1 mr-2">
@@ -56,6 +57,10 @@ const Navigation = () => {
               </div>
             </div>
           </div>
+          <div className="col-sm-9 navPart2 mt-1">
+            <HomeBanner />
+          </div>
+
         </div>
       </div>
     </nav>

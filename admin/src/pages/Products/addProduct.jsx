@@ -10,7 +10,7 @@ import { FaCloudUploadAlt, FaRegImages } from 'react-icons/fa';
 import { fetchDataFromApi, postData } from '../../utils/api';
 import { MyContext } from '../../App';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
@@ -131,7 +131,7 @@ const ProductUpload = () => {
     const productImages = useRef()
 
 
-  
+
 
     const inputChange = (e) => {
         setFormFields(() => ({
@@ -147,11 +147,11 @@ const ProductUpload = () => {
             const imgArr = [];
             const files = e.target.files;
             const formData = new FormData();
-    
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const fileType = file.type;
-    
+
                 if (fileType === 'image/jpeg' || fileType === 'image/jpg' || fileType === 'image/png') {
                     imgArr.push(file);
                     formData.append('images', file);
@@ -164,16 +164,16 @@ const ProductUpload = () => {
                     return; // Exit if an invalid file is encountered
                 }
             }
-    
+
             if (imgArr.length > 0) {
                 setFiles(imgArr);
                 setImgFiles(e.target.files);
                 setIsSelectedFiles(true);
                 console.log(imgArr);
-    
+
                 // Perform the upload
                 await postData(apiEndPoint, formData);
-    
+
                 context.setAlertBox({
                     open: true,
                     error: false,
@@ -213,7 +213,7 @@ const ProductUpload = () => {
             return false
         }
 
-      
+
 
         if (formFields.description === "") {
             context.setAlertBox({
@@ -333,7 +333,7 @@ const ProductUpload = () => {
             //     images: [],
             // })
             history('/product/list')
-            
+
 
         })
     }
@@ -347,12 +347,14 @@ const ProductUpload = () => {
                     <div className='ml-auto flex items-center gap-3'>
                         <Breadcrumbs aria-label="breadcrumb">
                             <StyledBreadcrumb
-                                component="a"
+                                component={Link}
                                 href="#"
-                                label="Home"
+                                label="Dashboard"
+                                to="/"
                                 icon={<HomeIcon fontSize="small" />}
                             />
-                            <StyledBreadcrumb component="a" href="#" label="Product" />
+                            <StyledBreadcrumb component={Link} href="#" label="Product" to='http://localhost:5173/product/list' />
+
                             <StyledBreadcrumb
                                 label="Create"
                             />
@@ -407,7 +409,7 @@ const ProductUpload = () => {
                                         </FormControl>
                                     </div>
                                 </div>
-                                                      
+
                                 <div className='col-md-4 col_'>
                                     <h4>Sub Category</h4>
                                     <div className='form-group'>
@@ -481,7 +483,7 @@ const ProductUpload = () => {
                             </div>
 
                             <div className='row'>
-                            <div className='col-md-4 col_'>
+                                <div className='col-md-4 col_'>
                                     <h4>Brand</h4>
                                     <div className='form-group'>
                                         <input type='text'

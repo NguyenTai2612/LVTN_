@@ -18,6 +18,7 @@ import { fetchDataFromApi } from './utils/api.js'
 import SubCatAdd from './pages/Category/addSubCat.jsx'
 import SubCatList from './pages/Category/subCategoryList.jsx'
 import EditSubCategory from './pages/Category/editSubCat.jsx'
+import ProductDetails from './pages/Products/productDetails.jsx'
 
 const MyContext = createContext()
 
@@ -116,6 +117,7 @@ function App() {
                 <Route path='/' exact={true} element={<Dashboard />} />
                 <Route path='/product/list' exact={true} element={<ProductList />} />
                 <Route path='/product/upload' exact={true} element={<ProductUpload />} />
+                <Route path='/product/detail/:id' exact={true} element={<ProductDetails />} />
                 <Route path='/product/edit/:id' exact={true} element={<EditProduct />} />
                 <Route path='/category' exact={true} element={<CategoryList />} />
                 <Route path='/category/add' exact={true} element={<CategoryAdd />} />

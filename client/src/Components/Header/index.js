@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { FiUser } from "react-icons/fi";
 import { IoBagOutline } from "react-icons/io5";
-import Navigation from "./Navigation";
+import Navigation from "./Navigation1";
 import { MyContext } from "../../App";
 import { useContext } from "react";
 import { CiSearch } from "react-icons/ci";

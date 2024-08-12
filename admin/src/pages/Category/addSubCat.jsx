@@ -7,7 +7,7 @@ import { MyContext } from '../../App';
 import { Button, CircularProgress, FormControl, MenuItem, Select } from '@mui/material';
 import { FaCloudUploadAlt } from 'react-icons/fa';
 import { postData } from '../../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   const backgroundColor =
@@ -83,7 +83,7 @@ const addSubCat = () => {
     postData('/api/subCat/create', formFields).then(res => {
       setIsLoading(false)
       history('/subCategory')
-  })
+    })
   }
 
   return (
@@ -95,14 +95,15 @@ const addSubCat = () => {
           <div className='ml-auto flex items-center gap-3'>
             <Breadcrumbs aria-label="breadcrumb">
               <StyledBreadcrumb
-                component="a"
+                component={Link}
                 href="#"
-                label="Sub Category"
+                label="Dashboard"
+                to="/"
                 icon={<HomeIcon fontSize="small" />}
               />
-              <StyledBreadcrumb component="a" href="#" label="Category" />
+              <StyledBreadcrumb component={Link} href="#" label="Sub Category" to='http://localhost:5173/subCategory' />
               <StyledBreadcrumb
-                label="Add Category"
+                label="Add Sub Category"
               />
             </Breadcrumbs>
           </div>
@@ -124,7 +125,7 @@ const addSubCat = () => {
                     labelId="demo-select-small-label"
                     className="w-100"
                     name='category'
-                    >
+                  >
                     <MenuItem value=""> <em value={null}>None</em>
                     </MenuItem>
                     {

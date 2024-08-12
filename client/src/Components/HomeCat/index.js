@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -11,6 +11,7 @@ import amplifi from "../../assets/images/amplifi.png";
 import uklele from "../../assets/images/uklele.png"; 
 import sao from "../../assets/images/sao.png"; 
 import dan_toc from "../../assets/images/dan_toc.png"; 
+import { fetchDataFromApi } from "../../utils/api";
 
 const images = [
   { src: guitar, title: "Guitar" },
@@ -24,7 +25,9 @@ const images = [
   // add more objects for other images
 ];
 
-const HomeCat = () => {
+const HomeCat = (props) => {
+
+
   return (
     <section className="homeCat">
       <div className="container">
@@ -36,13 +39,13 @@ const HomeCat = () => {
           modules={[Navigation]}
           className="mySwiper"
         >
-          {images.map((image, index) => (
+          {props.catData?.categoryList?.length!==0 && props.catData?.categoryList?.map((cat, index) => (
             <SwiperSlide key={index}>
               <div className="item_cat text-center cursor">
                 <div className="image-container">
-                  <img src={image.src} alt={image.title} className="guitar-icon" />
+                  <img src={cat.images[0]}  className="guitar-icon" />
                 </div>
-                <h6>{image.title}</h6>
+                <h6>{cat.name}</h6>
               </div>
             </SwiperSlide>
           ))}
