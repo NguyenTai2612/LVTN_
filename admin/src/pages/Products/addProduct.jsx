@@ -3,7 +3,7 @@ import { emphasize, styled } from '@mui/material/styles';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import HomeIcon from '@mui/icons-material/Home';
-import { FormControl, MenuItem, Select } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
 import Button from '@mui/material/Button';
 import Rating from '@mui/material/Rating';
 import { FaCloudUploadAlt, FaRegImages } from 'react-icons/fa';
@@ -11,8 +11,8 @@ import { fetchDataFromApi, postData } from '../../utils/api';
 import { MyContext } from '../../App';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Link, useNavigate } from 'react-router-dom'
-
-
+import { CiEdit } from "react-icons/ci";
+import { FaDeleteLeft } from "react-icons/fa6";
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor =
         theme.palette.mode === 'light'
@@ -72,8 +72,53 @@ const ProductUpload = () => {
         countInStock: null,
         rating: 0,
         isFeatured: null,
-
+        discount: 0,
+        specifications: {}
     });
+
+    const handleDeleteSpecification = (name) => {
+        const updatedSpecifications = { ...formFields.specifications };
+        delete updatedSpecifications[name];
+        setFormFields({ ...formFields, specifications: updatedSpecifications });
+    };
+
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [newSpecName, setNewSpecName] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentSpecName, setCurrentSpecName] = useState('');
+    const [newSpecValue, setNewSpecValue] = useState('');
+    const handleAddSpecification = () => {
+        setIsEditing(false);
+        setOpenDialog(true);
+    };
+
+    const handleDialogClose = () => {
+        setOpenDialog(false);
+        setIsEditing(false);
+        setNewSpecName('');
+        setNewSpecValue('');
+    };
+
+    const handleSaveSpecification = () => {
+        const updatedSpecifications = { ...formFields.specifications };
+
+        if (isEditing) {
+            delete updatedSpecifications[currentSpecName]; // Remove the old key if the name has changed
+        }
+
+        updatedSpecifications[newSpecName] = newSpecValue;
+        setFormFields({ ...formFields, specifications: updatedSpecifications });
+        handleDialogClose();
+    };
+
+    const handleEditSpecification = (name, value) => {
+        setCurrentSpecName(name);
+        setNewSpecName(name);
+        setNewSpecValue(value);
+        setIsEditing(true);
+        setOpenDialog(true);
+    };
 
     useEffect(() => {
         if (!imgFiles) return
@@ -100,6 +145,11 @@ const ProductUpload = () => {
         setSubCatData(context.subCatData)
     }, [])
 
+
+  
+
+
+   
 
     const handleChangeCategory = (event) => {
         setCategoryVal(event.target.value)
@@ -140,7 +190,7 @@ const ProductUpload = () => {
         }))
     }
 
-    const formdata = new FormData()
+    const formData = new FormData()
 
     const onChangeFile = async (e, apiEndPoint) => {
         try {
@@ -193,16 +243,17 @@ const ProductUpload = () => {
     const addProduct = (e) => {
         e.preventDefault()
 
-        formdata.append('name', formFields.name);
-        formdata.append('description', formFields.description);
-        formdata.append('brand', formFields.brand);
-        formdata.append('price', formFields.price);
-        formdata.append('oldPrice', formFields.oldPrice);
-        formdata.append('category', formFields.category);
-        formdata.append('subCat', formFields.subCat);
-        formdata.append('countInStock', formFields.countInStock);
-        formdata.append('rating', formFields.rating);
-        formdata.append('isFeatured', formFields.isFeatured);
+        formData.append('name', formFields.name);
+        formData.append('description', formFields.description);
+        formData.append('brand', formFields.brand);
+        formData.append('price', formFields.price);
+        formData.append('oldPrice', formFields.oldPrice);
+        formData.append('category', formFields.category);
+        formData.append('subCat', formFields.subCat);
+        formData.append('countInStock', formFields.countInStock);
+        formData.append('rating', formFields.rating);
+        formData.append('isFeatured', formFields.isFeatured);
+        formData.append('specifications', JSON.stringify(formFields.specifications));
 
         if (formFields.name === "") {
             context.setAlertBox({
@@ -490,6 +541,15 @@ const ProductUpload = () => {
                                             value={formFields.brand} className='input' name='brand' onChange={inputChange} />
                                     </div>
                                 </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Discount</h4>
+                                    <div className='form-group'>
+                                        <input type='text' value={formFields.discount} className='input' name='discount' onChange={inputChange} />
+                                    </div>
+                                </div>
+
+
                                 <div className='col-md-4 col_'>
                                     <h4>Rating</h4>
                                     <div className='form-group'>
@@ -509,6 +569,77 @@ const ProductUpload = () => {
                                     </div>
                                 </div>
                             </div>
+
+
+                            <div className='row'>
+                                <div className='col-md-12 col_ specifications-container'>
+                                    <h4>Specifications</h4>
+                                    <table className="specification-table">
+                                        <tbody>
+                                            {Object.entries(formFields.specifications).map(([key, value], index) => (
+                                                <tr key={index}>
+                                                    <th>{key}</th>
+                                                    <td>{value}</td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            className="edit-specification-btn "
+                                                            onClick={() => handleEditSpecification(key, value)}
+                                                        >
+                                                            <CiEdit />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="delete-specification-btn ml-3"
+                                                            onClick={() => handleDeleteSpecification(key)}
+                                                        >
+                                                            <FaDeleteLeft />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <button type="button" className="add-specification-btn" onClick={handleAddSpecification}>
+                                        Add Specification
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            {/* Modal for Adding Specification */}
+                            <Dialog open={openDialog} onClose={handleDialogClose}>
+                                <DialogTitle>{isEditing ? 'Edit Specification' : 'Add Specification'}</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        autoFocus
+                                        margin="dense"
+                                        label="Specification Name"
+                                        fullWidth
+                                        variant="outlined"
+                                        value={newSpecName}
+                                        onChange={(e) => setNewSpecName(e.target.value)}
+                                    />
+                                    <TextField
+                                        margin="dense"
+                                        label="Specification Value"
+                                        fullWidth
+                                        variant="outlined"
+                                        value={newSpecValue}
+                                        onChange={(e) => setNewSpecValue(e.target.value)}
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleDialogClose} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={handleSaveSpecification} color="primary">
+                                        Save
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+
+
                         </div>
                     </div>
                 </div>
@@ -551,21 +682,7 @@ const ProductUpload = () => {
                 </div>
 
 
-                {/* <div className='col-sm-3'>
-                        <div className='stickyBox'>
-                            {productImagesArr?.length !== 0 && <h4>Product Images</h4>}
 
-                            <div className='imgGrid d-flex'>
-                                {productImagesArr?.map((item, index) => {
-                                    return (
-                                        <div className='img' key={index}>
-                                            <img className='w-100' alt='image' src={item} />
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                    </div> */}
                 <br />
                 <br />
                 <br />

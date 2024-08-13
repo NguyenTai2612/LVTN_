@@ -47,12 +47,12 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
       console.log("images", images);
     }
 
-    if (images.length !== 0) {
-      for (const image of images) {
-        fs.unlinkSync(`uploads/${image}`);
-      }
-      productEditId = "";
-    }
+    // if (images.length !== 0) {
+    //   for (const image of images) {
+    //     fs.unlinkSync(`uploads/${image}`);
+    //   }
+    //   productEditId = "";
+    // }
   }
 
   imagesArr = [];
@@ -136,8 +136,8 @@ router.post(`/create`, async (req, res) => {
       const [day, month, year] = req.body.dateCreated.split("-");
       req.body.dateCreated = new Date(year, month - 1, day);
     }
-
-    // Create a new product
+    const specifications = req.body.specifications || {};
+    // Create a new product11111
     let product = new Product({
       name: req.body.name,
       subCat: req.body.subCat,
@@ -150,6 +150,8 @@ router.post(`/create`, async (req, res) => {
       countInStock: req.body.countInStock,
       rating: req.body.rating,
       isFeatured: req.body.isFeatured,
+      discount: req.body.discount,
+      specifications: specifications,
     });
 
     product = await product.save();
@@ -226,6 +228,7 @@ router.put("/:id", async (req, res) => {
         countInStock: req.body.countInStock,
         rating: req.body.rating,
         isFeatured: req.body.isFeatured,
+        specifications: req.body.specifications || {},
       },
       { new: true }
     );

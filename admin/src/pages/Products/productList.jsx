@@ -252,7 +252,7 @@ const ProductList = () => {
                                             <td>
                                                 <div className='flex items-center gap-5 w-[300px]'>
                                                     <div className='imgWrapper shadow overflow-hidden w-[25%] h-[25%] rounded-md'>
-                                                        <img src={`${context.baseUrl}/uploads/${item?.images[0]}`} className='w-100' />
+                                                        <img src={`http://localhost:4000/uploads/${item?.images[0]}`} className='w-100' />
                                                     </div>
 
                                                     <div className='info w-[75%]'>

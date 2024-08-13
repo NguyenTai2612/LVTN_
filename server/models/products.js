@@ -5,7 +5,6 @@ const productSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-
   description: {
     type: String,
     required: true,
@@ -16,12 +15,10 @@ const productSchema = mongoose.Schema({
       required: true,
     },
   ],
-
   brand: {
     type: String,
     default: "",
   },
-
   price: {
     type: Number,
     default: 0,
@@ -40,26 +37,29 @@ const productSchema = mongoose.Schema({
     ref: "SubCategory",
     required: true,
   },
-
   countInStock: {
     type: Number,
     required: true,
   },
-
   rating: {
     type: Number,
     default: 0,
   },
-
-
   isFeatured: {
     type: Boolean,
     default: false,
   },
-
+  discount: {
+    type: Number,
+    required: true,
+  },
   dateCreated: {
     type: Date,
     default: Date.now,
+  },
+  specifications: {
+    type: Map,
+    of: String,
   },
 });
 
@@ -72,3 +72,5 @@ productSchema.set("toJSON", {
 });
 
 exports.Product = mongoose.model("Product", productSchema);
+
+// 11111
