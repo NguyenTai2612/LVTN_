@@ -99,7 +99,8 @@ color:#000; }
 
 /* Đặt lại kiểu mặc định cho các nút */
 .swiper-button-prev, .swiper-button-next {
-  background-color: silver; /* Đặt nền trong suốt */
+  background-color: rgba(0, 0, 0, 0.5); /* Màu nền khi hover */
+
   border-radius: 50%; /* Bo tròn nút */
   width: 40px !important; /* Chiều rộng */
   height: 40px !important; /* Chiều cao */
@@ -112,8 +113,9 @@ color:#000; }
 /* Đặt kích thước cho SVG bên trong các nút */
 .swiper-button-prev::after, .swiper-button-next::after {
   font-size: 20px !important; /* Kích thước của SVG */
-  color: white !important; /* Màu của SVG */
   transition: color 0.3s;
+  color: yellow !important; /* Màu của SVG khi hover */
+
 }
 
 /* Đặt kích thước cụ thể cho các SVG nếu cần */
@@ -125,12 +127,14 @@ color:#000; }
 
 /* Thêm hiệu ứng khi hover */
 .swiper-button-prev:hover, .swiper-button-next:hover {
-  background-color: rgba(0, 0, 0, 0.5); /* Màu nền khi hover */
+  background-color: rgba(228, 222, 222, 0.658); /* Đặt nền trong suốt */
+
   transform: scale(1.1); /* Phóng to khi hover */
 }
 
 .swiper-button-prev:hover::after, .swiper-button-next:hover::after {
-  color: yellow !important; /* Màu của SVG khi hover */
+  color: rgb(8, 8, 8) !important; /* Màu của SVG */
+
 }
 
 /* Đặt lại vị trí nếu cần */
@@ -897,17 +901,14 @@ text-decoration: line-through; margin-bottom: 0rem;}
 /* guitar header  */
 
 .guitar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 10px 20px;
   background-color: #E6E6E6;
   border-bottom: 1px solid #ddd;
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight:bold;
   color: #a00;
 }
 
@@ -930,21 +931,58 @@ text-decoration: line-through; margin-bottom: 0rem;}
   color: #555;
   text-decoration: none;
 }
-
 .homeCat {
-  padding: 0px 0px;
-
-  margin: 20px auto; /* Optional: Center the component and add space around it */
-  margin-left: 150px;
-  margin-right: 150px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  
+  padding: 0;
+  margin: 20px auto;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .homeCat .container {
   width: 100%;
 }
+
+.item_cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f2f2f2;
+  padding: 10px;
+  border-radius: 8px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  text-align: center;
+  width: 80px; /* Fix the width to ensure uniform size */
+  height: 100px; /* Fix the height to ensure uniform size */
+}
+
+.item_cat:hover {
+  transform: translateY(-5px);
+  background-color: #dcdcdc;
+}
+
+.item_cat .image-container img {
+  width: 50px; /* Resize image to fit within the smaller container */
+  height: auto;
+}
+
+.item_cat h6 {
+  margin-top: 2px;
+  font-size: 15px; /* Adjust font size for readability in smaller container */
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.item_cat:hover h6 {
+  white-space: normal; /* Allow text to wrap on hover if needed */
+  font-size: 11px; /* Slightly smaller font on hover */
+}
+
 
 .mySwiper {
   padding: 20px 0;
@@ -965,21 +1003,7 @@ text-decoration: line-through; margin-bottom: 0rem;}
   transform: translateY(-5px);
 }
 
-.item_cat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #E6E6E6;
-  padding: 5px;
-  border-radius: 5px;
-  transition: transform 0.3s ease;
-}
 
-.item_cat:hover {
-  transform: translateY(-5px);
-  background-color: #E6E6E6;
-}
 
 .guitar-icon {
   width: 40px;
@@ -1715,3 +1739,8 @@ font-size: 14px;}
 
   .signUpPage .box{width: 500px;}
   
+  .filterTabs .item{display: flex; align-items: center; justify-content: center; padding: 5px
+
+15px; text-transform:capitalize; cursor: pointer; transition: all 0.2s; font-size: 13px;
+
+font-weight: 700 !important;}

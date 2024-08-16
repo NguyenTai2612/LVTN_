@@ -73,7 +73,7 @@ router.post('/upload', upload.array("images"), async (req, res) => {
 router.get(`/`, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const perPage = parseInt(req.query.perPage) || 10; // Allow perPage to be set via query
+    const perPage = parseInt(req.query.perPage) || 16; // Allow perPage to be set via query
     const totalPosts = await Category.countDocuments();
     const totalPages = Math.ceil(totalPosts / perPage);
 

@@ -247,7 +247,7 @@ const ProductList = () => {
                             {
                                 productList?.products?.length !== 0 && productList?.products?.map((item, index) => {
                                     return (
-                                        <tr>
+                                        <tr key={index}>
                                             <td><Checkbox {...label} size='small' checked={isAllChecked} /></td>
                                             <td>
                                                 <div className='flex items-center gap-5 w-[300px]'>
@@ -266,8 +266,8 @@ const ProductList = () => {
                                             <td>{item?.brand}</td>
                                             <td>
                                                 <div className='w-[90px]'>
-                                                    <del class="old">{item.oldPrice} VND</del>
-                                                    <span class="new text-danger">{item.price} VND</span>
+                                                    <del className="old">{item.oldPrice} VND</del>
+                                                    <span className="new text-danger">{item.price} VND</span>
                                                 </div>
                                             </td>
                                             <td>{item?.countInStock}</td>

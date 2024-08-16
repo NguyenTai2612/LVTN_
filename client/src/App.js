@@ -29,11 +29,14 @@ function App() {
   const [productData, setProductData] = useState();
   const [categoryData, setCategoryData] = useState([]);
   const [subCategoryData, setSubCategoryData] = useState([]);
+  const [activeCat, setActiveCat] = useState("");
 
   useEffect(()=>{
 
     fetchDataFromApi(`/api/category`).then((res) => {
       setCategoryData(res.categoryList);
+      setActiveCat(res.categoryList[0]?.name)
+     
     });
 
     fetchDataFromApi(`/api/subCat`).then((res) => {
@@ -66,6 +69,8 @@ function App() {
     setCategoryData,
     subCategoryData,
     setSubCategoryData,
+    activeCat,
+    setActiveCat,
 
   };
   return (

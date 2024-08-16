@@ -286,12 +286,11 @@ const ProductUpload = () => {
 
 
         if (formFields.name !== "" || formFields.color !== "" || previews.length !== 0) {
-            setIsLoading(true);
             setIsSelectedFiles(true)
 
             try {
+                setIsLoading(true);
                 await postData(`/api/products/create`, formFields);
-                setIsLoading(false);
                 await deleteData("/api/imageUpload/deleteAllImages");
                 history('/product/list');
             } catch (error) {
@@ -301,6 +300,9 @@ const ProductUpload = () => {
                     error: true,
                     msg: 'Failed to add product.'
                 });
+            }
+            finally {
+                setIsLoading(false);
             }
         } else {
             context.setAlertBox({
@@ -616,13 +618,10 @@ const ProductUpload = () => {
                         </div>
 
                         <br />
-                        <Button type="submit" className="btn-blue btn-lg btn-big w-100"
-
-                        ><FaCloudUploadAlt /> &nbsp;
-                            {
-                                isLoading === true ?
-                                    <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
-                            }</Button>
+                        <Button type="submit" className="btn-blue btn-lg btn-big w-100">
+                            <FaCloudUploadAlt /> &nbsp;
+                            {isLoading ? <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'}
+                        </Button>
 
                     </div>
                 </div>
