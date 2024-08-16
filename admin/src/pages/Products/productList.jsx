@@ -252,7 +252,7 @@ const ProductList = () => {
                                             <td>
                                                 <div className='flex items-center gap-5 w-[300px]'>
                                                     <div className='imgWrapper shadow overflow-hidden w-[25%] h-[25%] rounded-md'>
-                                                        <img src={`http://localhost:4000/uploads/${item?.images[0]}`} className='w-100' />
+                                                        <img src={`${item?.images[0]}`} className='w-100' />
                                                     </div>
 
                                                     <div className='info w-[75%]'>
@@ -263,14 +263,14 @@ const ProductList = () => {
                                             </td>
                                             <td>{item.category?.name}</td>
                                             <td>{item.subCat?.subCat}</td>
-                                            <td>{item.brand}</td>
+                                            <td>{item?.brand}</td>
                                             <td>
                                                 <div className='w-[90px]'>
                                                     <del class="old">{item.oldPrice} VND</del>
                                                     <span class="new text-danger">{item.price} VND</span>
                                                 </div>
                                             </td>
-                                            <td>300</td>
+                                            <td>{item?.countInStock}</td>
                                             <td><Rating name="size-small" defaultValue={item.rating} precision={0.5} readOnly size='small' /></td>
                                             {/* <td>350</td>
                                             <td>$35k</td> */}

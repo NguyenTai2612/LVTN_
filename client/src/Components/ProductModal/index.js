@@ -9,16 +9,16 @@ import ProductZoom from "../ProductZoom";
 import QuantityBox from "../QuantityBox";
 import Button from "@mui/material/Button";
 import { FaCartPlus } from "react-icons/fa";
-
+import Price from "../Price";
 
 const ProductModal = (props) => {
   const context = useContext(MyContext);
-
+  const specifications = props?.data?.specifications || {};
   return (
     <Dialog
       className="productModal"
+      open={context.isOpenProductModal}
       onClose={() => context.setIsOpenProductModal(false)}
-      open={context.setIsOpenProductModal}
     >
       <Button
         onClick={() => context.setIsOpenProductModal(false)}
@@ -28,23 +28,26 @@ const ProductModal = (props) => {
       </Button>
 
       <div className="d-flex align-items-center">
-        <div className="d-flex align-items-center mr-4">
-          <span className="badge bg-success text-white mr-3">IN STOCK</span>
+        <div className="d-flex align-items-center mr-4 font-weight-bold">
+          <span>Thương Hiệu: &nbsp;</span>
+          <span className="badge bg-success text-white mr-3">
+            {props?.data?.brand}
+          </span>
         </div>
       </div>
 
       <div className="row mt-2 productDetailsModal">
         <div className="col-md-5">
-          <ProductZoom />
+          <ProductZoom images={props?.data?.images} />
         </div>
 
         <div className="col-md-7">
           <div className="product-details">
-            <h1>ĐÀN UKULELE VALOTE VA-24M02</h1>
+            <h1>{props?.data?.name}</h1>
             <div className="rating-review">
               <Rating
                 name="read-only"
-                value={4}
+                value={parseInt(props?.data?.rating)}
                 readOnly
                 size="small"
                 precision={0.5}
@@ -52,77 +55,41 @@ const ProductModal = (props) => {
               <span className="cursor">1 Review</span>
             </div>
 
-            <div className="price">
-              <span className="current-price">1.425.000 VNĐ</span>
-              <span className="original-price">1.500.000 VNĐ</span>
-              <span className="discount">-5%</span>
+            <div className="d-flex align-items-center mt-2">
+              <div className="d-flex align-items-center mr-4">
+                <span className="badge bg-success text-white mr-3">
+                  IN STOCK
+                </span>
+              </div>
             </div>
-            <div className="d-flex align-items-center mt-3 mb-3">
+
+            <div className="price">
+              <span className="current-price"><Price amount={props?.data?.price} /></span>
+              <span className="original-price"><Price amount={props?.data?.oldPrice} /></span>
+              <span className="discount font-weight-bold">-{props?.data?.discount} %</span>
+            </div>
+
+            <div className="d-flex align-items-center mb-3">
               <QuantityBox />
-              <Button className="btn-add-to-cart ml-3"><FaCartPlus/> &nbsp; Add to Cart</Button>
+              &nbsp;
+              &nbsp;
+              &nbsp;
+              &nbsp;
+              <Button className="btn-add-to-cart mr-auto">
+             
+                <FaCartPlus /> &nbsp; Add to Cart
+              </Button>
             </div>
             <div className="details-table">
+              <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6>
               <table>
-                <tbody>
-                  <tr>
-                    <th>Thương hiệu</th>
-                    <td>Valote</td>
-                  </tr>
-                  <tr>
-                    <th>Model</th>
-                    <td>VA-24M02</td>
-                  </tr>
-                  <tr>
-                    <th>Phân loại</th>
-                    <td>Concert</td>
-                  </tr>
-                  <tr>
-                    <th>Số phím</th>
-                    <td>18 phím</td>
-                  </tr>
-                  <tr>
-                    <th>Kích thước</th>
-                    <td>24</td>
-                  </tr>
-                  <tr>
-                    <th>Mặt trước</th>
-                    <td>Gỗ Vân Sam nguyên tấm</td>
-                  </tr>
-                  <tr>
-                    <th>Mặt sau/ bên</th>
-                    <td>Gỗ Gụ</td>
-                  </tr>
-                  <tr>
-                    <th>Mặt phím đàn</th>
-                    <td>Gỗ Hồng Sắc</td>
-                  </tr>
-                  <tr>
-                    <th>Dây</th>
-                    <td>Nylon</td>
-                  </tr>
-                  <tr>
-                    <th>Ưu điểm</th>
-                    <td>
-                      <ul>
-                        <li>
-                          Ukulele Concert, gỗ <b>Vân sam Solid nguyên tấm</b>
-                        </li>
-                        <li>Màu gỗ tự nhiên, đẹp, hiện đại</li>
-                        <li>Âm sắc sáng, trong trẻo và độ vang đều</li>
-                        <li>Dễ chơi, dễ học, giá tốt</li>
-                        <li>Nhỏ gọn, có thể mang đi bất cứ đâu</li>
-                        <li>Dây mềm, bấm không đau tay</li>
-                      </ul>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>Màu sắc</th>
-                    <td>Tự nhiên</td>
-                  </tr>
-                  <tr>
-                    <th>Quà tặng</th>
-                    <td>Bao đàn Valote</td>
-                  </tr>
+              <tbody>
+                  {Object.entries(specifications).map(([key, value], index) => (
+                    <tr key={index}>
+                      <th>{key}</th>
+                      <td>{value}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

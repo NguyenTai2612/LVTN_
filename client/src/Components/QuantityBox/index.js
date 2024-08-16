@@ -17,7 +17,7 @@ const QuantityBox = () => {
     <div>
       <div className="quantity-selector d-flex align-items-center">
         <Button
-          className="quantity-button"
+          className="quantity-button font-weight-bold"
           onClick={decreaseQuantity}
           sx={{ minWidth: "20px", height: "20px", padding: 0 }}
         >
@@ -27,7 +27,7 @@ const QuantityBox = () => {
           type="text"
           value={quantity}
           readOnly
-          className="quantity-input"
+          className="quantity-input font-weight-bold"
           style={{
             textAlign: "center",
             margin: "0 0px",
@@ -37,7 +37,7 @@ const QuantityBox = () => {
           }}
         />
         <Button
-          className="quantity-button"
+          className="quantity-button font-weight-bold"
           onClick={increaseQuantity}
           sx={{ minWidth: "20px", height: "20px", padding: 0 }}
         >

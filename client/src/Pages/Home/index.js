@@ -16,6 +16,7 @@ const Home = () => {
   const [catData, setCatData] = useState([]);
   const [productsData, setProductsData] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [fluteData, setFluteData] = useState([]);
 
   useEffect(() => {
     fetchDataFromApi("/api/category/").then((res) => {
@@ -25,11 +26,16 @@ const Home = () => {
     fetchDataFromApi(`/api/products/featured`).then((res) => {
       setFeaturedProducts(res);
     });
-  }, []);
 
-  fetchDataFromApi("/api/products/").then((res) => {
-    setProductsData(res);
-  });
+    fetchDataFromApi("/api/products?perPage=8").then((res) => {
+      setProductsData(res);
+    });
+
+    fetchDataFromApi("/api/products?perPage=8&catName=Guitar").then((res) => {
+      setFluteData(res);
+    });
+
+  }, []);
 
   const guitarLinks = [
     { text: "Guitar Takamine", href: "#" },
@@ -60,7 +66,7 @@ const Home = () => {
                   className="cursor w-100"
                   style={{ marginTop: 0 }}
                 />
-                 <img
+                <img
                   src="https://nhaccutiendat.vn/upload/images/category_banner/poster_category/dan_guitar2_danhmuc.jpg"
                   className="cursor w-100 mt-4"
                   style={{ marginTop: 0 }}
@@ -74,7 +80,6 @@ const Home = () => {
                   />
                 </div>
               </div>
-              
             </div>
 
             <div className="col-md-9 productRow">
@@ -115,7 +120,7 @@ const Home = () => {
                 {productsData?.products?.length !== 0 &&
                   productsData?.products?.map((item, index) => {
                     return (
-                      <div className="product_item">
+                      <div className="product_item_2_row ">
                         {" "}
                         <ProductItem key={index} item={item} />
                       </div>

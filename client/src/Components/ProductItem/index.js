@@ -12,11 +12,12 @@ const ProductItem = (props) => {
   const context = useContext(MyContext);
 
   const viewProductDetails = (id) => {
-    context.setIsOpenProductModal(true);
+    context.setIsOpenProductModal({
+      id:id,
+      open:true
+    });
   };
-  useEffect(() => {
-    console.log(props.item?.images);
-  }, []);
+ 
   const imageSrc = props.item?.images[0]
     ? `http://localhost:4000/uploads/${props.item.images[0]}`
     : "";
@@ -32,23 +33,21 @@ const ProductItem = (props) => {
             />
           </Link>
 
-          <span className="badge">-23 %</span>
+          <span className="badge-custom">-{props.item?.discount} %</span>
           <div className="actions">
-            <Button onClick={() => viewProductDetails(1)}>
+            <Button onClick={() => viewProductDetails(props.item?.id)}>
               <TfiFullscreen />
             </Button>
-            <Button>
-              <IoMdHeartEmpty style={{ fontSize: "20px" }} />
-            </Button>
+           
           </div>
         </div>
         <div className="info">
-          <h4>{props?.item?.name?.substr(0,30)+'...'}</h4>
-          <span className="text-success d-block">In Stock</span>
+          <h4>{props?.item?.name?.substr(0,25)+'...'}</h4>
+          <div className="d-flex align-items-center mt-2"><span className="badge bg-success text-white  d-block">In Stock</span></div>
           <Rating
             className="mt-2 mb-2"
             name="read-only"
-            value={5}
+            value={props?.item?.rating}
             readOnly
             size="small"
             precision={0.5}

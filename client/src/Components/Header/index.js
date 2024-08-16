@@ -15,12 +15,15 @@ const Header = () => {
     <div className="headerWrapper">
       <div className="header">
         <div className="container">
-          <div className="logo">
-            <img
-              src="https://nhaccutiendat.vn/upload/images/logo/logo-tiendat.png"
-              alt="Logo"
-            />
-          </div>
+          <Link to='/'>
+            <div className="logo">
+              <img
+                src="https://nhaccutiendat.vn/upload/images/logo/logo-tiendat.png"
+                alt="Logo"
+                className="w-100"
+              />
+            </div>
+          </Link>
           <div className="search-bar">
             <input type="text" placeholder="Tìm kiếm" />
             <button>
@@ -66,7 +69,7 @@ const Header = () => {
 
             <div className="cartTab">
               <div className="position-relative">
-                <IoBagOutline style={{ fontSize: "30", cursor: "pointer" }} />
+                <Link to='/cart'><IoBagOutline style={{ fontSize: "30", cursor: "pointer" }} /></Link>
                 <span className="count">1</span>
               </div>
             </div>

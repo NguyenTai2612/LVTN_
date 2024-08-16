@@ -3,12 +3,23 @@ const router = express.Router();
 const cloudinary = require("cloudinary").v2;
 const { Category } = require("../models/category");
 const { Product } = require("../models/products");
-const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { ImageUpload } = require("../models/imageUpload");
+const multer = require('multer');
+
+cloudinary.config({
+  cloud_name: process.env.cloudinary_Config_Cloud_Name,
+  api_key: process.env.cloudinary_Config_api_key,
+  api_secret: process.env.cloudinary_Config_api_secret,
+  secure: true,
+});
 
 var imagesArr = [];
 var productEditId;
+
+
+// Định nghĩa nơi lưu trữ file
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "C:/Users/Tai Nguyen/Desktop/fullstack-ecom/server/uploads");
@@ -35,64 +46,73 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-// POST
-router.post(`/upload`, upload.array("images"), async (req, res) => {
-  let images;
 
-  if (productEditId !== undefined) {
-    const product = await Product.findById(productEditId);
+// POST 1111 ok 
+router.post("/upload", upload.array("images"), async (req, res) => {
+  imagesArr = []; // Reset imagesArr here
 
-    if (product) {
-      images = product.images;
-      console.log("images", images);
+  try {
+    for (const file of req.files) {
+      const options = {
+        use_filename: true,
+        unique_filename: false,
+        overwrite: false,
+      };
+
+      const result = await cloudinary.uploader.upload(file.path, options);
+      imagesArr.push(result.secure_url);
+      fs.unlinkSync(file.path);
     }
 
-    // if (images.length !== 0) {
-    //   for (const image of images) {
-    //     fs.unlinkSync(`uploads/${image}`);
-    //   }
-    //   productEditId = "";
-    // }
+    const imagesUploaded = new ImageUpload({ images: imagesArr });
+    await imagesUploaded.save();
+    return res.status(200).json(imagesArr);
+  } catch (error) {
+    console.error("Error uploading images:", error);
+    res.status(500).json({ error: "Failed to upload images" });
   }
-
-  imagesArr = [];
-  const files = req.files;
-
-  for (let i = 0; i < files.length; i++) {
-    imagesArr.push(files[i].filename);
-  }
-
-  res.send(imagesArr);
 });
-
 // GET all products with populated category
 router.get(`/`, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const perPage = 12;
-  const totalPosts = await Product.countDocuments();
-  const totalPages = Math.ceil(totalPosts / perPage);
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10; // Default to 10 if perPage is not specified
+    const totalPosts = await Product.countDocuments();
+    const totalPages = Math.ceil(totalPosts / perPage);
 
-  if (page > totalPages) {
-    return res.status(404).json({ message: "Page not found" });
+    if (page > totalPages) {
+      return res.status(404).json({ message: "Page not found" });
+    }
+
+    let productList;
+
+    if (req.query.catName !== undefined) {
+      productList = await Product.find({ catName: req.query.catName })
+        .populate("category subCat")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+    } else {
+      productList = await Product.find()
+        .populate("category subCat")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+    }
+
+    if (!productList) {
+      return res.status(500).json({ success: false });
+    }
+
+    return res.status(200).json({
+      products: productList,
+      totalPages: totalPages,
+      page: page,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
-
-  const productList = await Product.find()
-    .populate("category subCat")
-    .skip((page - 1) * perPage)
-    .limit(perPage)
-    .exec();
-
-  if (!productList) {
-    res.status(500).json({ success: false });
-  }
-
-  return res.status(200).json({
-    products: productList,
-    totalPages: totalPages,
-    page: page,
-  });
-
-  res.send(productList);
 });
 
 router.get(`/featured`, async (req, res) => {
@@ -142,10 +162,12 @@ router.post(`/create`, async (req, res) => {
       name: req.body.name,
       subCat: req.body.subCat,
       description: req.body.description,
-      images: imagesArr, // Use the uploaded image URLs from the request
+      images: imagesArr,
       brand: req.body.brand,
       price: req.body.price,
       oldPrice: req.body.oldPrice,
+      catName: req.body.catName,
+      subCat: req.body.subCat,
       category: req.body.category,
       countInStock: req.body.countInStock,
       rating: req.body.rating,
@@ -155,7 +177,7 @@ router.post(`/create`, async (req, res) => {
     });
 
     product = await product.save();
-
+    imagesArr = [];
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({
@@ -169,21 +191,24 @@ router.post(`/create`, async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    const images = product.images;
 
-    if (images.length !== 0) {
-      for (image of images) {
-        fs.unlinkSync(`uploads/${image}`);
-      }
-    }
-
-    const deleteProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deleteProduct) {
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found!",
       });
     }
+
+    const images = product.images;
+
+    if (images.length) {
+      for (const publicId of images) {
+        await cloudinary.uploader.destroy(publicId); // Delete from Cloudinary
+      }
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
+
     res.status(200).json({
       success: true,
       message: "Product deleted!",
@@ -196,57 +221,75 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// router.post("/upload-images", upload.array("images"), async (req, res) => {
+//   let imagesArr = []; // Reset imagesArr here
+
+//   try {
+//     for (const file of req.files) {
+//       const options = {
+//         use_filename: true,
+//         unique_filename: false,
+//         overwrite: false,
+//       };
+
+//       const result = await cloudinary.uploader.upload(file.path, options);
+//       imagesArr.push(result.secure_url);
+//       fs.unlinkSync(file.path);
+//     }
+
+//     return res.status(200).json({ success: true, images: imagesArr });
+//   } catch (error) {
+//     console.error("Error uploading images:", error);
+//     res.status(500).json({ success: false, error: "Failed to upload images" });
+//   }
+// });
+
 // PUT update an existing product
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.array('images'), async (req, res) => {
   try {
-    // Check if the category exists
-    if (req.body.category) {
-      const category = await Category.findById(req.body.category);
-      if (!category) {
-        return res.status(404).send("Invalid Category!");
+    const updates = {
+      name: req.body.name,
+      subCat: req.body.subCat,
+      color: req.body.color,
+      price: req.body.price, // assuming 'price' is also part of the product update
+      description: req.body.description // add any additional fields for the product
+    };
+
+    if (req.files.length > 0) {
+      const imagesArr = [];
+      for (const file of req.files) {
+        const result = await cloudinary.uploader.upload(file.path, {
+          use_filename: true,
+          unique_filename: false,
+          overwrite: false,
+        });
+        imagesArr.push(result.secure_url); // Store the image URLs
+        fs.unlinkSync(file.path); // Delete the file locally after uploading
       }
+      updates.images = imagesArr;
     }
 
-    // Convert dateCreated from DD-MM-YYYY to a valid Date object
-    if (req.body.dateCreated) {
-      const [day, month, year] = req.body.dateCreated.split("-");
-      req.body.dateCreated = new Date(year, month - 1, day);
-    }
-
-    // Update the product
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      {
-        name: req.body.name,
-        subCat: req.body.subCat,
-        description: req.body.description,
-        images: imagesArr, // Use the uploaded image URLs
-        brand: req.body.brand,
-        price: req.body.price,
-        oldPrice: req.body.oldPrice,
-        category: req.body.category,
-        countInStock: req.body.countInStock,
-        rating: req.body.rating,
-        isFeatured: req.body.isFeatured,
-        specifications: req.body.specifications || {},
-      },
+      updates,
       { new: true }
     );
 
     if (!product) {
       return res.status(404).json({
-        success: false,
         message: "Product not found!",
+        success: false,
       });
     }
 
     res.status(200).json(product);
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
+      error: err.message,
       success: false,
-      error: error.message,
     });
   }
 });
+
 
 module.exports = router;

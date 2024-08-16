@@ -15,6 +15,7 @@ import { Link, useParams } from 'react-router-dom';
 import { CiEdit } from "react-icons/ci";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { IoCloseSharp } from 'react-icons/io5';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor =
@@ -42,6 +43,7 @@ function handleClick(event) {
 }
 
 const EditProduct = () => {
+    const [uploading, setUploading] = useState(false);
 
     const [categoryVal, setCategoryVal] = useState('');
     const [ratingsValue, setRatingsValue] = useState('');
@@ -63,8 +65,8 @@ const EditProduct = () => {
 
     const [files, setFiles] = useState([])
     const [product, setProduct] = useState([])
-    const [imgFiles, setImgFiles] = useState();
-    const [previews, setPreviews] = useState();
+    const [imgFiles, setImgFiles] = useState([]);
+    const [previews, setPreviews] = useState([]);
     const history = useNavigate()
 
     let { id } = useParams()
@@ -92,7 +94,7 @@ const EditProduct = () => {
         name,
         value
     }));
-    
+
     const handleDialogClose = () => {
         setOpenDialog(false);
         setIsEditing(false);
@@ -101,23 +103,15 @@ const EditProduct = () => {
     };
 
     useEffect(() => {
-        if (!imgFiles) return
+        if (!imgFiles.length) return;
 
-        let tmp = [];
-
-        for (let i = 0; i < imgFiles.length; i++) {
-            tmp.push(URL.createObjectURL(imgFiles[i]));
-        }
-        const objectUrls = tmp;
+        const objectUrls = imgFiles.map(file => URL.createObjectURL(file));
         setPreviews(objectUrls);
-        //free memory
-        for (let i = 0; i < objectUrls.length; i++) {
 
-            return () => {
-                URL.revokeObjectURL(objectUrls[i])
-            }
-        }
-    }, [imgFiles])
+        return () => {
+            objectUrls.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [imgFiles]);
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -153,7 +147,8 @@ const EditProduct = () => {
 
         });
 
-    }, []);
+    }, [id]);
+
     const handleAddSpecification = () => {
         setIsEditing(false);
         setOpenDialog(true);
@@ -165,8 +160,8 @@ const EditProduct = () => {
         setIsEditing(true);
         setOpenDialog(true);
     };
-  
-  
+
+
     const handleSaveSpecification = () => {
         const updatedSpecifications = { ...formFields.specifications };
 
@@ -179,7 +174,7 @@ const EditProduct = () => {
         handleDialogClose();
     };
 
-  
+
     const handleDeleteSpecification = (name) => {
         const updatedSpecifications = { ...formFields.specifications };
         delete updatedSpecifications[name];
@@ -225,193 +220,111 @@ const EditProduct = () => {
         }))
     }
 
-    const formdata = new FormData()
+
 
     const onChangeFile = async (e, apiEndPoint) => {
+        const files = e.target.files;
+        setUploading(true);
+
+        const formData = new FormData();
+        const validImages = Array.from(files).filter(file =>
+            ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)
+        );
+
+        if (validImages.length !== files.length) {
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: 'Please select a valid JPG or PNG image file.',
+            });
+            setUploading(false);
+            return;
+        }
+
+        validImages.forEach(file => formData.append('images', file));
+
         try {
-            const imgArr = [];
-            const files = e.target.files;
-            const formData = new FormData();
+            await postData(apiEndPoint, formData);
+            setImgFiles(validImages);
+            context.setAlertBox({
+                open: true,
+                error: false,
+                msg: 'Images uploaded successfully!',
+            });
+        } catch (error) {
+            console.error('Upload Error:', error);
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: 'Failed to upload images.',
+            });
+        } finally {
+            setUploading(false);
+        }
+    };
+    const removeImg = (index) => {
+        const updatedPreviews = previews.filter((_, i) => i !== index);
+        setPreviews(updatedPreviews);
+        URL.revokeObjectURL(previews[index]);
+    };
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileType = file.type;
+    const editProduct = (e) => {
+        e.preventDefault()
 
-                if (fileType === 'image/jpeg' || fileType === 'image/jpg' || fileType === 'image/png') {
-                    imgArr.push(file);
-                    formData.append('images', file);
-                } else {
-                    context.setAlertBox({
-                        open: true,
-                        error: true,
-                        msg: 'Please select a valid JPG or PNG image file.'
-                    });
-                    return; // Exit if an invalid file is encountered
-                }
+        const updatedData = new FormData();
+
+        const specsArray = Object.entries(formFields.specifications).map(([key, value]) => ({
+            key,
+            value
+        }));
+        updatedData.append('name', formFields.name);
+        updatedData.append('subCat', formFields.subCat);
+        updatedData.append('description', formFields.description);
+        updatedData.append('brand', formFields.brand);
+        updatedData.append('price', formFields.price);
+        updatedData.append('oldPrice', formFields.oldPrice);
+        updatedData.append('category', formFields.category);
+        updatedData.append('countInStock', formFields.countInStock);
+        updatedData.append('rating', formFields.rating);
+        updatedData.append('isFeatured', formFields.isFeatured);
+        updatedData.append('discount', formFields.discount);
+        updatedData.append('specifications', JSON.stringify(specsArray));
+        if (imgFiles) {
+            for (const file of imgFiles) {
+                updatedData.append('images', file);
             }
+        }
 
-            if (imgArr.length > 0) {
-                setFiles(imgArr);
-                setImgFiles(e.target.files);
-                setIsSelectedFiles(true);
-                setIsSelectedImages(true);
-                console.log(imgArr);
 
-                // Perform the upload
-                await postData(apiEndPoint, formData);
 
+
+        try {
+            setIsLoading(true)
+
+
+            editData(`/api/products/${id}`, updatedData).then((res) => {
                 context.setAlertBox({
                     open: true,
-                    error: false,
-                    msg: 'Images uploaded successfully!'
-                });
-            }
+                    msg: 'The product is update success!',
+                    error: false
+                })
+
+                setIsLoading(false)
+
+                history('/product/list')
+
+
+            })
         } catch (error) {
             console.error(error);
             context.setAlertBox({
                 open: true,
                 error: true,
-                msg: 'An error occurred during file upload.'
+                msg: 'Failed to update product',
             });
+        } finally {
+            setIsLoading(false);
         }
-    };
-
-    const editProduct = (e) => {
-        e.preventDefault()
-        const specsArray = Object.entries(formFields.specifications).map(([key, value]) => ({
-            key,
-            value
-        }));
-        formdata.append('name', formFields.name);
-        formdata.append('subCat', formFields.subCat);
-        formdata.append('description', formFields.description);
-        formdata.append('brand', formFields.brand);
-        formdata.append('price', formFields.price);
-        formdata.append('oldPrice', formFields.oldPrice);
-        formdata.append('category', formFields.category);
-        formdata.append('countInStock', formFields.countInStock);
-        formdata.append('rating', formFields.rating);
-        formdata.append('isFeatured', formFields.isFeatured);
-        formdata.append('discount', formFields.discount);
-        formdata.append('specifications', JSON.stringify(specsArray));
-
-        if (formFields.name === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product name',
-                error: true
-            })
-            return false
-        }
-
-        if (formFields.description === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product description',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.brand === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product brand',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.price === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product price',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.oldPrice === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product oldPrice',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.category === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select a category',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.subCat === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select a sub category',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.countInStock === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product countInStock',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.rating === 0) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product rating',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.isFeatured === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select product isFeatured',
-                error: true
-            })
-            return false
-
-        }
-
-
-
-        setIsLoading(true)
-
-
-        editData(`/api/products/${id}`, formFields).then((res) => {
-            context.setAlertBox({
-                open: true,
-                msg: 'The product is update success!',
-                error: false
-            })
-
-            setIsLoading(false)
-
-            history('/product/list')
-
-
-        })
     }
 
     return (
@@ -689,31 +602,39 @@ const EditProduct = () => {
                         <h5 className='mb-4 font-weight-bold'>Media And Published</h5>
                         <div className='imgUploadBox d-flex align-items-center'>
                             {
-                                previews?.length !== 0 && previews?.map((img, index) => {
-                                    return (
-                                        <div className='uploadBox' key={index}>
-                                            {
-                                                isSelectedImages === true ?
-                                                    <img src={`${img}`} className="w-100" />
-                                                    :
-                                                    <img src={`${context.baseUrl}/uploads/${img}`} className="w-100" />
-                                            }
-
+                                previews.length > 0 && previews.map((img, index) => (
+                                    <div className='uploadBox' key={index}>
+                                        <span className="remove" onClick={() => removeImg(index)}>
+                                            <IoCloseSharp />
+                                        </span>
+                                        <div className='box'>
+                                            <img src={img} className="w-100" alt="Category Preview" />
                                         </div>
-                                    )
-                                })
+                                    </div>
+                                ))
                             }
 
-
                             <div className='uploadBox'>
-                                <input type="file" multiple onChange={(e) => onChangeFile
-                                    (e, '/api/products/upload')} name="images" />
-                                <div className='info'>
-                                    <FaRegImages />
-                                    <h5>image upload</h5>
-                                </div>
+                                {uploading ?
+                                    <div className="progressBar text-center d-flex align-items-center justify-content-center flex-column">
+                                        <CircularProgress />
+                                        <span>Uploading...</span>
+                                    </div>
+                                    :
+                                    <>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            onChange={(e) => onChangeFile(e, '/api/products/upload')}
+                                            name="images"
+                                        />
+                                        <div className='info'>
+                                            <FaRegImages />
+                                            <h5>Image Upload</h5>
+                                        </div>
+                                    </>
+                                }
                             </div>
-
                         </div>
 
                         <br />

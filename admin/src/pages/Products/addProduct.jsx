@@ -7,12 +7,14 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuIte
 import Button from '@mui/material/Button';
 import Rating from '@mui/material/Rating';
 import { FaCloudUploadAlt, FaRegImages } from 'react-icons/fa';
-import { fetchDataFromApi, postData } from '../../utils/api';
+import { deleteData, fetchDataFromApi, postData } from '../../utils/api';
 import { MyContext } from '../../App';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Link, useNavigate } from 'react-router-dom'
 import { CiEdit } from "react-icons/ci";
 import { FaDeleteLeft } from "react-icons/fa6";
+import { IoCloseSharp } from "react-icons/io5";
+
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor =
         theme.palette.mode === 'light'
@@ -51,14 +53,16 @@ const ProductUpload = () => {
 
     const [files, setFiles] = useState([])
     const [imgFiles, setImgFiles] = useState();
-    const [previews, setPreviews] = useState();
+    const [previews, setPreviews] = useState([]);
     const history = useNavigate()
+    const [uploading, setUploading] = useState(false)
 
 
     const [catData, setCatData] = useState([]);
     const [subCatData, setSubCatData] = useState([]);
 
     const context = useContext(MyContext)
+    const formData = new FormData();
 
     const [formFields, setFormFields] = useState({
         name: '',
@@ -68,6 +72,7 @@ const ProductUpload = () => {
         brand: '',
         price: null,
         oldPrice: null,
+        catName: '',
         category: '',
         countInStock: null,
         rating: 0,
@@ -121,7 +126,7 @@ const ProductUpload = () => {
     };
 
     useEffect(() => {
-        if (!imgFiles) return
+        if (!imgFiles) return;
 
         let tmp = [];
 
@@ -130,14 +135,16 @@ const ProductUpload = () => {
         }
         const objectUrls = tmp;
         setPreviews(objectUrls);
-        //free memory
-        for (let i = 0; i < objectUrls.length; i++) {
 
-            return () => {
-                URL.revokeObjectURL(objectUrls[i])
-            }
-        }
-    }, [imgFiles])
+        // Cleanup function để hủy bỏ URL object sau khi không sử dụng nữa
+        return () => {
+            objectUrls.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [imgFiles]);
+
+    // Đảm bảo rằng img_arr và uniqueArray được đặt lại đúng cách
+    let img_arr = [];
+    let uniqueArray = [];
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -146,10 +153,10 @@ const ProductUpload = () => {
     }, [])
 
 
-  
 
 
-   
+
+
 
     const handleChangeCategory = (event) => {
         setCategoryVal(event.target.value)
@@ -190,203 +197,122 @@ const ProductUpload = () => {
         }))
     }
 
-    const formData = new FormData()
+    const selectCat = (cat) => {
+        formFields.catName = cat;
+    }
+
+
 
     const onChangeFile = async (e, apiEndPoint) => {
-        try {
-            const imgArr = [];
-            const files = e.target.files;
-            const formData = new FormData();
+        const files = e.target.files;
+        setUploading(true);
+        setPreviews([]);
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileType = file.type;
+        const formData = new FormData();
 
-                if (fileType === 'image/jpeg' || fileType === 'image/jpg' || fileType === 'image/png') {
-                    imgArr.push(file);
-                    formData.append('images', file);
-                } else {
-                    context.setAlertBox({
-                        open: true,
-                        error: true,
-                        msg: 'Please select a valid JPG or PNG image file.'
-                    });
-                    return; // Exit if an invalid file is encountered
-                }
-            }
-
-            if (imgArr.length > 0) {
-                setFiles(imgArr);
-                setImgFiles(e.target.files);
-                setIsSelectedFiles(true);
-                console.log(imgArr);
-
-                // Perform the upload
-                await postData(apiEndPoint, formData);
-
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg' ||
+                file.type === 'image/png' || file.type === 'image/webp')) {
+                formData.append('images', file);
+            } else {
                 context.setAlertBox({
                     open: true,
-                    error: false,
-                    msg: 'Images uploaded successfully!'
+                    error: true,
+                    msg: 'Please select a valid JPG, PNG, or WEBP image file.'
                 });
+                setUploading(false);
+                return;  // Exits the function early on error
             }
+        }
+
+        try {
+            await postData(apiEndPoint, formData);
+            const response = await fetchDataFromApi("/api/imageUpload");
+
+            if (response && response.length) {
+                const newImages = response.map(item => item.images).flat();
+                setPreviews(newImages);
+            } else {
+                setPreviews([]);
+            }
+
+            context.setAlertBox({
+                open: true,
+                error: false,
+                msg: "Images Uploaded!"
+            });
         } catch (error) {
-            console.error(error);
+            console.error('Upload Error:', error);
             context.setAlertBox({
                 open: true,
                 error: true,
-                msg: 'An error occurred during file upload.'
+                msg: 'Failed to upload images.'
             });
+        } finally {
+            setUploading(false);  // Ensures uploading state is reset
         }
     };
 
-    const addProduct = (e) => {
+    // Hàm để xóa ảnh khỏi danh sách previews
+    const removeImg = (index) => {
+        const updatedPreviews = previews.filter((_, i) => i !== index);
+        setPreviews(updatedPreviews);
+        URL.revokeObjectURL(previews[index]);
+    };
+
+
+    const addProduct = async (e) => {
         e.preventDefault()
+        // Reset trạng thái khi bắt đầu một lần tải lên mới
+        setPreviews([]);
+        setImgFiles([]);
+
+        const appendedArray = [...previews];
 
         formData.append('name', formFields.name);
         formData.append('description', formFields.description);
         formData.append('brand', formFields.brand);
         formData.append('price', formFields.price);
         formData.append('oldPrice', formFields.oldPrice);
+        formData.append('catName', formFields.catName);
         formData.append('category', formFields.category);
         formData.append('subCat', formFields.subCat);
         formData.append('countInStock', formFields.countInStock);
         formData.append('rating', formFields.rating);
         formData.append('isFeatured', formFields.isFeatured);
         formData.append('specifications', JSON.stringify(formFields.specifications));
+        formData.append('images', JSON.stringify(appendedArray));
 
-        if (formFields.name === "") {
+
+        if (formFields.name !== "" || formFields.color !== "" || previews.length !== 0) {
+            setIsLoading(true);
+            setIsSelectedFiles(true)
+
+            try {
+                await postData(`/api/products/create`, formFields);
+                setIsLoading(false);
+                await deleteData("/api/imageUpload/deleteAllImages");
+                history('/product/list');
+            } catch (error) {
+                console.error('Error adding product:', error);
+                context.setAlertBox({
+                    open: true,
+                    error: true,
+                    msg: 'Failed to add product.'
+                });
+            }
+        } else {
             context.setAlertBox({
                 open: true,
-                msg: 'Please add product name',
-                error: true
-            })
-            return false
+                error: true,
+                msg: 'Please fill all the details',
+            });
         }
 
 
 
-        if (formFields.description === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product description',
-                error: true
-            })
-            return false
 
-        }
-
-        if (formFields.brand === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product brand',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.price === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product price',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.oldPrice === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product oldPrice',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.category === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select a category',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.subCat === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select sub category',
-                error: true
-            })
-            return false
-        }
-
-        if (formFields.countInStock === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product countInStock',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.rating === 0) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product rating',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.isFeatured === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select product isFeatured',
-                error: true
-            })
-            return false
-
-        }
-
-
-
-        setIsLoading(true)
-
-
-        postData('/api/products/create', formFields).then((res) => {
-            context.setAlertBox({
-                open: true,
-                msg: 'The product is created!',
-                error: false
-            })
-
-            setIsLoading(false)
-
-
-            // setFormFields({
-            //     name: '',
-            //     description: '',
-            //     images: [],
-            //     brand: '',
-            //     price: 0,
-            //     oldPrice: 0,
-            //     category: '',
-            //     countInStock: 0,
-            //     rating: 0,
-            //     isFeatured: false,
-            //     images: [],
-            // })
-            history('/product/list')
-
-
-        })
     }
 
     return (
@@ -451,7 +377,9 @@ const ProductUpload = () => {
                                                     context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
                                                         return (
 
-                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
+                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}
+                                                                onClick={() => selectCat(cat.name)}
+                                                            >{cat.name}</MenuItem>
                                                         )
                                                     })
                                                 }
@@ -558,6 +486,7 @@ const ProductUpload = () => {
                                             value={ratingsValue}
                                             size='small'
                                             precision={0.5}
+
                                             onChange={(event, newValue) => {
                                                 setRatingsValue(newValue)
                                                 setFormFields(() => ({
@@ -648,25 +577,42 @@ const ProductUpload = () => {
                     <div className='imagesUploadSec'>
 
                         <h5 className='mb-4 font-weight-bold'>Media And Published</h5>
+
                         <div className='imgUploadBox d-flex align-items-center'>
                             {
-                                previews?.length !== 0 && previews?.map((img, index) => {
-                                    return (<div className='uploadBox' key={index}>
-                                        <img src={img} className="w-100" />
-                                    </div>)
-                                })
+                                previews?.length > 0 && previews.map((img, index) => (
+                                    <div className='uploadBox' key={index}>
+                                        <span className="remove" onClick={() => removeImg(index, img)}>
+                                            <IoCloseSharp />
+                                        </span>
+                                        <div className='box'>
+                                            <img src={img} className="w-100" />
+                                        </div>
+                                    </div>
+                                ))
                             }
 
-
                             <div className='uploadBox'>
-                                <input type="file" multiple onChange={(e) => onChangeFile
-                                    (e, '/api/products/upload')} name="images" />
-                                <div className='info'>
-                                    <FaRegImages />
-                                    <h5>image upload</h5>
-                                </div>
+                                {uploading === true ?
+                                    <div className="progressBar text-center d-flex align-items-center justify-content-center flex-column">
+                                        <CircularProgress />
+                                        <span>Uploading...</span>
+                                    </div>
+                                    :
+                                    <>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            onChange={(e) => onChangeFile(e, '/api/products/upload')}
+                                            name="images"
+                                        />
+                                        <div className='info'>
+                                            <FaRegImages />
+                                            <h5>Image Upload</h5>
+                                        </div>
+                                    </>
+                                }
                             </div>
-
                         </div>
 
                         <br />

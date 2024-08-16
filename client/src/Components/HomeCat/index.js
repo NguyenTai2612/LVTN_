@@ -32,8 +32,8 @@ const HomeCat = (props) => {
     <section className="homeCat">
       <div className="container">
         <Swiper
-          slidesPerView={8}
-          spaceBetween={8}
+          slidesPerView={10}
+          spaceBetween={10}
           navigation={true}
           slidesPerGroup={4}
           modules={[Navigation]}

@@ -97,8 +97,55 @@ color:#000; }
   flex-wrap: wrap;
 }
 
+/* Đặt lại kiểu mặc định cho các nút */
+.swiper-button-prev, .swiper-button-next {
+  background-color: silver; /* Đặt nền trong suốt */
+  border-radius: 50%; /* Bo tròn nút */
+  width: 40px !important; /* Chiều rộng */
+  height: 40px !important; /* Chiều cao */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Đặt kích thước cho SVG bên trong các nút */
+.swiper-button-prev::after, .swiper-button-next::after {
+  font-size: 20px !important; /* Kích thước của SVG */
+  color: white !important; /* Màu của SVG */
+  transition: color 0.3s;
+}
+
+/* Đặt kích thước cụ thể cho các SVG nếu cần */
+.swiper-button-prev svg, .swiper-button-next svg {
+  width: 20px !important; /* Chiều rộng của SVG */
+  height: 20px !important; /* Chiều cao của SVG */
+  fill: white !important; /* Màu của SVG */
+}
+
+/* Thêm hiệu ứng khi hover */
+.swiper-button-prev:hover, .swiper-button-next:hover {
+  background-color: rgba(0, 0, 0, 0.5); /* Màu nền khi hover */
+  transform: scale(1.1); /* Phóng to khi hover */
+}
+
+.swiper-button-prev:hover::after, .swiper-button-next:hover::after {
+  color: yellow !important; /* Màu của SVG khi hover */
+}
+
+/* Đặt lại vị trí nếu cần */
+.swiper-button-prev {
+  left: 10px; /* Cách trái 10px */
+}
+
+.swiper-button-next {
+  right: 10px; /* Cách phải 10px */
+}
+
+
 .header .logo img {
   height: 50px; /* Điều chỉnh chiều cao logo */
+  margin-right: 10px;
 }
 
 .header .search-bar {
@@ -253,10 +300,7 @@ min-width: 40px !important; width: 40px !important; height: 40px !important; bor
   align-items: center;
 }
 
-.header .logo img {
-  height: 40px;
-  margin-right: 10px;
-}
+
 
 .header .search-bar {
   flex-grow: 1;
@@ -570,10 +614,54 @@ text-transform: capitalize !important;}
 
 
 
-
+/* 
 .productItem .badge{display: inline-block; padding: 10px 9px; position: absolute; top: 0px; 
 left: 0px; z-index: 100; background: #A70000 !important; color: white !important; font-weight: normal; 
-font-size:medium;}
+font-size:medium;} */
+
+/* .badge {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  color: white;
+  background-color: #D60000;
+  padding: 12px 14.4px;
+  border-radius: 0 3px 3px;
+  clip-path: polygon(100% 0, 85% 50%, 100% 100%, 0 100%, 0 0);
+  font-weight: bold;
+  margin-bottom: 14px;
+} */
+.badge-custom {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: white;
+  background-color: #D60000;
+  padding: 3px 8px;
+  border-radius: 0 3px 3px 0;
+  clip-path: polygon(100% 0, 85% 50%, 100% 100%, 0 100%, 0 0);
+  font-weight: bold;
+  margin-bottom: 14px;
+}
+
+.product_item_2_row .badge-custom {
+  display: inline-block;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  color: white;
+  background-color: #D60000;
+  padding: 3px 8px;
+  border-radius: 0 3px 3px 0;
+  clip-path: polygon(100% 0, 85% 50%, 100% 100%, 0 100%, 0 0);
+  font-weight: bold;
+  margin-bottom: 14px;
+}
+
+
 /* .badge.bg-success{background: #e5f8ed !important; color: #16b858 !important;} */
 /* .badge{display: block; padding: 10px 9px;} */
 
@@ -611,7 +699,7 @@ font-size:medium;}
   color: #fff !important;
   text-transform: capitalize !important;
   font-size: 14px !important;
-  padding: 9px 15px !important;
+  padding: 6px 10px !important;
   border-radius: 30px !important;
   border: none !important;
   transition: background-color 0.3s, transform 0.3s;
@@ -627,6 +715,7 @@ font-size:medium;}
 .btn-add-to-cart:focus {
   outline: none;
 }
+
 
 /* New styles for quantity selector */
 .quantity-selector {
@@ -762,7 +851,7 @@ text-decoration: line-through; margin-bottom: 0rem;}
 }
 
 .productItem .actions button:hover {
-  background: #2bbef9 !important;
+  background: silver !important;
 }
 
 .productItem .actions button:hover svg {
@@ -773,10 +862,16 @@ text-decoration: line-through; margin-bottom: 0rem;}
 .productItem .imgWrapper {
   overflow: hidden;
   position: relative;
+  /* background-color: #E6E6E6; 
+  display: inline-block;  */
 }
 
 .productItem .imgWrapper img {
   transition: transform 0.3s ease-in-out;
+  width: 100%;
+  /* height: auto; 
+  background-color: #E6E6E6; 
+  mix-blend-mode: multiply; */
 }
 
 .productItem:hover .actions {
@@ -786,6 +881,7 @@ text-decoration: line-through; margin-bottom: 0rem;}
 
 .productItem:hover .imgWrapper img {
   transform: scale(1.05);
+  
 }
 
 
@@ -1037,6 +1133,11 @@ footer p a:hover {
   border-radius: 15px;
 }
 
+.productZoomBig{
+  height: 350px;
+  overflow: hidden;
+}
+
 .zoomSliderBig {
   width: 100% !important;
 }
@@ -1114,13 +1215,13 @@ footer p a:hover {
   margin-right: 10px;
 }
 
-.discount {
+/* .discount {
   background-color: #e53935;
   color: #fff;
   padding: 2px 5px;
   border-radius: 3px;
   font-size: 14px;
-}
+} */
 
 .details-table {
   margin-bottom: 20px;
@@ -1318,10 +1419,14 @@ height: 35px !important; width: 35px !important; border-radius: 50% !important;}
 
 .discount {
   color: white;
-  background-color: #d9534f;
-  padding: 2px 5px;
-  border-radius: 3px;
+  background-color: #D60000;
+  padding: 6px 12px 6px 6px;
+  border-radius: 0 3px 3px;
+  clip-path: polygon(100% 0, 85% 50%, 100% 100%, 0 100%, 0 0);
+  font-weight: bold;
+  margin-bottom: 14px;
 }
+
 
 .warranty {
   margin-bottom: 20px;

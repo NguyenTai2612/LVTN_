@@ -12,25 +12,45 @@ import ProductDetails from "./Pages/ProductDetails";
 import Cart from "./Pages/Cart";
 import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
+import { fetchDataFromApi } from "./utils/api";
 
 const MyContext = createContext();
 
 function App() {
   const [countryList, setCountryList] = useState([]);
   const [selectCountry, setSelectCountry] = useState("");
-  const [isOpenProductModal, setIsOpenProductModal] = useState(false);
+  const [isOpenProductModal, setIsOpenProductModal] = useState({
+    open:false,
+    id:'',
+  });
+
   const [isHeaderFooterShow, setIsHeaderFooterShow] = useState(true);
   const [isLogin, setIsLogin] = useState(false);
+  const [productData, setProductData] = useState();
+  const [categoryData, setCategoryData] = useState([]);
+  const [subCategoryData, setSubCategoryData] = useState([]);
+
+  useEffect(()=>{
+
+    fetchDataFromApi(`/api/category`).then((res) => {
+      setCategoryData(res.categoryList);
+    });
+
+    fetchDataFromApi(`/api/subCat`).then((res) => {
+      setSubCategoryData(res.subCategoryList);
+    });
+    
+  },[])
 
   useEffect(() => {
-    getCountry("https://countriesnow.space/api/v0.1/countries/");
-  }, []);
-
-  const getCountry = async (url) => {
-    const responsive = await axios.get(url).then((res) => {
-      setCountryList(res.data.data);
+    isOpenProductModal.open===true &&
+    fetchDataFromApi(`/api/products/${isOpenProductModal.id}`).then((res) => {
+      setProductData(res);
     });
-  };
+  },[isOpenProductModal]);
+  
+ 
+
 
   const values = {
     countryList,
@@ -42,6 +62,10 @@ function App() {
     isHeaderFooterShow,
     setIsLogin,
     isLogin,
+    categoryData,
+    setCategoryData,
+    subCategoryData,
+    setSubCategoryData,
 
   };
   return (
@@ -64,7 +88,7 @@ function App() {
         }
     
 
-        {isOpenProductModal === true && <ProductModal />}
+        {isOpenProductModal.open === true && <ProductModal data={productData} />}
       </MyContext.Provider>
     </BrowserRouter>
   );
