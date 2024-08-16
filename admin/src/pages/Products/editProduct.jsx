@@ -270,13 +270,14 @@ const EditProduct = () => {
 
     const editProduct = (e) => {
         e.preventDefault()
-
-        const updatedData = new FormData();
-
+        
         const specsArray = Object.entries(formFields.specifications).map(([key, value]) => ({
             key,
             value
         }));
+
+        const updatedData = new FormData();
+
         updatedData.append('name', formFields.name);
         updatedData.append('subCat', formFields.subCat);
         updatedData.append('description', formFields.description);
@@ -302,7 +303,7 @@ const EditProduct = () => {
             setIsLoading(true)
 
 
-            editData(`/api/products/${id}`, updatedData).then((res) => {
+            editData(`/api/products/${id}`, formFields).then((res) => {
                 context.setAlertBox({
                     open: true,
                     msg: 'The product is update success!',

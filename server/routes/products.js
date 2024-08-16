@@ -6,7 +6,7 @@ const { Product } = require("../models/products");
 const path = require("path");
 const fs = require("fs");
 const { ImageUpload } = require("../models/imageUpload");
-const multer = require('multer');
+const multer = require("multer");
 
 cloudinary.config({
   cloud_name: process.env.cloudinary_Config_Cloud_Name,
@@ -17,7 +17,6 @@ cloudinary.config({
 
 var imagesArr = [];
 var productEditId;
-
 
 // Định nghĩa nơi lưu trữ file
 const storage = multer.diskStorage({
@@ -46,8 +45,7 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-
-// POST 1111 ok 
+// POST 1111 ok
 router.post("/upload", upload.array("images"), async (req, res) => {
   imagesArr = []; // Reset imagesArr here
 
@@ -72,6 +70,7 @@ router.post("/upload", upload.array("images"), async (req, res) => {
     res.status(500).json({ error: "Failed to upload images" });
   }
 });
+
 // GET all products with populated category
 router.get(`/`, async (req, res) => {
   try {
@@ -221,41 +220,24 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// router.post("/upload-images", upload.array("images"), async (req, res) => {
-//   let imagesArr = []; // Reset imagesArr here
-
-//   try {
-//     for (const file of req.files) {
-//       const options = {
-//         use_filename: true,
-//         unique_filename: false,
-//         overwrite: false,
-//       };
-
-//       const result = await cloudinary.uploader.upload(file.path, options);
-//       imagesArr.push(result.secure_url);
-//       fs.unlinkSync(file.path);
-//     }
-
-//     return res.status(200).json({ success: true, images: imagesArr });
-//   } catch (error) {
-//     console.error("Error uploading images:", error);
-//     res.status(500).json({ success: false, error: "Failed to upload images" });
-//   }
-// });
-
-// PUT update an existing product
-router.put("/:id", upload.array('images'), async (req, res) => {
+// PUT update an existing product edit
+router.put("/:id", upload.array("images"), async (req, res) => {
   try {
     const updates = {
       name: req.body.name,
       subCat: req.body.subCat,
-      color: req.body.color,
-      price: req.body.price, // assuming 'price' is also part of the product update
-      description: req.body.description // add any additional fields for the product
+      description: req.body.description,
+      brand: req.body.brand,
+      price: req.body.price,
+      oldPrice: req.body.oldPrice,
+      category: req.body.category,
+      countInStock: req.body.countInStock,
+      rating: req.body.rating,
+      isFeatured: req.body.isFeatured,   
+      specifications: req.body.specifications || []
     };
 
-    if (req.files.length > 0) {
+    if (req.files && req.files.length > 0) {
       const imagesArr = [];
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -269,11 +251,9 @@ router.put("/:id", upload.array('images'), async (req, res) => {
       updates.images = imagesArr;
     }
 
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      updates,
-      { new: true }
-    );
+    const product = await Product.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+    });
 
     if (!product) {
       return res.status(404).json({
@@ -290,6 +270,5 @@ router.put("/:id", upload.array('images'), async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;

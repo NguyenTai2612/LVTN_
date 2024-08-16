@@ -19,7 +19,7 @@ const ProductItem = (props) => {
   };
  
   const imageSrc = props.item?.images[0]
-    ? `http://localhost:4000/uploads/${props.item.images[0]}`
+    ? `${props.item.images[0]}`
     : "";
   return (
     <>
