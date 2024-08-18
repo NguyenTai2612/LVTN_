@@ -20,7 +20,7 @@ const Home = () => {
   const [productsData, setProductsData] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [fluteData, setFluteData] = useState([]);
-  const [selectedCat, setSelectCat] = useState("Guitar");
+  const [selectedCat, setSelectCat] = useState("Giảm giá");
   const [filterData, setFilterData] = useState([]);
 
   const [value, setValue] = React.useState(0);
@@ -70,11 +70,11 @@ const Home = () => {
 
   return (
     <div>
-      <Navigation1 />
 
       {/* <HomeCat /> */}
-      {context.categoryData?.length !== 0 && <HomeCat catData={context.categoryData} />}
+      {context.subCategoryData?.length !== 0 && <HomeCat catData={context.subCategoryData} />}
 
+      <Navigation1 />
       <section className="homeProducts">
         <div className="container">
           <div className="row">
@@ -125,7 +125,7 @@ const Home = () => {
                           <Tab
                             className="item"
                             label={item.name}
-                            onClick={() => selectCat(item.name)}
+                            onClick={() => selectCat(item?.name)}
                           />
                         );
                       })}

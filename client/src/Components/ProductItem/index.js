@@ -43,7 +43,7 @@ const ProductItem = (props) => {
           </div>
         </div>
         <div className="info">
-          <h4>{props?.item?.name?.substr(0, 25) + "..."}</h4>
+          <h4>{props?.item?.name?.substr(0, 200) + ""}</h4>
           <div className="d-flex align-items-center mt-2">
             <span className="badge bg-success text-white  d-block">
               In Stock

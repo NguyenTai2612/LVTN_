@@ -73,6 +73,7 @@ const ProductUpload = () => {
         price: null,
         oldPrice: null,
         catName: '',
+        subCatId: '',
         category: '',
         countInStock: null,
         rating: 0,
@@ -172,6 +173,7 @@ const ProductUpload = () => {
             ...formFields,
             subCat: event.target.value
         }))
+        formFields.subCatId=event.target.value
     }
 
     const handleChangeIsFeaturedValue = (event) => {
@@ -201,7 +203,7 @@ const ProductUpload = () => {
         formFields.catName = cat;
     }
 
-
+ 
 
     const onChangeFile = async (e, apiEndPoint) => {
         const files = e.target.files;
@@ -275,6 +277,7 @@ const ProductUpload = () => {
         formData.append('brand', formFields.brand);
         formData.append('price', formFields.price);
         formData.append('oldPrice', formFields.oldPrice);
+        formData.append('subCatId', formFields.subCatId);
         formData.append('catName', formFields.catName);
         formData.append('category', formFields.category);
         formData.append('subCat', formFields.subCat);
@@ -408,7 +411,9 @@ const ProductUpload = () => {
                                                     context.subCatData?.subCategoryList?.length !== 0 && context.subCatData?.subCategoryList?.map((subCat, index) => {
                                                         return (
 
-                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}>{subCat.subCat}</MenuItem>
+                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}
+                                                                
+                                                            >{subCat.subCat}</MenuItem>
                                                         )
                                                     })
                                                 }

@@ -83,6 +83,8 @@ const EditProduct = () => {
         brand: '',
         price: null,
         oldPrice: null,
+        subCatId: '',
+        catName: '',
         category: '',
         countInStock: null,
         rating: 0,
@@ -174,6 +176,9 @@ const EditProduct = () => {
         handleDialogClose();
     };
 
+    const selectCat = (cat) => {
+        formFields.catName = cat;
+    }
 
     const handleDeleteSpecification = (name) => {
         const updatedSpecifications = { ...formFields.specifications };
@@ -195,6 +200,8 @@ const EditProduct = () => {
             ...formFields,
             subCat: event.target.value
         }))
+        formFields.subCatId = event.target.value
+
     }
 
     const handleChangeIsFeaturedValue = (event) => {
@@ -284,6 +291,8 @@ const EditProduct = () => {
         updatedData.append('brand', formFields.brand);
         updatedData.append('price', formFields.price);
         updatedData.append('oldPrice', formFields.oldPrice);
+        updatedData.append('subCatId', formFields.subCatId);
+        updatedData.append('catName', formFields.catName);
         updatedData.append('category', formFields.category);
         updatedData.append('countInStock', formFields.countInStock);
         updatedData.append('rating', formFields.rating);
@@ -486,7 +495,9 @@ const EditProduct = () => {
                                                     context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
                                                         return (
 
-                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
+                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}
+                                                                onClick={() => selectCat(cat.name)}
+                                                            >{cat.name}</MenuItem>
                                                         )
                                                     })
                                                 }

@@ -83,31 +83,57 @@ router.get(`/`, async (req, res) => {
       return res.status(404).json({ message: "Page not found" });
     }
 
-    let productList;
 
-    if (req.query.catName !== undefined) {
-      productList = await Product.find({ catName: req.query.catName })
-        .populate("category subCat")
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .exec();
+    
+    let productList=[];
+    
+
+   if (req.query.minPrice !== undefined && req.query.maxPrice !== undefined) {
+      productList = await Product.find({ subCatId: req.query.subCatId }).populate("category subCat");
+
+      const filteredProducts = productList.filter(product => {
+        if (req.query.minPrice && product.price < parseInt(req.query.minPrice)) {
+          return false;
+        }
+        if (req.query.maxPrice && product.price > parseInt(req.query.maxPrice)) {
+          return false;
+        }
+        return true;
+      });
+
+      if (!productList) {
+        return res.status(500).json({ success: false });
+      }
+
+      return res.status(200).json({
+        products: filteredProducts,
+        totalPages: totalPages,
+        page: page,
+      });
+
     } else {
-      productList = await Product.find()
-        .populate("category subCat")
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .exec();
+      productList = await Product.find( req.query ).populate("category subCat")
+      
+      if (!productList) {
+        return res.status(500).json({ success: false });
+      }
+
+      return res.status(200).json({
+        products: productList,
+        totalPages: totalPages,
+        page: page,
+      });
     }
 
-    if (!productList) {
-      return res.status(500).json({ success: false });
-    }
+    // if (!productList) {
+    //   return res.status(500).json({ success: false });
+    // }
 
-    return res.status(200).json({
-      products: productList,
-      totalPages: totalPages,
-      page: page,
-    });
+    // return res.status(200).json({
+    //   products: productList,
+    //   totalPages: totalPages,
+    //   page: page,
+    // });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
@@ -166,7 +192,7 @@ router.post(`/create`, async (req, res) => {
       price: req.body.price,
       oldPrice: req.body.oldPrice,
       catName: req.body.catName,
-      subCat: req.body.subCat,
+      subCatId: req.body.subCatId,
       category: req.body.category,
       countInStock: req.body.countInStock,
       rating: req.body.rating,
@@ -225,11 +251,14 @@ router.put("/:id", upload.array("images"), async (req, res) => {
   try {
     const updates = {
       name: req.body.name,
-      subCat: req.body.subCat,
       description: req.body.description,
+      images: req.body.images,
       brand: req.body.brand,
       price: req.body.price,
       oldPrice: req.body.oldPrice,
+      subCatId: req.body.subCatId,
+      catName: req.body.catName,
+      subCat: req.body.subCat,
       category: req.body.category,
       countInStock: req.body.countInStock,
       rating: req.body.rating,

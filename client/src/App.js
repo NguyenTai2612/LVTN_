@@ -82,7 +82,7 @@ function App() {
 
         <Routes>
           <Route path="/" exact={true} element={<Home />} />
-          <Route path="/cat/:id" exact={true} element={<Listing />} />
+          <Route path="/subCat/:id" exact={true} element={<Listing />} />
           <Route path="/product/:id" exact={true} element={<ProductDetails />} />
           <Route path="/cart" exact={true} element={<Cart />} />
           <Route path="/signIn" exact={true} element={<SignIn />} />
