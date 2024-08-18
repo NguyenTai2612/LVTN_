@@ -3,6 +3,7 @@ const router = express.Router();
 const cloudinary = require("cloudinary").v2;
 const { Category } = require("../models/category");
 const { Product } = require("../models/products");
+const { RecentlyViewd } = require("../models/recentlyViewd.js");
 const path = require("path");
 const fs = require("fs");
 const { ImageUpload } = require("../models/imageUpload");
@@ -83,19 +84,24 @@ router.get(`/`, async (req, res) => {
       return res.status(404).json({ message: "Page not found" });
     }
 
+    let productList = [];
 
-    
-    let productList=[];
-    
+    if (req.query.minPrice !== undefined && req.query.maxPrice !== undefined) {
+      productList = await Product.find({
+        subCatId: req.query.subCatId,
+      }).populate("category subCat");
 
-   if (req.query.minPrice !== undefined && req.query.maxPrice !== undefined) {
-      productList = await Product.find({ subCatId: req.query.subCatId }).populate("category subCat");
-
-      const filteredProducts = productList.filter(product => {
-        if (req.query.minPrice && product.price < parseInt(req.query.minPrice)) {
+      const filteredProducts = productList.filter((product) => {
+        if (
+          req.query.minPrice &&
+          product.price < parseInt(req.query.minPrice)
+        ) {
           return false;
         }
-        if (req.query.maxPrice && product.price > parseInt(req.query.maxPrice)) {
+        if (
+          req.query.maxPrice &&
+          product.price > parseInt(req.query.maxPrice)
+        ) {
           return false;
         }
         return true;
@@ -110,10 +116,9 @@ router.get(`/`, async (req, res) => {
         totalPages: totalPages,
         page: page,
       });
-
     } else {
-      productList = await Product.find( req.query ).populate("category subCat")
-      
+      productList = await Product.find(req.query).populate("category subCat");
+
       if (!productList) {
         return res.status(500).json({ success: false });
       }
@@ -167,7 +172,56 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST create a new product
+router.get(`/recentlyViewd`, async (req, res) => {
+  let productList = [];
+
+  productList = await RecentlyViewd.find(req.query).populate("category subCat");
+
+  if (!productList) {
+    return res.status(500).json({ success: false });
+  }
+
+  return res.status(200).json({
+    productList,
+  });
+});
+// edit 
+router.post(`/recentlyViewd`, async (req, res) => {
+  let findProduct = await RecentlyViewd.find({ prodId: req.body.prodId });
+  var product;
+  if (findProduct.length===0) {
+    const specifications = req.body.specifications || {};
+    product = new RecentlyViewd({
+      prodId: req.body.id,
+      name: req.body.name,
+      subCat: req.body.subCat,
+      description: req.body.description,
+      images: req.body.images,
+      brand: req.body.brand,
+      price: req.body.price,
+      oldPrice: req.body.oldPrice,
+      catName: req.body.catName,
+      subCatId: req.body.subCatId,
+      category: req.body.category,
+      countInStock: req.body.countInStock,
+      rating: req.body.rating,
+      isFeatured: req.body.isFeatured,
+      discount: req.body.discount,
+      specifications: req.body.specifications || {},
+    });
+    product = await product.save();
+    if (!product) {
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to save the product" });
+    } else {
+      res.status(201).json(product);
+    }
+  }
+
+  // Save the product instance
+});
+
 router.post(`/create`, async (req, res) => {
   try {
     // Check if the category exists
@@ -262,8 +316,8 @@ router.put("/:id", upload.array("images"), async (req, res) => {
       category: req.body.category,
       countInStock: req.body.countInStock,
       rating: req.body.rating,
-      isFeatured: req.body.isFeatured,   
-      specifications: req.body.specifications || []
+      isFeatured: req.body.isFeatured,
+      specifications: req.body.specifications || [],
     };
 
     if (req.files && req.files.length > 0) {
@@ -301,3 +355,4 @@ router.put("/:id", upload.array("images"), async (req, res) => {
 });
 
 module.exports = router;
+/// edit

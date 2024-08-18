@@ -30,7 +30,7 @@ const ProductModal = (props) => {
       <div className="d-flex align-items-center">
         <div className="d-flex align-items-center mr-4 font-weight-bold">
           <span>Thương Hiệu: &nbsp;</span>
-          <span className="badge bg-success text-white mr-3">
+          <span className="badge1 bg-blue text-white mr-3">
             {props?.data?.brand}
           </span>
         </div>
@@ -53,37 +53,49 @@ const ProductModal = (props) => {
                 precision={0.5}
               />
               <span className="cursor">1 Review</span>
-            </div>
-
-            <div className="d-flex align-items-center mt-2">
-              <div className="d-flex align-items-center mr-4">
-                <span className="badge bg-success text-white mr-3">
-                  IN STOCK
-                </span>
+              <div
+                className="d-flex align-items-center mt-1"
+                style={{ marginLeft: "17px" }}
+              >
+                <div className="d-flex align-items-center mr-4">
+                  <span className="badge bg-success text-white mr-3">
+                    IN STOCK
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="price">
-              <span className="current-price"><Price amount={props?.data?.price} /></span>
-              <span className="original-price"><Price amount={props?.data?.oldPrice} /></span>
-              <span className="discount font-weight-bold">-{props?.data?.discount} %</span>
+            <div className="product-price mt-3 mr-2">
+              <Price amount={props?.data?.price} />
+            </div>
+            <div className="d-flex align-items-center">
+              <span className="mb-3"> Giá gốc:</span>
+              <span className="original-price font-weight-bold ml-4">
+                <div style={{ marginLeft: "9px" }}>
+                  <Price amount={props?.data?.oldPrice} />
+                </div>
+              </span>
+              <span className="discount mr-auto">
+                -{props?.data?.discount} %
+              </span>
+            </div>
+
+            <div className="warranty ">
+              <span>Bảo hành:</span>
+              <span className="font-weight-bold ml-5">12 Tháng</span>
             </div>
 
             <div className="d-flex align-items-center mb-3">
               <QuantityBox />
-              &nbsp;
-              &nbsp;
-              &nbsp;
-              &nbsp;
+              &nbsp; &nbsp; &nbsp; &nbsp;
               <Button className="btn-add-to-cart mr-auto">
-             
-                <FaCartPlus /> &nbsp; Add to Cart
+                <FaCartPlus /> &nbsp; Thêm vào giỏ hàng
               </Button>
             </div>
             <div className="details-table">
               <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6>
               <table>
-              <tbody>
+                <tbody>
                   {Object.entries(specifications).map(([key, value], index) => (
                     <tr key={index}>
                       <th>{key}</th>

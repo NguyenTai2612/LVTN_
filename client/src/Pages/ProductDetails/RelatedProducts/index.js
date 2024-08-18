@@ -7,6 +7,7 @@ import ProductItem from "../../../Components/ProductItem";
 import GuitarHeader from "../../../Components/GuitarHeader";
 
 const RelatedProduct = (props) => {
+
   return (
     <div className=" mb-4">
       <div className="d-flex align-items-center ">
@@ -27,33 +28,17 @@ const RelatedProduct = (props) => {
             modules={[Navigation]}
             className="mySwiper"
           >
-            <SwiperSlide>
-              <div><ProductItem /></div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
-            <SwiperSlide>
-              <ProductItem />
-            </SwiperSlide>
+            {props?.data?.length !== 0 &&
+              props?.data?.map((item, index) => {
+
+                return (
+                  <SwiperSlide key={index}>
+                    <ProductItem item={item} itemView={props.itemView}/>
+                  </SwiperSlide>
+                  
+                );
+
+              })}
           </Swiper>
         </div>
       </div>

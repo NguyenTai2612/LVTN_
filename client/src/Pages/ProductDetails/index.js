@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductZoom from "../../Components/ProductZoom";
 import Gift from "../../Components/Gift";
 import { Rating } from "@mui/material";
@@ -6,14 +6,41 @@ import QuantityBox from "../../Components/QuantityBox";
 import Button from "@mui/material/Button";
 import { FaCartPlus } from "react-icons/fa";
 import RelatedProduct from "./RelatedProducts";
+import { useParams } from "react-router-dom";
+import { fetchDataFromApi, postData } from "../../utils/api";
+import Price from "../../Components/Price";
 
 const ProductDetails = () => {
   const [activeSize, setActiveSize] = useState(null);
   const [activeTabs, setActiveTabs] = useState(0);
+  const [productData, setProductData] = useState([]);
+  const [relatedProductData, setRelatedProductData] = useState([]);
+  const [recentlyViewdProd, setRecentlyViewdProd] = useState([]);
 
-  const currentProduct = {
-    description: "Product description goes here...",
-  };
+  const specifications = productData?.specifications || {};
+  const { id } = useParams();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    fetchDataFromApi(`/api/products/${id}`).then((res) => {
+      setProductData(res);
+
+      fetchDataFromApi(`/api/products?subCatId=${res?.subCatId}`).then(
+        (res) => {
+          const filteredData = res?.products?.filter((item) => item.id !== id);
+          setRelatedProductData(filteredData);
+        }
+      );
+
+      fetchDataFromApi(`/api/products/recentlyViewd`).then((response) => {
+        console.log("Recently Viewed Products Data:", response);
+        setRecentlyViewdProd(response);
+      });
+
+      postData(`/api/products/recentlyViewd`, res);
+    });
+  }, [id]);
 
   return (
     <div>
@@ -21,89 +48,80 @@ const ProductDetails = () => {
         <div className="container">
           <div className="row">
             <div className="col-md-4">
-              <ProductZoom />
+              <ProductZoom images={productData?.images} />
             </div>
 
-            <div className="col-md-7 d-flex">
+            <div className="col-md-8 d-flex">
               <div className="product-info">
-                <div className="product-title">
-                  ĐÀN ACOUSTIC GUITAR YAMAHA F310-MÀU GỖ TỰ NHIÊN
-                </div>
-
-                <div className="rating-review">
-                  <span className="badge bg-success text-white mr-3">
-                    IN STOCK
+                <div className="product-title">{productData?.name}</div>
+                <div className="mt-2 ">
+                  <span className="badge1 bg-blue text-white mr-3">
+                    {productData?.brand}
                   </span>
+                </div>
+                <div className="rating-review">
                   <Rating
                     name="read-only"
-                    value={4}
+                    value={parseInt(productData?.rating)}
                     readOnly
                     size="small"
                     precision={0.5}
                   />
                   <span className="cursor">1 Review</span>
+                  <div
+                    className="d-flex align-items-center mt-1"
+                    style={{ marginLeft: "17px" }}
+                  >
+                    <div className="d-flex align-items-center mr-4">
+                      <span className="badge bg-success text-white mr-3">
+                        IN STOCK
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="product-price">3.591.000 VNĐ</div>
+
+                <div className="product-price mt-3 mr-2">
+                  <Price amount={productData?.price} />
+                </div>
                 <div className="d-flex align-items-center">
-                  <span className="original-price">3.990.000 VNĐ</span>
-                  <span className="discount ml-auto">-10 %</span>
+                  <span className="mb-3"> Giá gốc:</span>
+                  <span className="original-price ml-4">
+                    <div style={{ marginLeft: "9px" }}>
+                      <Price amount={productData?.oldPrice} />
+                    </div>
+                  </span>
+                  <span className="discount mr-auto">
+                    -{productData?.discount} %
+                  </span>
                 </div>
-                <div className="warranty">Bảo hành: 12 Tháng</div>
+
+                <div className="warranty ">
+                  <span>Bảo hành:</span>
+                  <span className="font-weight-bold ml-5">12 Tháng</span>
+                </div>
+
                 <div className="d-flex align-items-center mb-3">
                   <QuantityBox />
                   &nbsp; &nbsp; &nbsp; &nbsp;
                   <Button className="btn-add-to-cart mr-auto">
-                    <FaCartPlus /> &nbsp; Add to Cart
+                    <FaCartPlus /> &nbsp; Thêm vào giỏ hàng
                   </Button>
                 </div>
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>Thương hiệu</th>
-                      <td>Yamaha</td>
-                    </tr>
-                    <tr>
-                      <th>Model</th>
-                      <td>F310</td>
-                    </tr>
-                    <tr>
-                      <th>Phân loại</th>
-                      <td>Acoustic/Đệm hát</td>
-                    </tr>
-                    <tr>
-                      <th>Mặt trước</th>
-                      <td>Gỗ Vân sam</td>
-                    </tr>
-                    <tr>
-                      <th>Mặt hông</th>
-                      <td>Gỗ Meranti</td>
-                    </tr>
-                    <tr>
-                      <th>Mặt sau</th>
-                      <td>Gỗ Meranti</td>
-                    </tr>
-                    <tr>
-                      <th>Cần đàn</th>
-                      <td>Gỗ Nato</td>
-                    </tr>
-                    <tr>
-                      <th>Mặt phím</th>
-                      <td>Hồng sắc</td>
-                    </tr>
-                    <tr>
-                      <th>Ngựa đàn</th>
-                      <td>Hồng sắc</td>
-                    </tr>
-                    <tr>
-                      <th>Xuất xứ</th>
-                      <td>Japan/Indo</td>
-                    </tr>
-                    <tr>
-                      <th>Màu sắc</th>
-                      <td>Natural / Gỗ tự nhiên</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div className="details-table mt-4">
+                  <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6>
+                  <table>
+                    <tbody>
+                      {Object.entries(specifications).map(
+                        ([key, value], index) => (
+                          <tr key={index}>
+                            <th>{key}</th>
+                            <td>{value}</td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
               <div className="gift-section">
                 <Gift />
@@ -144,7 +162,7 @@ const ProductDetails = () => {
               <br />
               {activeTabs === 0 && (
                 <div className="tabContent">
-                  <p>{currentProduct.description}</p>
+                  <p>{productData?.description}</p>
                 </div>
               )}
               {activeTabs === 1 && (
@@ -329,9 +347,17 @@ const ProductDetails = () => {
           </div>
 
           <br />
+          {relatedProductData?.length > 0 && (
+            <RelatedProduct title="Giảm giá sốc" data={relatedProductData} />
+          )}
 
-          <RelatedProduct title="Giảm giá sốc" />
-          <RelatedProduct title="Guitar" />
+          {recentlyViewdProd.length > 0 && (
+            <RelatedProduct
+              title="Sản phẩm đã xem"
+              itemView={recentlyViewdProd}
+              data={recentlyViewdProd}
+            />
+          )}
         </div>
       </section>
     </div>

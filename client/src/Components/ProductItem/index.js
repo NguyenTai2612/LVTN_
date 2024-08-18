@@ -8,7 +8,7 @@ import { MyContext } from "../../App";
 import { Link } from "react-router-dom";
 import Price from "../Price";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import 'react-lazy-load-image-component/src/effects/blur.css';
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 const ProductItem = (props) => {
   const context = useContext(MyContext);
@@ -25,14 +25,19 @@ const ProductItem = (props) => {
     <>
       <div className={`productItem ${props.itemView}`}>
         <div className="imgWrapper">
-          <Link to={`/product/${props.item?.id}`}>
+          <Link
+            to={`/product/${
+              props?.itemView === "recentlyView"
+                ? props.item?.prodId
+                : props.item?.id
+            }`}
+          >
             <LazyLoadImage
               alt={"image"}
-               effect="blur"
-              src={imageSrc} 
+              effect="blur"
+              src={imageSrc}
               className="w-100"
             />
-          
           </Link>
 
           <span className="badge-custom">-{props.item?.discount} %</span>
