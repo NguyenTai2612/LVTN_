@@ -39,19 +39,18 @@ const Home = () => {
     window.scrollTo(0, 0);
 
     setSelectCat(context.categoryData[0]?.name);
-    if (context.categoryData.length !== 0) 
+    if (context.categoryData.length !== 0)
+      // fetchDataFromApi("/api/category/").then((res) => {
+      //   setCatData(res);
+      // });
 
-    // fetchDataFromApi("/api/category/").then((res) => {
-    //   setCatData(res);
-    // });
+      // fetchDataFromApi(`/api/products/featured`).then((res) => {
+      //   setFeaturedProducts(res);
+      // });
 
-    // fetchDataFromApi(`/api/products/featured`).then((res) => {
-    //   setFeaturedProducts(res);
-    // });
-
-    fetchDataFromApi("/api/products?perPage=8").then((res) => {
-      setProductsData(res);
-    });
+      fetchDataFromApi("/api/products?perPage=8").then((res) => {
+        setProductsData(res);
+      });
   }, []);
 
   useEffect(() => {
@@ -70,9 +69,10 @@ const Home = () => {
 
   return (
     <div>
-
       {/* <HomeCat /> */}
-      {context.subCategoryData?.length !== 0 && <HomeCat catData={context.subCategoryData} />}
+      {context.subCategoryData?.length !== 0 && (
+        <HomeCat catData={context.subCategoryData} />
+      )}
 
       <Navigation1 />
       <section className="homeProducts">
@@ -102,34 +102,37 @@ const Home = () => {
             </div>
 
             <div className="col-md-9 productRow">
-              {/* <GuitarHeader
-                logoText="SẢN PHẨM NỔI BẬT"
-                links={organLinks}
-                viewAllText="Xem tất cả →"
-                viewAllHref="#"
-              /> */}
               <div className="guitar-header">
-                <div className="logo">SẢN PHẨM NỔI BẬT</div>
-
-                <div className="links">
-                  <div className="ml-auto">
-                    <Tabs
-                      value={value}
-                      onChange={handleChange}
-                      variant="scrollable"
-                      scrollButtons="auto"
-                      className="filterTabs"
-                    >
-                      {context.categoryData?.map((item, index) => {
-                        return (
+                <div className="row">
+                  <div className="col-md-3 logo">SẢN PHẨM NỔI BẬT</div>
+                  <div className="col-md-9 links">
+                    <div className="ml-auto">
+                      <Tabs
+                        value={value}
+                        onChange={handleChange}
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        className="filterTabs"
+                        TabIndicatorProps={{
+                          style: { backgroundColor: "#FF6347" },
+                        }} // Tùy chỉnh màu cho chỉ báo
+                      >
+                        {context.categoryData?.map((item, index) => (
                           <Tab
+                            key={index} // Thêm key cho mỗi item
                             className="item"
                             label={item.name}
                             onClick={() => selectCat(item?.name)}
+                            style={{
+                              color: "#333",
+                              fontWeight: "bold",
+                              textTransform: "uppercase",
+                              padding: "10px 20px",
+                            }}
                           />
-                        );
-                      })}
-                    </Tabs>
+                        ))}
+                      </Tabs>
+                    </div>
                   </div>
                 </div>
               </div>

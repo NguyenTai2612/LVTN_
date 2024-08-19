@@ -3,20 +3,21 @@ import PropTypes from 'prop-types';
 
 const GuitarHeader = ({ logoText, links, viewAllText, viewAllHref, width }) => {
   return (
-    <div className="guitar-header" style={{ width }}>
-      <div className="logo">{logoText}</div>
-      <div className="links">
-        {links.map((link, index) => (
-          <span key={index}>
-            <a href={link.href}>{link.text}</a>
-            {index < links.length - 1 && ' | '}
-          </span>
-        ))}
-      </div>
-      <div className="view-all">
-        <a href={viewAllHref}>{viewAllText}</a>
-      </div>
+    <div className="guitar-header1" style={{ width }}>
+    <div className="logo1">{logoText}</div>
+    <div className="links">
+      {links.map((link, index) => (
+        <span key={index}>
+          <a href={link.href}>{link.text}</a>
+          {index < links.length - 1 && ' | '}
+        </span>
+      ))}
     </div>
+    <div className="view-all">
+      <a href={viewAllHref}>{viewAllText}</a>
+    </div>
+  </div>
+  
   );
 };
 

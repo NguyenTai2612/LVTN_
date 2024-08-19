@@ -33,7 +33,7 @@ const ProductDetails = () => {
         }
       );
 
-      fetchDataFromApi(`/api/products/recentlyViewd`).then((response) => {
+      fetchDataFromApi(`api/products/recentlyViewd`).then((response) => {
         console.log("Recently Viewed Products Data:", response);
         setRecentlyViewdProd(response);
       });
