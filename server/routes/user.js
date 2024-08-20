@@ -4,15 +4,54 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// router.post(`/signup`, async (req, res) => {
+//   const { name, phone, email, password } = req.body;
+
+//   try {
+//     const exitingUser = await User.findOne({ email: email });
+//     const exitingUserByPh = await User.findOne({ phone: phone });
+
+//     if (exitingUser && exitingUserByPh) {
+//       return res.status(400).json({ status:false, msg: "user already exists!" });
+//     }
+
+//     const hashPassword = await bcrypt.hash(password, 10);
+
+//     const result = await User.create({
+//       name: name,
+//       phone: phone,
+//       email: email,
+//       password: hashPassword,
+//     });
+
+//     const token = jwt.sign(
+//       { email: result.email, id: result._id },
+//       process.env.JSON_WEB_TOKEN_SECRET_KEY
+//     );
+
+//     res.status(200).json({
+//       user: result,
+//       token: token,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({status:false , msg: "something went wrong" });
+//   }
+// });
+
 router.post(`/signup`, async (req, res) => {
   const { name, phone, email, password } = req.body;
 
   try {
-    const exitingUser = await User.findOne({ email: email });
-    const exitingUserByPh = await User.findOne({ phone: phone });
+    const existingUserByEmail = await User.findOne({ email: email });
+    const existingUserByPhone = await User.findOne({ phone: phone });
 
-    if (exitingUser && exitingUserByPh) {
-      return res.status(400).json({ status:false, msg: "user already exists!" });
+    if (existingUserByEmail) {
+      return res.status(400).json({ status: false, msg: "Email already exists!" });
+    }
+
+    if (existingUserByPhone) {
+      return res.status(400).json({ status: false, msg: "Phone number already exists!" });
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -35,9 +74,10 @@ router.post(`/signup`, async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({status:false , msg: "something went wrong" });
+    res.status(500).json({ status: false, msg: "Something went wrong" });
   }
 });
+
 
 router.post(`/signin`, async (req, res) => {
   const { email, password } = req.body;

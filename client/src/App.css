@@ -9,7 +9,9 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css');
 
 
-
+body {
+  line-height: 1.6 !important;
+}
 
 body {
   font-family: "Lato", sans-serif;
@@ -159,25 +161,23 @@ body {
   opacity: 0.8;
 }
 
-.header {
+/* .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #8B0000;
-  /* Dark red background color */
   padding: 10px 50px;
   color: white;
   flex-wrap: wrap;
-  /* Để các phần tử có thể xuống dòng nếu không đủ chỗ */
-}
+} */
 
-.header .container {
+/* .header .container {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   flex-wrap: wrap;
-}
+} */
 
 /* Đặt lại kiểu mặc định cho các nút */
 .swiper-button-prev,
@@ -248,9 +248,8 @@ body {
 }
 
 
-.header .logo img {
+/* .header .logo img {
   height: 50px;
-  /* Điều chỉnh chiều cao logo */
   margin-right: 10px;
 }
 
@@ -277,15 +276,14 @@ body {
   cursor: pointer;
   margin-left: -40px;
   font-size: 22px;
-}
+} */
 
-.header .menu {
+/* .header .menu {
   display: flex;
   align-items: center;
   margin-left: -30px;
-  /* Di chuyển menu sang trái */
-}
-
+} */
+/* 
 .header .menu div {
   display: flex;
   flex-direction: column;
@@ -308,9 +306,8 @@ body {
   display: flex;
   align-items: center;
   margin-left: 30px;
-  /* Di chuyển part3 sang trái */
-}
-
+} */
+/* 
 .header .part3 .cartTab {
   position: relative;
   margin-left: 19px;
@@ -329,53 +326,41 @@ body {
   border-radius: 50%;
   padding: 2px 6px;
   font-size: 12px;
-}
+} */
 
 /* CSS cho màn hình nhỏ */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .header {
     flex-direction: column;
-    /* Chuyển header thành cột */
     padding: 10px 20px;
-    /* Giảm padding */
   }
 
   .header .container {
     flex-direction: column;
-    /* Chuyển container thành cột */
   }
 
   .header .search-bar {
     max-width: 100%;
-    /* Đặt chiều rộng tối đa là 100% */
     margin: 10px 0;
-    /* Thêm khoảng cách trên và dưới */
   }
 
   .header .menu {
     flex-wrap: wrap;
-    /* Cho phép các phần tử trong menu xuống dòng */
     justify-content: center;
-    /* Canh giữa các phần tử trong menu */
     width: 100%;
     margin-left: 0;
-    /* Reset margin-left cho màn hình nhỏ */
   }
 
   .header .menu div {
     margin: 10px;
-    /* Thêm khoảng cách giữa các mục trong menu */
     flex: 1 1 45%;
-    /* Cho phép các mục co giãn, mỗi mục chiếm 45% chiều rộng */
   }
 
   .header .part3 {
     margin-top: 10px;
-    /* Thêm khoảng cách trên */
     margin-left: 0;
-    /* Reset margin-left cho màn hình nhỏ */
   }
-}
+} */
 
 /* navigation  */
 
@@ -397,13 +382,13 @@ body {
 
 .cartTab .count {
   position: absolute;
-  top: -6px;
-  right: -4px;
+  top: -7px;
+  right: -7px;
   background: #ea2b0f;
   border-radius: 50%;
   color: #fff;
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
 }
 
 /* .locationModal .MuiPaper-elevation{ padding: 25px; position: relative;}
@@ -432,9 +417,8 @@ color: #000 !important; justify-content: flex-start !important; padding: 10px 20
 }
 
 /* header  */
-.header {
+/* .header {
   background-color: #800000;
-  /* Dark red background color */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -503,7 +487,7 @@ color: #000 !important; justify-content: flex-start !important; padding: 10px 20
 
 .header .hotline div {
   margin: 0 10px;
-}
+} */
 
 nav .navPart1 {
   min-width: 25%;
@@ -1291,91 +1275,69 @@ font-size:medium;} */
   text-decoration: none;
 }
 
-
 .homeCat {
   padding: 0;
   margin: 20px auto;
-  padding-top: 10px;
   padding-bottom: 10px;
   width: 100%;
 }
 
 .homeCat .auto {
   max-width: 1200px;
-  /* Điều chỉnh kích thước tối đa của phần tử */
   margin: 0 auto;
-  /* Đảm bảo căn giữa phần tử */
 }
 
 .mySwiper {
   text-align: center;
-  /* Căn giữa nội dung Swiper */
 }
-
-.item_cat {
-  display: inline-block;
-  text-align: center;
-  /* Đảm bảo văn bản bên trong được căn giữa */
-}
-
-.image-container {
-  display: flex;
-  justify-content: center;
-  /* Căn giữa hình ảnh bên trong */
-  align-items: center;
-}
-
-/* căn giữa homeCat  */
-.homeCat .swiper-wrapper {
-  display: flex;
-  justify-content: center;
-  /* Căn giữa các slide */
-}
-
 
 .item_cat {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f2f2f2;
-  padding: 10px;
-  border-radius: 8px;
+  background: #e6e6e6;
+  border-radius:4px;
   transition: transform 0.3s ease, background-color 0.3s ease;
   text-align: center;
-  width: 80px;
-  /* Fix the width to ensure uniform size */
-  height: 100px;
-  /* Fix the height to ensure uniform size */
+  width: 111px;
+  height: 135px;
 }
 
 .item_cat:hover {
   transform: translateY(-5px);
-  background-color: #dcdcdc;
+  background-color: #ccc
 }
 
-.item_cat .image-container img {
-  width: 50px;
-  /* Resize image to fit within the smaller container */
-  height: auto;
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px; /* Increased width of the image container */
+  height: 80px; /* Increased height of the image container */
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
 }
 
 .item_cat h6 {
-  margin-top: 2px;
-  font-size: 15px;
-  /* Adjust font size for readability in smaller container */
+  margin-top: 10px; /* Adjusted margin for spacing */
+  font-size: 16px; /* Slightly larger font size */
   color: #333;
-  white-space: nowrap;
-  overflow: hidden;
+  white-space: normal; /* Allow text to wrap */
   text-overflow: ellipsis;
+  overflow: hidden;
   max-width: 100%;
 }
 
 .item_cat:hover h6 {
-  white-space: normal;
-  /* Allow text to wrap on hover if needed */
-  font-size: 11px;
-  /* Slightly smaller font on hover */
+  font-size: 14px; /* Adjusted font size on hover */
 }
 
 
@@ -1430,7 +1392,7 @@ h6 {
 
 /* footer  */
 footer {
-  background-color: #7A0001;
+  background-color: #333333c2;
   /* Background color as shown in the image */
   color: white;
   padding: 20px 0;
@@ -1671,9 +1633,9 @@ ul {
   padding-left: 0px;
 }
 
-ul li {
+/* ul li {
   margin-bottom: 5px;
-}
+} */
 
 
 
@@ -2113,7 +2075,7 @@ th {
 /* cart  */
 
 .cartPage {
-  background: #f4f4f4;
+  background: #bfbfb6;
   padding: 20px 0;
 }
 
@@ -2389,3 +2351,7 @@ th {
   border-radius: .25rem;
   transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
+
+.MuiCircularProgress-root{width: 30px !important; height: 30px !important; color: #ffffff !important;}
+.sign-up-button  svg{color: #ffffff !important;}
+

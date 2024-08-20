@@ -3,7 +3,7 @@ import SideBar from "../../Components/Sidebar";
 import { IoIosMenu } from "react-icons/io";
 import { CgMenuGridR } from "react-icons/cg";
 import ProductItem from "../../Components/ProductItem";
-import Pagination from '@mui/material/Pagination';
+import Pagination from "@mui/material/Pagination";
 
 import { TfiLayoutGrid4Alt } from "react-icons/tfi";
 import { Button } from "@mui/material";
@@ -11,12 +11,15 @@ import { FaAngleDown } from "react-icons/fa6";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useParams } from "react-router-dom";
-import {fetchDataFromApi} from "../../utils/api.js"
+import { fetchDataFromApi } from "../../utils/api.js";
 const Listing = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [productView, setProductView] = useState("four");
   const [productData, setProductData] = useState([]);
   const openDropDown = Boolean(anchorEl);
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -24,59 +27,90 @@ const Listing = () => {
     setAnchorEl(null);
   };
 
-  const {id} = useParams()
+  const { id } = useParams();
 
-  useEffect(()=>{
-    fetchDataFromApi(`/api/products?subCatId=${id}`).then((res)=>{
-      console.log(res)
-      setProductData(res.products)
-    })
-  },[id])
+  useEffect(() => {
+    window.scrollTo(0, 0);
 
-  const filterData =(subCatId)=>{
-    fetchDataFromApi(`/api/products?subCatId=${subCatId}`).then((res)=>{
-      setProductData(res.products)
-    })
-  }
+    let url = window.location.href;
+    let apiEndPoint = "";
 
-  const filterByPrice =(price,subCatId)=>{
-    fetchDataFromApi(`/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subCatId=${subCatId}`).then((res)=>{
-      setProductData(res.products)
-    })
-  }
+    if (url.includes("subCat")) {
+      apiEndPoint = `/api/products?subCat=${id}`;
+    }
+    if (url.includes("category")) {
+      apiEndPoint = `/api/products?category=${id}`;
+    }
 
-  const filterByRating =(rating,subCatId)=>{
-    fetchDataFromApi(`/api/products?rating=${rating}&subCatId=${subCatId}`).then((res)=>{
-      setProductData(res.products)
-    })
-  }
+    console.log(url);
+
+    setIsLoading(true);
+
+    fetchDataFromApi(`${apiEndPoint}`).then((res) => {
+      console.log(res);
+      setProductData(res.products);
+      setIsLoading(false);
+    });
+  }, [id]);
+
+  const filterData = (subCatId) => {
+    fetchDataFromApi(`/api/products?subCatId=${subCatId}`).then((res) => {
+      setProductData(res.products);
+    });
+  };
+
+  const filterByPrice = (price, subCatId) => {
+    fetchDataFromApi(
+      `/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subCatId=${subCatId}`
+    ).then((res) => {
+      setProductData(res.products);
+    });
+  };
+
+  const filterByRating = (rating, subCatId) => {
+    fetchDataFromApi(
+      `/api/products?rating=${rating}&subCatId=${subCatId}`
+    ).then((res) => {
+      setProductData(res.products);
+    });
+  };
 
   return (
     <div>
       <section className="product_Listing_Page">
         <div className="container">
           <div className="productListing d-flex">
-            <SideBar filterData={filterData}  filterByPrice={filterByPrice} filterByRating={filterByRating}/>
+            <SideBar
+              filterData={filterData}
+              filterByPrice={filterByPrice}
+              filterByRating={filterByRating}
+            />
 
             <div className="content-right">
               <div className="showBy mt-2 mb-3 d-flex align-items-center">
                 <div className="d-flex align-items-center btnWrapper">
-                  <Button className={productView==='one' && 'act'} onClick={() => setProductView("one")} >
+                  <Button
+                    className={productView === "one" && "act"}
+                    onClick={() => setProductView("one")}
+                  >
                     <IoIosMenu />
                   </Button>
-                  <Button className={productView==='three' && 'act'}  onClick={() => setProductView("three")} >
-                    <CgMenuGridR/>
+                  <Button
+                    className={productView === "three" && "act"}
+                    onClick={() => setProductView("three")}
+                  >
+                    <CgMenuGridR />
                   </Button>
-                  <Button className={productView==='four' && 'act'}  onClick={() => setProductView("four")}>
-                    <TfiLayoutGrid4Alt
-                     
-                    />
+                  <Button
+                    className={productView === "four" && "act"}
+                    onClick={() => setProductView("four")}
+                  >
+                    <TfiLayoutGrid4Alt />
                   </Button>
                 </div>
 
                 <div className="ml-auto showByFilter">
-                  <Button 
-                    onClick={handleClick}>
+                  <Button onClick={handleClick}>
                     Show 9 <FaAngleDown />
                   </Button>
                   <Menu
@@ -100,20 +134,20 @@ const Listing = () => {
               </div>
 
               <div className="productListing">
-                {
-                  productData?.map((item,index)=>{
-                    return (
-                      <ProductItem key={index} itemView={productView} item={item} />
-                    )
-                  })
-                }
-                
+                {productData?.map((item, index) => {
+                  return (
+                    <ProductItem
+                      key={index}
+                      itemView={productView}
+                      item={item}
+                    />
+                  );
+                })}
               </div>
 
-                <div className="d-flex align-items-center justify-content-center mt-5">
-                 <Pagination count={10} color="primary" size="large"/>
-                </div>
-
+              <div className="d-flex align-items-center justify-content-center mt-5">
+                <Pagination count={10} color="primary" size="large" />
+              </div>
             </div>
           </div>
         </div>

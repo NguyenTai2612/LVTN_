@@ -85,13 +85,11 @@ const Sidebar = (props) => {
           style={{ fontSize: "Smaller" }}
         >
           <span>
-            From:{" "}
             <strong className="text-dark">
               <Price amount={value[0]} />
             </strong>
           </span>
           <span className="ml-auto">
-            From:{" "}
             <strong className="text-dark">
               <Price amount={value[1]} />
             </strong>

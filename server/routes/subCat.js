@@ -9,12 +9,21 @@ router.get(`/`, async (req, res) => {
     const totalPosts = await SubCategory.countDocuments();
     const totalPages = Math.ceil(totalPosts / perPage);
 
-    if (page > totalPages) { return res.status(404).json({ message: "No data found" })}
+    if (page > totalPages) {
+      return res.status(404).json({ message: "No data found" });
+    }
 
-    const subCategoryList = await SubCategory.find().populate("category")
-    .skip((page - 1) * perPage)     
-    .limit(perPage)
-    .exec();
+    let subCategoryList = [];
+
+    if (req.query.page !== undefined && req.query.perPage !== undefined) {
+      subCategoryList = await SubCategory.find()
+        .populate("category")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+    } else {
+      subCategoryList = await SubCategory.find().populate("category");
+    }
 
     if (!subCategoryList.length) {
       return res
@@ -22,10 +31,10 @@ router.get(`/`, async (req, res) => {
         .json({ success: false, message: "No categories found." });
     }
     return res.status(200).json({
-      "subCategoryList":subCategoryList,     
-      "totalPages": totalPages,     
-      "page": page    
-      });
+      subCategoryList: subCategoryList,
+      totalPages: totalPages,
+      page: page,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -33,7 +42,9 @@ router.get(`/`, async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    const subCat = await SubCategory.findById(req.params.id).populate("category");
+    const subCat = await SubCategory.findById(req.params.id).populate(
+      "category"
+    );
     if (!subCat) {
       return res
         .status(404)
@@ -47,7 +58,6 @@ router.get("/:id", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   try {
-
     let subCat = new SubCategory({
       category: req.body.category,
       subCat: req.body.subCat,
@@ -66,8 +76,6 @@ router.post("/create", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-
-
     const deletedSubCat = await SubCategory.findByIdAndDelete(req.params.id);
 
     if (!deletedSubCat) {
@@ -115,4 +123,4 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-module.exports = router
+module.exports = router;

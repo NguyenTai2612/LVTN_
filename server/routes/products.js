@@ -116,7 +116,26 @@ router.get(`/`, async (req, res) => {
         totalPages: totalPages,
         page: page,
       });
-    } else {
+    } 
+
+    else if (req.query.page !== undefined && req.query.perPage !== undefined) {
+      productList = await Product.find().populate("category subCat")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+
+      if (!productList) {
+        return res.status(500).json({ success: false });
+      }
+
+      return res.status(200).json({
+        products: productList,
+        totalPages: totalPages,
+        page: page,
+      });
+    } 
+    
+    else {
       productList = await Product.find(req.query).populate("category subCat");
 
       if (!productList) {

@@ -84,7 +84,9 @@ function App() {
     isHeaderFooterShow,
     setIsHeaderFooterShow,
     setUser,
-    user
+    user,
+    setIsLogin,
+    isLogin,
   }
 
   useEffect(() => {

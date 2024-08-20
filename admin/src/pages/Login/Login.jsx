@@ -124,7 +124,7 @@ const Login = () => {
                             <FaUser className="input-icon" />
                             <input
                                 type="text" name="email" onChange={onChangeInput}
-                                placeholder="enter your email" required
+                                placeholder="enter your email" 
                             />
                         </div>
                         <div className="input-group">
@@ -133,7 +133,7 @@ const Login = () => {
                                 type={showPassword ? "text" : "password"}
                                 name="password" onChange={onChangeInput}
                                 placeholder="enter your password"
-                                required
+                                
                             />
                             <span onClick={togglePasswordVisibility} className="toggle-password">
                                 {showPassword ? "🙈" : "👁️"}
@@ -144,7 +144,7 @@ const Login = () => {
                         </p>
                         <button type="submit" className="sign-up-button">
                             {
-                                isLoading === true ? <CircularProgress /> : 'Sign Up '
+                                isLoading === true ? <CircularProgress /> : 'Sign In '
                             }
                         </button>
                     </form>

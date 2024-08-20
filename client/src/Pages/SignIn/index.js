@@ -1,20 +1,36 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { MyContext } from "../../App";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaFacebookF } from "react-icons/fa";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { FaTwitter } from "react-icons/fa";
 
 import { FaInstagram } from "react-icons/fa";
+import { postData } from "../../utils/api";
 
 const SignIn = () => {
   const context = useContext(MyContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const history = useNavigate();
+  const [formFields, setFormFields] = useState({
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
     context.setIsHeaderFooterShow(false);
   }, []);
+
+  const onChangeInput = (e) => {
+    setFormFields(() => ({
+      ...formFields,
+      [e.target.name]: e.target.value,
+    }));
+    return false;
+  };
 
   const styles = {
     button: {
@@ -36,6 +52,66 @@ const SignIn = () => {
       fontSize: "14px",
       fontWeight: "bold",
     },
+  };
+
+  const signIn = (e) => {
+    e.preventDefault();
+
+    if (formFields.email === "") {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "email can not be blank!",
+      });
+      return false;
+    }
+
+    if (formFields.password === "") {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "password can not be blank!",
+      });
+      return false;
+    }
+    setIsLoading(true);
+
+    postData(`/api/user/signin`, formFields).then((res) => {
+      try {
+        if (res.status !== false) {
+          localStorage.setItem("token", res.token);
+
+          const user = {
+            name: res.user?.name,
+            email: res.user?.email,
+            userId: res.user?.id,
+          };
+
+          localStorage.setItem("user", JSON.stringify(user));
+
+          context.setAlertBox({
+            open: true,
+            error: false,
+            msg: "User Login Successfully",
+          });
+
+          setTimeout(() => {
+            // history("/")
+            window.location.href = "/";
+          }, 2000);
+        } else {
+          setIsLoading(false);
+
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: res.msg,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
   };
 
   return (
@@ -64,14 +140,15 @@ const SignIn = () => {
           </div> */}
 
           <h2 className="text-center">Sign In</h2>
-          <form style={{ marginTop: "105px" }} className="">
+          <form style={{ marginTop: "105px" }} onSubmit={signIn}>
             <div className="form-group">
               <TextField
                 id="standard-basic"
                 label="Email"
                 type="email"
                 variant="standard"
-                required
+                name="email" 
+                onChange={onChangeInput}
                 className="w-100"
               />
             </div>
@@ -81,19 +158,23 @@ const SignIn = () => {
                 label="Password"
                 type="password"
                 variant="standard"
-                required
+                name="password" onChange={onChangeInput}
                 className="w-100"
               />
             </div>
             <a className="border-effect cursor">Forgot Password?</a>
 
             <div className="d-flex align-items-center mt-3 mb-3">
-              <Button className="btn-blue btn-lg col btn-big ">Sign In</Button>
+              <Button type="submit" className="btn-blue btn-lg col btn-big ">
+                {isLoading === true ? <CircularProgress /> : "Sign In "}
+              </Button>
 
-              <Link to={'/'}>
-                <Button 
-                  onClick={()=> context.setIsHeaderFooterShow(true)}
-                  className="btn-lg btn-big col ml-3" variant="outlined">
+              <Link to={"/"}>
+                <Button
+                  onClick={() => context.setIsHeaderFooterShow(true)}
+                  className="btn-lg btn-big col ml-3"
+                  variant="outlined"
+                >
                   CanCal
                 </Button>
               </Link>

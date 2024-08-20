@@ -20,7 +20,7 @@ const PageBottomRightBanner = () => {
   ];
 
   return (
-    <div className="pageBottomRightBannerSection">
+    <div className="container">
       <Slider {...settings}>
         {images.map((src, index) => (
           <div key={index} className="item">

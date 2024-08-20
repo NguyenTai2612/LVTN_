@@ -1,20 +1,111 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { MyContext } from "../../App";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaFacebookF } from "react-icons/fa";
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { FaTwitter } from "react-icons/fa";
 
 import { FaInstagram } from "react-icons/fa";
+import { postData } from "../../utils/api";
 
 const SignUp = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [formFields, setFormFields] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    isAdmin: false,
+  });
+
+  const history = useNavigate();
   const context = useContext(MyContext);
 
   useEffect(() => {
     context.setIsHeaderFooterShow(false);
   }, []);
+
+  const onChangeInput = (e) => {
+    setFormFields(() => ({
+      ...formFields,
+      [e.target.name]: e.target.value,
+    }));
+    return false;
+  };
+
+  const register = (e) => {
+    console.log(formFields);
+    e.preventDefault();
+    try {
+      if (formFields.name === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "name can not be blank!",
+        });
+        return false;
+      }
+
+      if (formFields.email === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "email can not be blank!",
+        });
+        return false;
+      }
+
+      if (formFields.phone === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "phone can not be blank!",
+        });
+        return false;
+      }
+
+      if (formFields.password === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "password can not be blank!",
+        });
+        return false;
+      }
+
+      setIsLoading(true);
+
+      postData(`/api/user/signup`, formFields).then((res) => {
+        if (res.status !== false) {
+          context.setAlertBox({
+            open: true,
+            error: false,
+            msg: "Register Successfully!",
+          });
+
+          setTimeout(() => {
+            // history("/signIn");
+            window.location.href="/signIn"
+          }, 2000);
+        } else {
+          setIsLoading(false);
+
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: res.msg,
+          });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const styles = {
     button: {
@@ -65,7 +156,7 @@ const SignUp = () => {
 
           <h2 className="text-center">Sign Up</h2>
 
-          <form style={{ marginTop: "95px" }} className="">
+          <form style={{ marginTop: "95px" }} onSubmit={register}>
             <div className="row">
               <div className="col-md-6">
                 <div className="form-group">
@@ -73,8 +164,9 @@ const SignUp = () => {
                     label="Name"
                     type="text"
                     variant="standard"
-                    required
                     className="w-100"
+                    name="name"
+                    onChange={onChangeInput}
                   />
                 </div>
               </div>
@@ -85,8 +177,9 @@ const SignUp = () => {
                     label="Phone No."
                     type="text"
                     variant="standard"
-                    required
                     className="w-100"
+                    name="phone"
+                    onChange={onChangeInput}
                   />
                 </div>
               </div>
@@ -97,8 +190,9 @@ const SignUp = () => {
                 label="Email"
                 type="email"
                 variant="standard"
-                required
                 className="w-100"
+                name="email"
+                onChange={onChangeInput}
               />
             </div>
             <div className="form-group">
@@ -107,8 +201,9 @@ const SignUp = () => {
                 label="Password"
                 type="password"
                 variant="standard"
-                required
                 className="w-100"
+                name="password"
+                onChange={onChangeInput}
               />
             </div>
             <a className="border-effect cursor">Forgot Password?</a>
@@ -116,8 +211,11 @@ const SignUp = () => {
             <div className="d-flex align-items-center mt-3 mb-3">
               <div className="row w-100">
                 <div className="col-md-6">
-                  <Button className="btn-blue btn-lg w-100 btn-big ">
-                    Sign In
+                  <Button
+                    type="submit"
+                    className="btn-blue btn-lg w-100 btn-big "
+                  >
+                    {isLoading === true ? <CircularProgress /> : "Sign Up "}
                   </Button>
                 </div>
 

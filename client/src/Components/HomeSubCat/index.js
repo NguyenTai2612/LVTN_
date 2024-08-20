@@ -6,37 +6,36 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 
-const HomeCat = ({ catData }) => {
+const HomeSubCat = ({ catData }) => {
   return (
     <div className="container">
       <section className="homeCat">
         <div className="auto">
           <Swiper
             slidesPerView={10}
-            spaceBetween={122}
+            spaceBetween={5}
             navigation={true}
             slidesPerGroup={4}
             modules={[Navigation]}
             className={`mySwiper ${
-              catData?.length <= 13 ? "centeredSwiper" : ""
+              catData?.length <= 10 ? "centeredSwiper" : ""
             }`}
           >
-            {catData?.length !== 0 ? (
-              catData?.map((cat, index) => (
+            {catData?.length > 0 ? (
+              catData.map((subcat, index) => (
                 <SwiperSlide key={index}>
-                  <Link to={`products/category/${cat?.id}`} style={{ textDecoration: 'none' }}>
-
+                  <Link to={`/subCat/${subcat?.id}`}>
                     <div className="item_cat text-center cursor">
                       <div className="image-container">
                         <img
                           src={
-                            cat?.images?.[0] || "/default-image.jpg"
+                            subcat?.category?.images?.[0] || "/default-image.jpg"
                           }
                           className="guitar-icon"
-                          alt={cat?.name}
+                          alt={subcat.name}
                         />
                       </div>
-                      <h6>{cat?.name}</h6>
+                      <h6>{subcat?.subCat}</h6>
                     </div>
                   </Link>
                 </SwiperSlide>
@@ -51,4 +50,4 @@ const HomeCat = ({ catData }) => {
   );
 };
 
-export default HomeCat;
+export default HomeSubCat;

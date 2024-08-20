@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { fetchDataFromApi } from "../../utils/api.js";
 import ProductItem from "../../Components/ProductItem";
 import GuitarHeader from "../../Components/GuitarHeader";
-import HomeCat from "../../Components/HomeCat";
 import { Button } from "@mui/material";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,6 +13,8 @@ import Navigation1 from "../../Components/Header/Navigation1";
 import Tabs from "@mui/material/Tabs";
 import { MyContext } from "../../App.js";
 import Tab from "@mui/material/Tab";
+import HomeSubCat from "../../Components/HomeSubCat/index.js";
+import HomeCat from "../../Components/HomeCat/index.js";
 
 const Home = () => {
   const [catData, setCatData] = useState([]);
@@ -69,12 +70,17 @@ const Home = () => {
 
   return (
     <div>
-      {/* <HomeCat /> */}
-      {context.subCategoryData?.length !== 0 && (
-        <HomeCat catData={context.subCategoryData} />
+      {/* <HomeSubCat /> */}
+      {/* {context.subCategoryData?.length !== 0 && (
+        <HomeSubCat catData={context.subCategoryData} />
+      )} */}
+
+      {context.categoryData?.length !== 0 && (
+        <HomeCat catData={context.categoryData} />
       )}
 
-      <Navigation1 />
+      {/* <HomeBanner /> */}
+
       <section className="homeProducts">
         <div className="container">
           <div className="row">

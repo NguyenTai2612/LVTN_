@@ -1,0 +1,282 @@
+.hnc-header-bottom {
+    background-color: #F3CA20;
+    /* Match background color */
+}
+
+.ktl-header-bottom-inner {
+    display: flex;
+    align-items: center;
+}
+
+.header-categories-nav {
+    position: relative;
+}
+
+.menu-opener {
+    display: flex;
+    background-color: #333;
+    color: #fff;
+    padding: 14px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    align-items: center;
+    color: #fff;
+    line-height: 1.5em;
+    font-weight: 500;
+    font-family: Roboto, sans-serif;
+}
+
+
+
+.menu-opener .icon-arrow {
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s;
+}
+
+.header-categories-nav:hover .menu-opener .icon-arrow {
+    transform: rotate(-180deg);
+}
+
+.menu>li {
+    position: relative;
+    /* Add dashed border between menu items */
+    /* Adjust padding to create space for the border */
+}
+
+.menu>li:last-child {
+    border-bottom: none;
+    /* Remove border from the last menu item */
+}
+
+.menu>li>a {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    color: #333;
+    text-decoration: none;
+}
+
+.categories-menu-dropdown .menu>li>a:hover {
+    padding-left: 2px;
+    background-color: #E6E6E6;
+}
+
+.categories-menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    width: 255px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+}
+
+.header-categories-nav:hover .categories-menu-dropdown {
+    display: block;
+}
+
+/* CSS cho border-right khi hover vào từng mục */
+.categories-menu-dropdown .menu>li:hover {
+    border-left: 4px solid #333;
+    /* Thay đổi màu sắc và độ dày của border-right */
+    padding-left: 3px;
+}
+
+/* Loại bỏ border-right cho mục cuối cùng */
+.categories-menu-dropdown .menu>li:hover {
+    border-left: 4px solid #333;
+    padding-left: 3px;
+
+}
+
+.categories-menu-dropdown .menu>li {
+    position: relative;
+    border-bottom: 1px dashed #ccc;
+    /* Dashed border dưới mỗi mục */
+}
+
+.menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu>li {
+    position: relative;
+}
+
+.menu>li>a {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    color: #333;
+    text-decoration: none;
+}
+
+
+
+.category-icon {
+    margin-left: 5px;
+    width: 20px;
+    height: 20px;
+}
+
+.sub-menu-dropdown {
+    display: none; /* Đảm bảo sub-menu luôn hiển thị khi cần */
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background-color: #fff;
+    width: 255px; /* Cập nhật kích thước cho giống với categories-menu-dropdown */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 0; /* Loại bỏ padding để giống với categories-menu-dropdown */
+    border-radius: 0; /* Loại bỏ bo tròn nếu không cần thiết */
+    z-index: 9999;
+}
+
+.count {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 4px 8px;
+  font-size: 12px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+
+.part3 {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Khoảng cách giữa Sign In và Giỏ hàng */
+}
+
+
+.btn-white {
+    background: #ffc1079c !important;
+    color: #000 !important;
+    text-transform: capitalize !important;
+    border: none !important;
+    padding: 5px 11px !important;
+    font-weight: normal !important;
+}
+
+.cartTab {
+  position: relative;
+}
+
+.menu>li:hover .sub-menu-dropdown {
+    display: block;
+}
+
+.sub-menu-dropdown a {
+    display: block;
+    padding: 10px; /* Cập nhật padding cho đồng nhất với categories-menu-dropdown */
+    color: #333;
+    text-decoration: none;
+    font-size: 16px; /* Cập nhật kích thước chữ để giống với categories-menu-dropdown */
+}
+
+.sub-menu-dropdown a:hover {
+    color: #f00;
+    background-color: #E6E6E6; /* Thay đổi màu nền khi hover giống categories-menu-dropdown */
+}
+
+.main-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.main-navigation .menu {
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.main-navigation .menu li {
+    list-style: none;
+}
+
+
+
+.highlight {
+    color: #f00;
+    font-weight: bold;
+}
+
+
+
+.categories-menu-dropdown .sub-menu-dropdown {
+    list-style-type: none;
+    /* Ẩn dấu chấm đầu dòng */
+    padding: 0;
+    /* Loại bỏ khoảng cách bên trái của sub-menu */
+    margin: 0;
+    /* Loại bỏ khoảng cách bên ngoài của sub-menu */
+}
+
+.main-navigation .menu {
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.main-navigation .menu li {
+    list-style: none;
+}
+
+.main-navigation .menu a {
+    padding: 16px 15px 18px 16px;
+    font-size: 15px;
+    color: #000;
+    font-weight: 500;
+    text-decoration: none;
+    line-height: 19px;
+    transition: all .3s ;
+}
+
+.main-navigation .menu a:hover {
+    color: #fff;
+    background-color: #333333;
+
+}
+@media (max-width: 991px) {
+    .mobile-menu-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+    }
+
+    .mobile-menu-content ul li {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .mobile-menu-content ul li a {
+        display: block;
+        padding: 14px 15px;
+        color: #333;
+        text-decoration: none;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .mobile-menu-content ul li a:hover {
+        background-color: #E6E6E6;
+        color: #f00;
+    }
+
+    .mobile-menu-content ul li .sub-menu-dropdown {
+        display: none; /* Ẩn sub-menu trên mobile, hiển thị khi nhấn vào menu cha */
+    }
+
+    .mobile-menu-content ul li.active .sub-menu-dropdown {
+        display: block; /* Hiển thị sub-menu khi menu cha được mở */
+    }
+}
