@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, {  useContext, useEffect, useState } from 'react';
 import DashboardBox from './components/DashboardBox';
 import { FaUserCircle } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
@@ -28,6 +28,7 @@ import Select from '@mui/material/Select';
 import SearchBox from '../../components/SearchBox';
 import Checkbox from '@mui/material/Checkbox';
 import ProductList from '../Products/productList';
+import { MyContext } from '../../App';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -99,8 +100,12 @@ const Dashboard = () => {
     setShowBy(event.target.value)
   };
 
-  const demoUrl = 'https://codesandbox.io/p/sandbox/tiny-area-chart-gq23nh';
+ 
+  const context = useContext(MyContext);
 
+    useEffect(() => {
+        context.setIsHeaderFooterShow(false);
+    }, []);
   return (
     <>
       <div className="section">
@@ -110,125 +115,7 @@ const Dashboard = () => {
           <DashboardBox color={["#2c78e5", "#60aff5"]} icon={<MdShoppingBag />} />
         </div>
 
-        {/* <div className='card shadow my-4 border-0'>
-                <div className='flex items-center mb-4 justify-between pt-3 px-4'>
-                    <h2 className='mb-0 font-bold text-md '>Best Selling Products</h2>
-
-                    <div className='ml-auto flex items-center gap-4'>
-                        <SearchBox />
-
-                        <div className=''>
-
-                            <FormControl size="small" className="w-100">
-
-                                <Select
-                                    value={showBy}
-                                    onChange={(e) => setShowBy(e.target.value)}
-                                    displayEmpty
-                                    inputProps={{ 'aria-label': 'Without label' }}
-                                    labelId="demo-select-small-label"
-                                    className="w-100">
-                                    <MenuItem value=""> <em>None</em> I
-                                    </MenuItem>
-                                    <MenuItem value={10}>10</MenuItem>
-                                    <MenuItem value={20}>20</MenuItem>
-                                    <MenuItem value={30}>30</MenuItem>
-                                </Select>
-
-                            </FormControl>
-
-                        </div>
-
-                    </div>
-
-                </div>
-                <div className='table-responsive mb-2'>
-                    <table className='table w-[100%] table-striped'>
-                        <thead className='thead-dark'>
-                            <tr>
-                                <th><Checkbox {...label} size='small' onChange={selectAll}/></th>
-                                <th>PRODUCTS</th>
-                                <th>CATEGORY</th>
-                                <th>BRAND</th>
-                                <th>PRICE</th>
-                                <th>STOCK</th>
-                                <th>RATING</th>
-                                <th>ORDER</th>
-                                <th>SALES</th>
-                                <th>ACTIONS</th>
-
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr>
-                                <td><Checkbox {...label} size='small' checked={isAllChecked}/></td>
-                                <td>
-                                    <div className='flex items-center gap-5 w-[300px]'>
-                                        <div className='imgWrapper shadow overflow-hidden w-[25%] h-[25%] rounded-md'>
-                                            <img src='https://mironcoder-hotash.netlify.app/images/product/01.webp' />
-                                        </div>
-
-                                        <div className='info w-[75%]'>
-                                            <h6>Tops and skirt set for Female...</h6>
-                                            <p>Women's exclusive summer Tops and skirt set for Female Tops and skirt set</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>woman</td>
-                                <td>richman</td>
-                                <td>
-                                    <div className='w-[70px]'>
-                                        <del class="old">$21.00</del>
-                                        <span class="new text-danger">$21.00</span>
-                                    </div>
-                                </td>
-                                <td>300</td>
-                                <td><Rating name="size-small" defaultValue={2.5} precision={0.5} readOnly size='small' /></td>
-                                <td>350</td>
-                                <td>$35k</td>
-                                <td>
-                                    <div className='actions flex items-center gap-2'>
-                                        <TooltipBox title="Edit" placement="top">
-                                            <button className='flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'><FiEdit3 /></button>
-                                        </TooltipBox>
-                                        <TooltipBox title="View" placement="top">
-                                            <button className='flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'><MdOutlineRemoveRedEye /></button>
-                                        </TooltipBox>
-                                        <TooltipBox title="Delete" placement="top">
-
-                                            <button className='flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'><MdOutlineDeleteOutline /></button>
-                                        </TooltipBox>
-
-                                    </div>
-                                </td>
-                            </tr>                   
-           
-                        </tbody>
-                    </table>
-                </div>
-                <div className='table-footer flex items-center justify-between py-2 px-3 mb-2'>
-
-                    <div className='flex items-center gap-3'>
-                        <h6 className='mb-0 text-sm'>Rows per page</h6>
-                        <Select
-                            labelId="demo-select-small-label"
-                            id="demo-select-small"
-                            value={perPage}
-                            label="Page"
-                            onChange={handleChange}
-                            size='small'
-                        >
-                            <MenuItem value={10}>10</MenuItem>
-                            <MenuItem value={20}>20</MenuItem>
-                            <MenuItem value={40}>40</MenuItem>
-                            <MenuItem value={50}>50</MenuItem>
-                        </Select>
-                    </div>
-                    <Pagination count={10} color={"primary"} showFirstButton showLastButton className='ml-auto' />
-                </div>
-
-            </div> */}
+      
         <ProductList />
 
 

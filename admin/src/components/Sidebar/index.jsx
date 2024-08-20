@@ -28,7 +28,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className='sidebar fixed top-0 left-0 z-[100] w-[15%]'>
+    <div className='sidebar fixed top-0 left-0 z-[100] w-[17%]'>
       <Link to={'/'}>
         <div className='logoWrapper py-3 px-4'>
           <img src={Logo} className='w-100' />

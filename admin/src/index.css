@@ -152,8 +152,35 @@ opacity: 1;}
 .main .sidebarWrapper .sidebar .sidebarTabs li button.rotate {
   transform: rotate(90deg);
 }
+.user-info {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px; /* Adjust spacing between avatar and user info */
+}
 
+.user-name {
+  font-size: 15px; /* Adjust font size as needed */
+  font-weight: bold; /* Makes the name bold */
+  color: #333; /* Text color for the name */
+}
 
+.user-email {
+  font-size: 12px; /* Adjust font size as needed */
+  color: #666; /* Text color for the email */
+}
+
+.main1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0b1e3f;
+  font-family: 'Arial', sans-serif;
+  /* margin-right: -113px; */
+  margin-left: 179px;
+  margin-right: -34px;
+  paddding: 53px 69px 50px 72px;
+}
 
 
 .main .sidebarWrapper .sidebar .sidebarTabs ul{max-height: 90vh; overflow: scroll; overflow-x: hidden; padding-bottom: 50px;}
@@ -580,14 +607,100 @@ button.add-specification-btn {
   margin-top: 20px;
 }
 
+.content_Right {
+   background: silver;
+}
+
+/* src/pages/Login.css */
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.login-container form div {
+  margin-bottom: 1rem;
+}
+
+.login-container form input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-container form button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.css-eqeipb-MuiPaper-root-MuiPopover-paper-MuiMenu-paper::before {
+  right: 142px !important;
+}
 
 
 
+.myAcc {
+  display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử nằm ngang */
+  align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+  cursor: pointer; /* Hiển thị con trỏ chuột khi di chuột qua */
+}
 
+.userImg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px; /* Khoảng cách giữa avatar và thông tin người dùng */
+}
 
+.rounded-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Kích thước của hình tròn */
+  height: 40px; /* Kích thước của hình tròn */
+  border-radius: 50%; /* Hình tròn */
+  background-color: #007bff; /* Màu nền */
+  color: white; /* Màu chữ */
+  font-size: 20px; /* Kích thước chữ */
+  font-weight: bold; /* Độ đậm của chữ */
+  text-align: center; /* Căn giữa chữ */
+  line-height: 50px; /* Căn giữa chữ theo chiều dọc */
+  border: 2px solid #ffffff; /* Đường viền xung quanh hình tròn */
+}
 
+.user-info {
+  display: flex;
+  flex-direction: column; /* Đặt thông tin người dùng theo chiều dọc */
+}
 
+.myAcc:hover {
+  background-color: rgba(0, 119, 247, 0.1); 
+  border-radius: 5px;
+}
 
+.user-name {
+  font-size: 16px; /* Kích thước chữ của tên người dùng */
+  font-weight: bold; /* Độ đậm của chữ */
+}
+
+.user-email {
+  font-size: 14px; /* Kích thước chữ của email */
+  color: #666; /* Màu chữ của email */
+}
 
 
 

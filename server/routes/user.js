@@ -9,9 +9,10 @@ router.post(`/signup`, async (req, res) => {
 
   try {
     const exitingUser = await User.findOne({ email: email });
+    const exitingUserByPh = await User.findOne({ phone: phone });
 
-    if (exitingUser) {
-      return res.status(400).json({ msg: "user already exists!" });
+    if (exitingUser && exitingUserByPh) {
+      return res.status(400).json({ status:false, msg: "user already exists!" });
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -34,7 +35,7 @@ router.post(`/signup`, async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "something went wrong" });
+    res.status(500).json({status:false , msg: "something went wrong" });
   }
 });
 
@@ -45,13 +46,13 @@ router.post(`/signin`, async (req, res) => {
     const exitingUser = await User.findOne({ email: email });
 
     if (!exitingUser) {
-      return res.status(404).json({ msg: "User not found!" });
+      return res.status(404).json({status:false , msg: "User not found!" });
     }
 
     const matchPassword = await bcrypt.compare(password, exitingUser.password);
 
     if (!matchPassword) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+      return res.status(400).json({status:false , msg: "Invalid credentials" });
     }
 
     const token = jwt.sign(
@@ -66,7 +67,7 @@ router.post(`/signin`, async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "something went wrong" });
+    res.status(500).json({ status:false ,msg: "something went wrong" });
   }
 });
 

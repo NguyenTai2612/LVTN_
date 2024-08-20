@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -20,6 +20,8 @@ import Divider from '@mui/material/Divider';
 // import Tooltip from '@mui/material/Tooltip';
 import Settings from '@mui/icons-material/Settings';
 import SearchBox from '../SearchBox';
+import { Link, useNavigate } from 'react-router-dom';
+import { MyContext } from '../../App';
 
 
 const Header = () => {
@@ -31,6 +33,23 @@ const Header = () => {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const history = useNavigate()
+
+    const context = useContext(MyContext)
+
+    const logout=()=>{
+        localStorage.clear()
+
+        context.setAlertBox({
+            open: true,
+            error: false,
+            msg: "Logout Successfully!"
+        })
+
+        setTimeout(() =>{
+            history("/login")
+        }, 2000)
+    }
 
     return (
         <header className='fixed top-0 right-0 bg-white py-3 z-[100] flex items-center justify-center px-4'>
@@ -45,7 +64,20 @@ const Header = () => {
                     </li>
                     <li>
                         <div className='myAcc' onClick={handleClick}>
-                            <UserImage />
+                            {/* <UserImage /> */}
+                            <div className="userImg">
+
+                                <span className="rounded-circle">
+
+                                    {context.user?.name?.charAt(0)}
+
+                                </span>
+
+                            </div>
+                            <div className='user-info'>
+                            <div className="user-name">{context.user?.name}</div>
+                            <div className="user-email">{context.user?.email}</div>
+                            </div>
                         </div>
 
                         <Menu
@@ -80,8 +112,8 @@ const Header = () => {
                                     },
                                 },
                             }}
-                            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                            transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+                            anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
                         >
                             <MenuItem onClick={handleClose}>
                                 <Avatar /> Profile
@@ -102,14 +134,21 @@ const Header = () => {
                                 </ListItemIcon>
                                 Settings
                             </MenuItem>
-                            <MenuItem onClick={handleClose}>
-                                <ListItemIcon>
-                                    <Logout fontSize="small" />
-                                </ListItemIcon>
-                                Logout
-                            </MenuItem>
+                            <Link to={'/login'}>
+                                <MenuItem onClick={logout}>
+                                    <ListItemIcon>
+                                        <Logout fontSize="small" />
+                                    </ListItemIcon>
+                                    Logout
+                                </MenuItem>
+                            </Link>
                         </Menu>
                     </li>
+
+                    <li className="user-info">
+                        
+                    </li>
+
                 </ul>
             </div>
         </header>

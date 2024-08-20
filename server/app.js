@@ -12,7 +12,7 @@ app.options('*', cors());
 
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(authJwt());
+// app.use(authJwt());
 
 
 

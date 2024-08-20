@@ -19,12 +19,24 @@ import SubCatAdd from './pages/Category/addSubCat.jsx'
 import SubCatList from './pages/Category/subCategoryList.jsx'
 import EditSubCategory from './pages/Category/editSubCat.jsx'
 import ProductDetails from './pages/Products/productDetails.jsx'
+import SignUp from './pages/SignUp/index.jsx'
+import Login from './pages/Login/Login.jsx'
 
 const MyContext = createContext()
 
 function App() {
   const [catData, setCatData] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
+
+  const [isLogin, setIsLogin] = useState(false);
+  const [isHeaderFooterShow, setIsHeaderFooterShow] = useState(false);
+
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    userId: ""
+  });
+
 
   const [progress, setProgress] = useState(0)
   const [baseUrl, setBaseUrl] = useState("http://localhost:4000")
@@ -52,7 +64,7 @@ function App() {
   const fetchSubCategory = () => {
     fetchDataFromApi('/api/subCat').then((res) => {
       setSubCatData(res)
-      
+
 
       setProgress(100)
     })
@@ -67,9 +79,30 @@ function App() {
     fetchCategory,
     fetchSubCategory,
     subCatData,
+    isLogin,
+    setIsLogin,
+    isHeaderFooterShow,
+    setIsHeaderFooterShow,
+    setUser,
+    user
   }
 
- 
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+
+    if(token!=="" && token!==null && token!==undefined){
+      setIsLogin(true)
+
+      const userData = JSON.parse(localStorage.getItem("user"))
+      
+
+      setUser(userData)
+
+    }else{
+      setIsLogin(false)
+    }
+
+  },[isLogin])
 
 
   const handleClose = (event, reason) => {
@@ -106,13 +139,22 @@ function App() {
             </Alert>
           </Snackbar>
           <section className='main flex'>
-            <div className='sidebarWrapper w-[17%]'>
-              <Sidebar />
-            </div>
+            {
+              isHeaderFooterShow === false &&
+              (<div className='sidebarWrapper w-[17%]'>
+                <Sidebar />
+              </div>)
+            }
 
-            <div className='content_Right w-[83%] px-4' style={{ background: 'silver' }}>
-              <Header />
-              <div className='space'></div>
+
+            <div className={`w-[83%] px-4 ${isHeaderFooterShow ? '' : 'content_Right'}`}>
+              {
+                isHeaderFooterShow === false &&
+                <>
+                  <Header />
+                  <div className='space'></div>
+                </>
+              }
               <Routes>
                 <Route path='/' exact={true} element={<Dashboard />} />
                 <Route path='/product/list' exact={true} element={<ProductList />} />
@@ -125,8 +167,10 @@ function App() {
                 <Route path='/subCategory' exact={true} element={<SubCatList />} />
                 <Route path='/subCategory/add' exact={true} element={<SubCatAdd />} />
                 <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
+                <Route path='/signUp' exact={true} element={<SignUp />} />
+                <Route path='/login' exact={true} element={<Login />} />
 
-                
+
 
               </Routes>
             </div>
