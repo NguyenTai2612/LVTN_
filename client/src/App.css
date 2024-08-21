@@ -382,13 +382,14 @@ body {
 
 .cartTab .count {
   position: absolute;
-  top: -7px;
-  right: -7px;
+  top: 6px;
+  right: 31px;
   background: #ea2b0f;
   border-radius: 50%;
-  color: #fff;
-  width: 19px;
-  height: 19px;
+  width: 22px;
+  height: 21px;
+  font-size: 14px;
+  padding: 1px 0px 0px 7px;
 }
 
 /* .locationModal .MuiPaper-elevation{ padding: 25px; position: relative;}
@@ -1033,6 +1034,7 @@ font-size:medium;} */
 
 .btn-round {
   border-radius: 30px !important;
+  font-size: 13px !important;
 }
 
 .btn-add-to-cart {
@@ -1177,9 +1179,12 @@ font-size:medium;} */
 }
 
 .MuiTabs-indicator {
-  background-color: #563ce7 !important; /* Thay đổi màu sắc */
-  height: 4px !important; /* Thay đổi chiều cao của chỉ báo */
-  border-radius: 4px; /* Làm tròn góc */
+  background-color: #563ce7 !important;
+  /* Thay đổi màu sắc */
+  height: 4px !important;
+  /* Thay đổi chiều cao của chỉ báo */
+  border-radius: 4px;
+  /* Làm tròn góc */
 }
 
 /* guitar header  */
@@ -1201,31 +1206,38 @@ font-size:medium;} */
 } */
 
 .filterTabs {
-  background-color: #ecf0f1; /* Màu nền nhạt hơn cho Tabs */
+  background-color: #ecf0f1;
+  /* Màu nền nhạt hơn cho Tabs */
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Tăng độ bóng cho shadow */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Tăng độ bóng cho shadow */
 }
 
 .item {
   transition: all 0.3s ease;
-  color: #34495e; /* Màu chữ mặc định */
+  color: #34495e;
+  /* Màu chữ mặc định */
   font-weight: 500;
 }
 
 .links .item:hover {
-  background-color: rgb(177, 159, 159); /* Màu đỏ cho hiệu ứng hover */
+  background-color: rgb(177, 159, 159);
+  /* Màu đỏ cho hiệu ứng hover */
   color: white;
   border-radius: 8px;
-  padding: 10px 15px; /* Thêm padding để tab trông lớn hơn */
+  padding: 10px 15px;
+  /* Thêm padding để tab trông lớn hơn */
 }
 
 .Mui-selected {
-  color: #000000 !important; /* Đổi màu chữ cho tab được chọn */
+  color: #000000 !important;
+  /* Đổi màu chữ cho tab được chọn */
   font-weight: bold;
 }
 
 .MuiTabs-indicator {
-  background-color: #000000; /* Màu của chỉ báo khi tab được chọn */
+  background-color: #000000;
+  /* Màu của chỉ báo khi tab được chọn */
   height: 3px;
   border-radius: 5px;
 }
@@ -1266,7 +1278,8 @@ font-size:medium;} */
 }
 
 .view-all {
-  margin-left: auto; /* This pushes the view-all section to the far right */
+  margin-left: auto;
+  /* This pushes the view-all section to the far right */
   font-size: 14px;
 }
 
@@ -1297,7 +1310,7 @@ font-size:medium;} */
   align-items: center;
   justify-content: center;
   background: #e6e6e6;
-  border-radius:4px;
+  border-radius: 4px;
   transition: transform 0.3s ease, background-color 0.3s ease;
   text-align: center;
   width: 111px;
@@ -1313,8 +1326,10 @@ font-size:medium;} */
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 80px; /* Increased width of the image container */
-  height: 80px; /* Increased height of the image container */
+  width: 80px;
+  /* Increased width of the image container */
+  height: 80px;
+  /* Increased height of the image container */
   overflow: hidden;
   background-color: transparent;
 }
@@ -1327,17 +1342,21 @@ font-size:medium;} */
 }
 
 .item_cat h6 {
-  margin-top: 10px; /* Adjusted margin for spacing */
-  font-size: 16px; /* Slightly larger font size */
+  margin-top: 10px;
+  /* Adjusted margin for spacing */
+  font-size: 16px;
+  /* Slightly larger font size */
   color: #333;
-  white-space: normal; /* Allow text to wrap */
+  white-space: normal;
+  /* Allow text to wrap */
   text-overflow: ellipsis;
   overflow: hidden;
   max-width: 100%;
 }
 
 .item_cat:hover h6 {
-  font-size: 14px; /* Adjusted font size on hover */
+  font-size: 14px;
+  /* Adjusted font size on hover */
 }
 
 
@@ -1968,7 +1987,7 @@ th {
 
 
 .section {
-  padding: 20px 0px;
+  padding: 2px 0px;
 }
 
 /* description */
@@ -2078,7 +2097,13 @@ th {
   background: #bfbfb6;
   padding: 20px 0;
 }
-
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+  font-weight: 500;
+}
 .cartPage .container {
   background: #fff;
   border-radius: 8px;
@@ -2104,10 +2129,13 @@ th {
 }
 
 .cartItemimgWrapper .imgWrapper {
-  width: 100px;
-  height: 100px;
+  width: 80%;
   overflow: hidden;
   margin-right: 15px;
+}
+
+.cartItemimgWrapper .info {
+  width: 90%;
 }
 
 .cartItemimgWrapper .imgWrapper img {
@@ -2124,6 +2152,8 @@ th {
 .cartItemimgWrapper .info {
   flex-grow: 1;
 }
+
+
 
 .remove {
   color: rgb(238, 79, 79);
@@ -2352,6 +2382,24 @@ th {
   transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.MuiCircularProgress-root{width: 30px !important; height: 30px !important; color: #ffffff !important;}
-.sign-up-button  svg{color: #ffffff !important;}
+.MuiCircularProgress-root {
+  width: 30px !important;
+  height: 30px !important;
+  color: #ffffff !important;
+}
 
+.sign-up-button svg {
+  color: #ffffff !important;
+}
+
+.loading {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+
+  cursor: wait;
+  background: rgba(255, 255, 255, 0.7);
+}

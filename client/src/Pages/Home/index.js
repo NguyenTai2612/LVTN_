@@ -21,7 +21,7 @@ const Home = () => {
   const [productsData, setProductsData] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [fluteData, setFluteData] = useState([]);
-  const [selectedCat, setSelectCat] = useState("Giảm giá");
+  const [selectedCat, setSelectCat] = useState("AMPLIFIER");
   const [filterData, setFilterData] = useState([]);
 
   const [value, setValue] = React.useState(0);
@@ -69,7 +69,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div >
       {/* <HomeSubCat /> */}
       {/* {context.subCategoryData?.length !== 0 && (
         <HomeSubCat catData={context.subCategoryData} />
@@ -81,8 +81,8 @@ const Home = () => {
 
       {/* <HomeBanner /> */}
 
-      <section className="homeProducts">
-        <div className="container">
+      <section className="homeProducts" >
+        <div className="container" >
           <div className="row">
             <div className="col-md-3">
               <div className="banner">

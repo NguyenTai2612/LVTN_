@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 
-const QuantityBox = () => {
+const QuantityBox = (props) => {
   const [quantity, setQuantity] = useState(1); // State to track quantity
 
+  useEffect(()=>{
+    if(props?.value!==undefined && props?.value!==null && props?.value!=="" ){
+      setQuantity(parseInt(props?.value))
+    }
+  },[props.value])
+  
   const increaseQuantity = () => {
     setQuantity(quantity + 1);
   };
@@ -13,6 +19,19 @@ const QuantityBox = () => {
       setQuantity(quantity - 1);
     }
   };
+
+
+
+  useEffect(()=>{
+    props?.quantity(quantity)
+    props?.selectedItem(props.item, quantity)
+  },[quantity])
+
+  // useEffect(()=>{
+  //   if(props?.selectedQty!==undefined &&props?.selectedQty!==null) {
+  //     setQuantity(props?.selectedQty)
+  //   }
+  // },[props.selectedQty])
   return (
     <div>
       <div className="quantity-selector d-flex align-items-center">

@@ -30,12 +30,13 @@ import Tooltip from "@mui/material/Tooltip";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
+import Price from "../Price";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const context = useContext(MyContext);
   const open = Boolean(anchorEl);
-  const history = useNavigate()
+  const history = useNavigate();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -121,7 +122,7 @@ const Header = () => {
                   <div className="part3">
                     {context.isLogin !== true ? (
                       <Link to={"/signIn"}>
-                        <Button className="btn-white btn-round">Sign In</Button>
+                        <Button className="btn-white btn-round">Log In</Button>
                       </Link>
                     ) : (
                       <>
@@ -129,18 +130,18 @@ const Header = () => {
                           style={{
                             fontSize: "30px",
                             cursor: "pointer",
-                            color: "#007bff",
+                            color: "#000",
                             transition: "color 0.3s ease",
                           }}
                           onMouseOver={(e) =>
-                            (e.currentTarget.style.color = "#ff5733")
+                            (e.currentTarget.style.color = "#007bff")
                           }
                           onMouseOut={(e) =>
-                            (e.currentTarget.style.color = "#007bff")
+                            (e.currentTarget.style.color = "#000")
                           }
                           onClick={handleClick}
                         >
-                          <FiUser />
+                          <FiUser style={{ marginTop: "2" }} />
                         </Button>
                         <Menu
                           anchorEl={anchorEl}
@@ -160,7 +161,6 @@ const Header = () => {
                           <MenuItem onClick={handleClose}>
                             <ListItemIcon>
                               <FaUser
-                                className="mr-2"
                                 style={{ fontSize: "20" }}
                               />
                             </ListItemIcon>
@@ -197,7 +197,18 @@ const Header = () => {
                             style={{ fontSize: "30", cursor: "pointer" }}
                           />
                         </Link>
-                        <span className="count text-white">1</span>
+                        <span className="count text-white">{context.cartData?.length}</span>
+                        <span className=" text-black">
+                          {context.cartData?.length !== 0 && (
+                            <Price
+                              amount={context.cartData?.map(
+                                  (item) => parseInt(item.price) * item.quantity
+                                )
+                                .reduce((total, value) => total + value, 0)}
+                              className="your-custom-classname" // Replace with your actual class name if needed
+                            />
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>

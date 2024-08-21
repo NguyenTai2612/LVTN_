@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ProductZoom from "../../Components/ProductZoom";
 import Gift from "../../Components/Gift";
 import { Rating } from "@mui/material";
@@ -9,6 +9,7 @@ import RelatedProduct from "./RelatedProducts";
 import { useParams } from "react-router-dom";
 import { fetchDataFromApi, postData } from "../../utils/api";
 import Price from "../../Components/Price";
+import { MyContext } from "../../App";
 
 const ProductDetails = () => {
   const [activeSize, setActiveSize] = useState(null);
@@ -16,10 +17,12 @@ const ProductDetails = () => {
   const [productData, setProductData] = useState([]);
   const [relatedProductData, setRelatedProductData] = useState([]);
   const [recentlyViewdProd, setRecentlyViewdProd] = useState([]);
+  let [cartFields, setCartFields] = useState({});
+  let [productQty, setProductQty] = useState();
 
   const specifications = productData?.specifications || {};
   const { id } = useParams();
-
+  const context = useContext(MyContext)
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -41,6 +44,30 @@ const ProductDetails = () => {
       postData(`/api/products/recentlyViewd`, res);
     });
   }, [id]);
+
+  const quantity=(val)=>{
+    setProductQty(val)
+  }
+
+  const addtoCart = (data)=>{
+    
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    cartFields.productTitle = productData?.name
+    cartFields.image= productData?.images[0]
+    cartFields.rating= productData?.rating
+    cartFields.price= productData?.price
+    cartFields.quantity= productQty
+    cartFields.subTotal= parseInt(productData?.price * productQty)
+    cartFields.productId= productData?.id
+    cartFields.userId= user?.userId
+    
+    context.addToCat(cartFields)
+  }
+
+  const  selectedItem=()=>{
+
+  }
 
   return (
     <div>
@@ -101,10 +128,16 @@ const ProductDetails = () => {
                 </div>
 
                 <div className="d-flex align-items-center mb-3">
-                  <QuantityBox />
+                  <QuantityBox quantity={quantity} selectedItem={selectedItem}/>
                   &nbsp; &nbsp; &nbsp; &nbsp;
-                  <Button className="btn-add-to-cart mr-auto">
-                    <FaCartPlus /> &nbsp; Thêm vào giỏ hàng
+                  <Button 
+                    className="btn-add-to-cart mr-auto"
+                    onClick={()=>addtoCart()}
+                  >
+                    <FaCartPlus /> &nbsp;
+                    {
+                      context.addingInCart === true ? "adding..." : "Thêm vào giỏ hàng"
+                    } 
                   </Button>
                 </div>
                 <div className="details-table mt-4">

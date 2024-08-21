@@ -12,7 +12,7 @@ import ProductDetails from "./Pages/ProductDetails";
 import Cart from "./Pages/Cart";
 import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
-import { fetchDataFromApi } from "./utils/api";
+import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import React from "react";
@@ -41,6 +41,7 @@ function App() {
     open: false,
     id: "",
   });
+  const [addingInCart, setAddingInCart] = useState(false);
 
   const [isHeaderFooterShow, setIsHeaderFooterShow] = useState(true);
   const [isLogin, setIsLogin] = useState(false);
@@ -48,34 +49,47 @@ function App() {
   const [categoryData, setCategoryData] = useState([]);
   const [subCategoryData, setSubCategoryData] = useState([]);
   const [activeCat, setActiveCat] = useState("");
+  const [cartData, setCartData] = useState();
   const [user, setUser] = useState({
     name: "",
     email: "",
-    userId: ""
+    userId: "",
   });
-  
+
   useEffect(() => {
     fetchDataFromApi(`/api/category`).then((res) => {
       setCategoryData(res.categoryList);
-      setActiveCat(res.categoryList[0]?.name);
+      // setActiveCat(res.categoryList[0]?.name);
     });
 
     fetchDataFromApi(`/api/subCat`).then((res) => {
       setSubCategoryData(res.subCategoryList);
     });
+
+    fetchDataFromApi(`/api/cart`).then((res) => {
+      setCartData(res);
+    });
   }, []);
+
+  const getCartData = () => {
+    fetchDataFromApi(`/api/cart`).then((res) => {
+      setCartData(res);
+    });
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token !== "" && token !== null && token !== undefined) {
       setIsLogin(true);
-
+      console.log(isLogin);
+      localStorage.setItem("isLogin", "true");
       const userData = JSON.parse(localStorage.getItem("user"));
 
       setUser(userData);
     } else {
       setIsLogin(false);
+      localStorage.setItem("isLogin", "false");
     }
   }, [isLogin]);
 
@@ -85,6 +99,31 @@ function App() {
         setProductData(res);
       });
   }, [isOpenProductModal]);
+
+  const addToCat = (data) => {
+    setAddingInCart(true);
+    postData(`/api/cart/add`, data).then((res) => {
+      if (res.status !== false) {
+        setAlertBox({
+          open: true,
+          error: false,
+          msg: "Item is added the cart",
+        });
+
+        setTimeout(() => {
+          setAddingInCart(false);
+        }, 1000);
+        getCartData();
+      } else {
+        setAlertBox({
+          open: true,
+          error: true,
+          msg: res.msg,
+        });
+        setAddingInCart(false);
+      }
+    });
+  };
 
   const values = {
     countryList,
@@ -104,12 +143,16 @@ function App() {
     setActiveCat,
     setAlertBox,
     alertBox,
+    addToCat,
+    setAddingInCart,
+    addingInCart,
+    setCartData,
+    cartData,
+    getCartData,
   };
   return (
     <BrowserRouter>
       <MyContext.Provider value={values}>
-        {isHeaderFooterShow === true && <Header />}
-
         <Snackbar
           open={alertBox.open}
           autoHideDuration={6000}
@@ -124,6 +167,8 @@ function App() {
             {alertBox.msg}
           </Alert>
         </Snackbar>
+        {isHeaderFooterShow === true && <Header />}
+
         <Routes>
           <Route path="/" exact={true} element={<Home />} />
           <Route path="/subCat/:id" exact={true} element={<Listing />} />
