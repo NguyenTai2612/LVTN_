@@ -8,6 +8,8 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css');
 
+.css-10nakn3-MuiModal-root-MuiPopover-root-MuiMenu-root{z-index: 1000000 !important;} 
+.css-10nakn3-MuiModal-root-MuiPopover-root-MuiMenu-root .MuiPaper-elevation{max-height: 350px !important;}
 
 body {
   line-height: 1.6 !important;
@@ -1030,6 +1032,7 @@ font-size:medium;} */
 .btn-big {
   font-size: 15px !important;
   padding: 10px 20px !important;
+  width: 100%;
 }
 
 .btn-round {
@@ -2108,6 +2111,7 @@ th {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding-bottom: 100px;
 }
 
 .cartPage .table {
@@ -2403,3 +2407,45 @@ th {
   cursor: wait;
   background: rgba(255, 255, 255, 0.7);
 }
+.checkoutForm .form-group{margin-bottom: 20px !important;}
+
+.order-info-text.order-info-text {
+  border-bottom: 2px solid #C51725;
+  padding-bottom: 3px;
+}
+.orderInfo{background: #fff !important; padding: 25px !important;}
+.orderInfo thead{border-top: 1px solid rgba(0, 0, 0, 0.1) !important; border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, .125);
+  border-radius: .25rem;
+  font-size: 14px;
+}
+
+
+
+
+.btn-red {
+  background: #ff2600 !important;
+  color: #fff !important;
+  width: 70%;
+}
+
+.confirm {
+  padding-left: 100px;
+}
+
+
+
+
+
+
+
+

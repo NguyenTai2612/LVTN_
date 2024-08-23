@@ -22,6 +22,7 @@ const productRoutes = require('./routes/products');
 const imageUploadRoutes = require('./routes/imageUpload'); // Add this line
 const userRoutes = require('./routes/user'); 
 const cart = require('./routes/cart.js'); 
+const productReviews = require('./routes/productReviews.js'); 
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/category', categoryRoutes);
@@ -30,6 +31,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/imageUpload', imageUploadRoutes); // Add this line
 app.use('/api/user', userRoutes);
 app.use('/api/cart', cart);
+app.use('/api/productReviews', productReviews);
 
 mongoose.connect(process.env.CONNECTION_STRING)
   .then(() => {

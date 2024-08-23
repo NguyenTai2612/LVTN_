@@ -13,7 +13,8 @@ text-transform: capitalize !important; padding: 7px 20px !important;}
 
 .topLoadingBar{height: 3px !important; background: #1866ee !important;}
 
-.btn-blue{background: #3872fa !important; color: #fff !important;
+.btn-red{background: #df3719 !important; color: #fff !important;}
+  .btn-blue{background: #3872fa !important; color: #fff !important;
 text-transform: capitalize !important; padding: 7px 20px !important;}
 .btn-blue:hover{background: #1353e9 !important;}
 .btn-blue svg{font-size: 18px;  color: #fff !important}

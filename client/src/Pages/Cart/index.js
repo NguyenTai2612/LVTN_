@@ -24,15 +24,16 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    fetchDataFromApi(`/api/cart`).then((res) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
       setCartData(res);
       setSelectedQty(res?.quantity);
-   
-
     });
   }, []);
 
   const removeItem = (id) => {
+    setIsLoading(true);
+
     deleteData(`/api/cart/${id}`).then((res) => {
       context.setAlertBox({
         open: true,
@@ -40,13 +41,26 @@ const Cart = () => {
         msg: "item remove from cart!",
       });
 
-      fetchDataFromApi(`/api/cart`).then((res) => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
         setCartData(res);
+        setIsLoading(false);
       });
 
-      context.getCartData()
+      context.getCartData();
     });
   };
+
+  // const checkout=async()=>{
+  //   const stripe = await loadStripe(process.env.REACT_STRIPE_PUBLISHABLE_KEY)
+
+  //   const cartProducts = cartData.map((product)=>({
+  //     productTitle:product?.productTitle,
+  //     image:product?.image,
+  //     price:product?.price,
+  //     quantity:product?.quantity,
+  //   }))
+  // }
 
   const selectedItem = (item, qtyVal) => {
     if (chengeQty !== 0) {
@@ -65,7 +79,7 @@ const Cart = () => {
       editData(`/api/cart/${item?._id}`, cartFields).then((res) => {
         setTimeout(() => {
           setIsLoading(false);
-          fetchDataFromApi(`/api/cart`).then((res) => {
+          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
             setCartData(res);
           });
         }, 500);
@@ -194,11 +208,12 @@ const Cart = () => {
                   </span>
                 </div>
                 <br />
-                <Button className="btn-blue bg-red btn-lg btn-big">
-                  {" "}
-                  <IoBagCheckOutline /> &nbsp;
-                  Thanh toán
-                </Button>
+                <Link className="checkout-btn w-100" to={`/checkout`}>
+                  <Button className="btn-blue bg-red btn-lg btn-big">
+                    {" "}
+                    <IoBagCheckOutline /> &nbsp; Thanh toán
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

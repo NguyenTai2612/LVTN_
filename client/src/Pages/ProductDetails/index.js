@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { fetchDataFromApi, postData } from "../../utils/api";
 import Price from "../../Components/Price";
 import { MyContext } from "../../App";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const ProductDetails = () => {
   const [activeSize, setActiveSize] = useState(null);
@@ -19,10 +20,12 @@ const ProductDetails = () => {
   const [recentlyViewdProd, setRecentlyViewdProd] = useState([]);
   let [cartFields, setCartFields] = useState({});
   let [productQty, setProductQty] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [reviewData, setReviewData] = useState([]);
 
   const specifications = productData?.specifications || {};
   const { id } = useParams();
-  const context = useContext(MyContext)
+  const context = useContext(MyContext);
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -43,31 +46,81 @@ const ProductDetails = () => {
 
       postData(`/api/products/recentlyViewd`, res);
     });
+
+    fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
+      setReviewData(res);
+    });
   }, [id]);
 
-  const quantity=(val)=>{
-    setProductQty(val)
-  }
+  const quantity = (val) => {
+    setProductQty(val);
+  };
 
-  const addtoCart = (data)=>{
-    
+  const addtoCart = (data) => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    cartFields.productTitle = productData?.name
-    cartFields.image= productData?.images[0]
-    cartFields.rating= productData?.rating
-    cartFields.price= productData?.price
-    cartFields.quantity= productQty
-    cartFields.subTotal= parseInt(productData?.price * productQty)
-    cartFields.productId= productData?.id
-    cartFields.userId= user?.userId
-    
-    context.addToCat(cartFields)
-  }
+    cartFields.productTitle = productData?.name;
+    cartFields.image = productData?.images[0];
+    cartFields.rating = productData?.rating;
+    cartFields.price = productData?.price;
+    cartFields.quantity = productQty;
+    cartFields.subTotal = parseInt(productData?.price * productQty);
+    cartFields.productId = productData?.id;
+    cartFields.userId = user?.userId;
 
-  const  selectedItem=()=>{
+    context.addToCat(cartFields);
+  };
 
-  }
+  const selectedItem = () => {};
+
+  const [rating, setRating] = useState(1);
+  const [reviews, setReviews] = useState({
+    productId: "",
+    customerName: "",
+    customerId: "",
+    review: "",
+    customerRating: "",
+  });
+
+  const onChangeInput = (e) => {
+    setReviews(() => ({
+      ...reviews,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const changeRating = (e) => {
+    setRating(e.target.value);
+    reviews.customerRating = e.target.value;
+  };
+
+  const addReview = (e) => {
+    e.preventDefault();
+
+    // const formdata = new FormData();
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    reviews.customerName = user?.name;
+    reviews.customerId = user?.userId;
+    reviews.productId = id;
+
+    setIsLoading(true);
+
+    postData(`/api/productReviews/add`, reviews).then((res) => {
+      setIsLoading(false);
+
+      reviews.customerRating = 1
+     
+      setReviews({
+        review:"",
+        customerRating:1 
+      })
+
+      fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
+        setReviewData(res);
+      });
+    });
+  };
 
   return (
     <div>
@@ -128,16 +181,19 @@ const ProductDetails = () => {
                 </div>
 
                 <div className="d-flex align-items-center mb-3">
-                  <QuantityBox quantity={quantity} selectedItem={selectedItem}/>
+                  <QuantityBox
+                    quantity={quantity}
+                    selectedItem={selectedItem}
+                  />
                   &nbsp; &nbsp; &nbsp; &nbsp;
-                  <Button 
+                  <Button
                     className="btn-add-to-cart mr-auto"
-                    onClick={()=>addtoCart()}
+                    onClick={() => addtoCart()}
                   >
                     <FaCartPlus /> &nbsp;
-                    {
-                      context.addingInCart === true ? "adding..." : "Thêm vào giỏ hàng"
-                    } 
+                    {context.addingInCart === true
+                      ? "adding..."
+                      : "Thêm vào giỏ hàng"}
                   </Button>
                 </div>
                 <div className="details-table mt-4">
@@ -298,47 +354,49 @@ const ProductDetails = () => {
                     <div className="col-md-8">
                       <h3>Customer questions & answers</h3>
                       <br />
-                      <div className="card p-4 reviewsCard flex-row">
-                        <div className="image">
-                          <div className="rounded-circle">
-                            <img
-                              src="https://wp.alithemes.com/html/nest/demo/assets/imgs/blog/author-2.png"
-                              alt="Customer"
-                            />
-                          </div>
-                          <span className="text-g d-block text-center font-weight-bold">
-                            Rinku Verma
-                          </span>
-                        </div>
-                        <div className="info pl-5">
-                          <div className="d-flex align-items-center w-100">
-                            <h5 className="">01/03/1993</h5>
-                            <div className="ml-auto">
-                              <Rating
-                                name="half-rating-read"
-                                value={4.5}
-                                precision={0.5}
-                                readOnly
-                                size="small"
-                              />
+
+                      {reviewData?.length !== 0 &&
+                        reviewData?.slice(0)?.reverse()?.map((item, index) => {
+                          return (
+                            <div
+                              className="card p-4 reviewsCard flex-row"
+                              key={index}
+                            >
+                              {/* <div className="image">
+                                <div className="rounded-circle"></div>
+                                <span className="text-g d-block text-center font-weight-bold">
+                                  {item?.customerName}
+                                </span>
+                              </div> */}
+                              <div className="info">
+                                <div className="d-flex align-items-center w-100">
+                                <h5 className="">{item?.customerName}</h5>
+                                 
+                                  <div className="ml-auto">
+                                    <Rating
+                                      name="half-rating-read"
+                                      value={item?.customerRating}
+                                      readOnly
+                                      size="small"
+                                    />
+                                  </div>
+                                </div>
+                                <h5 className="text-green-100">{item?.dateCreated}</h5>
+                                <p>{item?.review}</p>
+                              </div>
                             </div>
-                          </div>
-                          <p>
-                            Noodles & Company is an American fast-casual
-                            restaurant that offers international and American
-                            noodle dishes and pasta in addition to soups and
-                            salads...
-                          </p>
-                        </div>
-                      </div>
+                          );
+                        })}
+
                       <br className="res-hide" />
-                      <form className="reviewForm">
+                      <form className="reviewForm" value={reviews.review} onSubmit={addReview}>
                         <h4>Add a review</h4>
                         <div className="form-group">
                           <textarea
                             className="form-control"
                             placeholder="Write a Review"
                             name="review"
+                            onChange={onChangeInput}
                           ></textarea>
                         </div>
                         <div className="row">
@@ -348,7 +406,8 @@ const ProductDetails = () => {
                                 type="text"
                                 className="form-control"
                                 placeholder="Name"
-                                name="userName"
+                                name="customerName"
+                                onChange={onChangeInput}
                               />
                             </div>
                           </div>
@@ -356,8 +415,9 @@ const ProductDetails = () => {
                             <div className="form-group">
                               <Rating
                                 name="rating"
-                                value={4.5}
+                                value={rating}
                                 precision={0.5}
+                                onChange={changeRating}
                               />
                             </div>
                           </div>
@@ -368,7 +428,15 @@ const ProductDetails = () => {
                             type="submit"
                             className="btn-blue btn-lg btn-big btn-round"
                           >
-                            Submit Review
+                            {" "}
+                            {isLoading === true ? (
+                              <CircularProgress
+                                color="inherit"
+                                className="loader"
+                              />
+                            ) : (
+                              "Submit Review"
+                            )}
                           </Button>
                         </div>
                       </form>

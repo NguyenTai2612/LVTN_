@@ -16,11 +16,11 @@ import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import React from "react";
+import Checkout from "./Pages/Checkout";
 
 const MyContext = createContext();
 
 function App() {
-  const [countryList, setCountryList] = useState([]);
   const [alertBox, setAlertBox] = React.useState({
     msg: "",
     error: false,
@@ -42,7 +42,7 @@ function App() {
     id: "",
   });
   const [addingInCart, setAddingInCart] = useState(false);
-
+  const [countryList, setCountryList] = useState([]);
   const [isHeaderFooterShow, setIsHeaderFooterShow] = useState(true);
   const [isLogin, setIsLogin] = useState(false);
   const [productData, setProductData] = useState();
@@ -55,6 +55,18 @@ function App() {
     email: "",
     userId: "",
   });
+
+  
+  useEffect(() => {
+    getCountry("https://provinces.open-api.vn/api/p/");
+  }, []);
+
+  const getCountry = async (url) => {
+    const responsive = await axios.get(url).then((res) => {
+      setCountryList(res.data);
+      console.log(res.data);
+    });
+  };
 
   useEffect(() => {
     fetchDataFromApi(`/api/category`).then((res) => {
@@ -127,7 +139,7 @@ function App() {
 
   const values = {
     countryList,
-    setSelectCountry,
+    setCountryList,
     selectCountry,
     setIsOpenProductModal,
     isOpenProductModal,
@@ -185,6 +197,7 @@ function App() {
           <Route path="/cart" exact={true} element={<Cart />} />
           <Route path="/signIn" exact={true} element={<SignIn />} />
           <Route path="/signUp" exact={true} element={<SignUp />} />
+          <Route path="/checkout" exact={true} element={<Checkout />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
 
