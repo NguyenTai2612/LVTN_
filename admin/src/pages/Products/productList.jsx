@@ -71,14 +71,20 @@ const ProductList = () => {
     const [categoryVal, setCategoryVal] = useState('');
     const [subCategoryVal, setSubCategoryVal] = useState('');
     const [isFeatured, setIsFeatured] = useState('None');
+    const [page, setPage] = useState(1);
 
 
     const handleChange = (event, value) => {
         context.setProgress(40)
+        setPage(value)
 
         fetchDataFromApi(`/api/products?page=${value}`).then((res) => {
             setProductList(res);
-            context.setProgress(100)
+        context.setProgress(100)
+            window.scrollTo({
+                top: 200,
+                behavior: 'smooth',
+            })
 
         })
     };

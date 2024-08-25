@@ -9,6 +9,7 @@ import { MyContext } from "../../App";
 import { deleteData, editData, fetchDataFromApi } from "../../utils/api";
 import Price from "../../Components/Price/index.js";
 import { IoBagCheckOutline } from "react-icons/io5";
+import PayButton from "../Checkout/PayButton.js";
 const Cart = () => {
   const context = useContext(MyContext);
   const [cartData, setCartData] = useState([]);
@@ -70,6 +71,7 @@ const Cart = () => {
       cartFields.image = item?.image;
       cartFields.rating = item?.rating;
       cartFields.price = item?.price;
+      cartFields.brand = item?.brand;
       cartFields.quantity = qtyVal;
       cartFields.subTotal = parseInt(item?.price * qtyVal);
       cartFields.productId = item?.id;
@@ -208,12 +210,9 @@ const Cart = () => {
                   </span>
                 </div>
                 <br />
-                <Link className="checkout-btn w-100" to={`/checkout`}>
-                  <Button className="btn-blue bg-red btn-lg btn-big">
-                    {" "}
-                    <IoBagCheckOutline /> &nbsp; Thanh toán
-                  </Button>
-                </Link>
+                {/* <Link className="checkout-btn w-100" to={`/checkout`}> */}
+                  <PayButton cartItems={cartData}/>
+                {/* </Link> */}
               </div>
             </div>
           </div>

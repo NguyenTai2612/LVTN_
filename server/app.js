@@ -16,6 +16,7 @@ app.use(express.json());
 
 
 
+const stripe = require('./routes/stripe.js')
 const categoryRoutes = require('./routes/categories');
 const subCatRoutes = require('./routes/subCat');
 const productRoutes = require('./routes/products');
@@ -32,6 +33,7 @@ app.use('/api/imageUpload', imageUploadRoutes); // Add this line
 app.use('/api/user', userRoutes);
 app.use('/api/cart', cart);
 app.use('/api/productReviews', productReviews);
+app.use('/api/stripe', stripe);
 
 mongoose.connect(process.env.CONNECTION_STRING)
   .then(() => {

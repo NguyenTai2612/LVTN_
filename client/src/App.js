@@ -17,6 +17,8 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import React from "react";
 import Checkout from "./Pages/Checkout";
+import Success from "./Pages/Checkout/Success";
+import Orders from "./Pages/Orders";
 
 const MyContext = createContext();
 
@@ -195,9 +197,11 @@ function App() {
             element={<ProductDetails />}
           />
           <Route path="/cart" exact={true} element={<Cart />} />
+          <Route path="/checkout-success" exact={true} element={<Success />} />
           <Route path="/signIn" exact={true} element={<SignIn />} />
           <Route path="/signUp" exact={true} element={<SignUp />} />
           <Route path="/checkout" exact={true} element={<Checkout />} />
+          <Route path="/orders" exact={true} element={<Orders />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
 

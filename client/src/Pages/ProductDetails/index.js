@@ -63,6 +63,7 @@ const ProductDetails = () => {
     cartFields.image = productData?.images[0];
     cartFields.rating = productData?.rating;
     cartFields.price = productData?.price;
+    cartFields.brand = productData?.brand;
     cartFields.quantity = productQty;
     cartFields.subTotal = parseInt(productData?.price * productQty);
     cartFields.productId = productData?.id;

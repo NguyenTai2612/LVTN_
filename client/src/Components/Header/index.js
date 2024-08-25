@@ -168,12 +168,14 @@ const Header = () => {
                           </MenuItem>
 
                           <Divider />
-                          <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                              <FaFileCircleCheck style={{ fontSize: "20" }} />
-                            </ListItemIcon>
-                            Orders
-                          </MenuItem>
+                          <Link to={'/orders'}>
+                            <MenuItem onClick={handleClose}>
+                              <ListItemIcon>
+                                <FaFileCircleCheck style={{ fontSize: "20" }} />
+                              </ListItemIcon>
+                              Orders
+                            </MenuItem>
+                          </Link>
                           {/* <MenuItem onClick={handleClose}>
                             <ListItemIcon>
                               <Settings fontSize="small" />

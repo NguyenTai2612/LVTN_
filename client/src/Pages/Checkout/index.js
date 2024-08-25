@@ -91,6 +91,15 @@ const Checkout = () => {
     setWardName(selectedWardName);
   };
 
+  const addressInfo = {
+    ...formFields,
+    city: cityName,
+    district: districtName,
+    ward: wardName,
+    date: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
+  };
+  console.log(addressInfo);
+
   const checkout = (e) => {
     e.preventDefault();
 
@@ -139,14 +148,7 @@ const Checkout = () => {
       return false;
     }
 
-    const addressInfo = {
-      ...formFields,
-      city: cityName,
-      district: districtName,
-      ward: wardName,
-      date: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
-    };
-    console.log(addressInfo);
+   
   };
   return (
     <section>
@@ -360,3 +362,4 @@ const Checkout = () => {
 };
 
 export default Checkout;
+// edit 

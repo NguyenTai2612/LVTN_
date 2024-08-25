@@ -1,13 +1,13 @@
 import React, { useState, useRef, useContext } from "react";
 import Dialog from "@mui/material/Dialog";
 import { MdClose } from "react-icons/md";
+import Button from "@mui/material/Button";
 import { Rating } from "@mui/material";
 
 import { MyContext } from "../../App";
 
 import ProductZoom from "../ProductZoom";
 import QuantityBox from "../QuantityBox";
-import Button from "@mui/material/Button";
 import { FaCartPlus } from "react-icons/fa";
 import Price from "../Price";
 

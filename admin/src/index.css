@@ -703,6 +703,14 @@ button.add-specification-btn {
   color: #666; /* Màu chữ của email */
 }
 
+.tableFooter{padding-bottom: 20px;}
+
+.tableFooter p{margin-bottom: 0px; font-size: 14px; font-weight: 500;}
+
+.tableFooter.pagination{margin-left: auto;}
+
+.tableFooter p{ font-size: 14px; font-weight: 500; margin-bottom: 0px;}
+
 
 
 

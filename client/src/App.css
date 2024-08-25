@@ -2443,9 +2443,48 @@ th {
 }
 
 
+.text-center {
+    text-align: center !important;
+    padding-bottom: 135px;
+    padding-top: 44px;
+}
+.rounded-lg {
+  border-radius: 5px !important;
+  background-color: green;
+  padding: 41px 40px;
+}
 
+.tableFooter{padding-bottom: 20px;}
 
+.tableFooter p{margin-bottom: 0px; font-size: 14px; font-weight: 500;}
 
+.tableFooter.pagination{margin-left: auto;}
 
+.tableFooter p{ font-size: 14px; font-weight: 500; margin-bottom: 0px;}
 
+.orderTable td, .orderTable th{
+  white-space:nowrap ;
+}
 
+.orderTable .img{
+ width: 70px;
+ height: 40px;
+ overflow: hidden;
+}
+
+.orderTable .img img{
+  width: 100%;
+ }
+
+.badge-success {
+  color: #fff;
+  background-color: #28a745;
+  font-size: medium;
+}
+.badge-danger {
+  color: #fff;
+  background-color: #dc3545;
+  font-size: revert-layer;
+}
+.text-purple{color: #53348c !important;}
+.text-blue{color: #1c10be !important;}
