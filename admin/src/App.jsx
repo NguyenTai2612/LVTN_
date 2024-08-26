@@ -21,6 +21,7 @@ import EditSubCategory from './pages/Category/editSubCat.jsx'
 import ProductDetails from './pages/Products/productDetails.jsx'
 import SignUp from './pages/SignUp/index.jsx'
 import Login from './pages/Login/Login.jsx'
+import Orders from './pages/Orders/index.jsx'
 
 const MyContext = createContext()
 
@@ -69,6 +70,24 @@ function App() {
       setProgress(100)
     })
   }
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+
+    if(token!=="" && token!==null && token!==undefined){
+      setIsLogin(true)
+
+      const userData = JSON.parse(localStorage.getItem("user"))
+      setUser(userData)
+
+    }else{
+      setIsLogin(false)
+    }
+
+   
+
+  },[isLogin])
+
+  
 
   const values = {
     setAlertBox,
@@ -86,25 +105,9 @@ function App() {
     setUser,
     user,
     setIsLogin,
-    isLogin,
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem("token")
 
-    if(token!=="" && token!==null && token!==undefined){
-      setIsLogin(true)
-
-      const userData = JSON.parse(localStorage.getItem("user"))
-      
-
-      setUser(userData)
-
-    }else{
-      setIsLogin(false)
-    }
-
-  },[isLogin])
 
 
   const handleClose = (event, reason) => {
@@ -169,8 +172,9 @@ function App() {
                 <Route path='/subCategory' exact={true} element={<SubCatList />} />
                 <Route path='/subCategory/add' exact={true} element={<SubCatAdd />} />
                 <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
-                <Route path='/signUp' exact={true} element={<SignUp />} />
                 <Route path='/login' exact={true} element={<Login />} />
+                <Route path='/signUp' exact={true} element={<SignUp />} />
+                <Route path='/orders' exact={true} element={<Orders />} />
 
 
 

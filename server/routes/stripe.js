@@ -5,7 +5,7 @@ const stripe = require("stripe")(
   "sk_test_51PqaAV08AnOS0HgVK4TsO0LW6ArkdfuZNe6rhqYQi9PEgHuF6nDKUosW5XZbLytdk3rsqLfpg8M1i1w1Ef8IArNR00E16TsXNA"
 );
 
-// Create Order 
+// Create Order
 const createOrder = async (customer, data) => {
   const Items = JSON.parse(customer.metadata.cart);
 
@@ -18,17 +18,17 @@ const createOrder = async (customer, data) => {
   }
 
   const newOrder = new Order({
-    userId: userId,  // Sử dụng userId từ giỏ hàng
+    userId: userId, // Sử dụng userId từ giỏ hàng
     customerId: data.customer,
-    products: Items.map(item => ({
+    products: Items.map((item) => ({
       productTitle: item.productTitle,
-      image: item.image,  
+      image: item.image,
       brand: item.brand,
       quantity: item.quantity,
       subTotal: item.subTotal,
       price: item.price,
       productId: item.productId,
-      userId: item.userId
+      userId: item.userId,
     })),
     subTotal: data.amount_subtotal,
     total: data.amount_total,
@@ -44,7 +44,6 @@ const createOrder = async (customer, data) => {
     console.log("Order creation failed:", err);
   }
 };
-
 
 router.get(`/`, async (req, res) => {
   try {
@@ -91,6 +90,46 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: req.body.name,
+        email: req.body.email,
+        "shipping.address.city": req.body.address.city, // Updating nested address field
+        phone: req.body.phone,
+        customerId: req.body.customerId,
+        userId: req.body.userId,
+        products: req.body.products,
+        total: req.body.total,
+        payment_status: req.body.payment_status,
+        deliver_status: req.body.deliver_status,
+      },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not update!",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Order updated successfully!",
+      updatedOrder,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+
 router.delete("/:id", async (req, res) => {
   try {
     const deletedOrder = await Order.findByIdAndDelete(req.params.id);
@@ -114,15 +153,24 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-
 router.post("/create-checkout-session", async (req, res) => {
-
   const customer = await stripe.customers.create({
-    metadata:{
+    metadata: {
       userId: req.body.userId,
-      cart: JSON.stringify(req.body.cartItems),
+      // Giảm kích thước của dữ liệu trong metadata
+      cart: JSON.stringify(
+        req.body.cartItems.map((item) => ({
+          productTitle: item.productTitle,
+          image: item.image,
+          brand: item.brand,
+          quantity: item.quantity,
+          price: item.price,
+          userId: item.userId,
+          // productId: item.productId,
+        }))
+      ),
     },
-  })
+  });
 
   const line_items = req.body.cartItems.map((item) => {
     return {
@@ -133,7 +181,7 @@ router.post("/create-checkout-session", async (req, res) => {
           images: [item.image],
           metadata: {
             id: item.id,
-            brand: item.brand, 
+            brand: item.brand,
           },
         },
         unit_amount: item.subTotal,
@@ -220,11 +268,7 @@ router.post(
       let event;
 
       try {
-        event = stripe.webhooks.constructEvent(
-          req.body,
-          sig,
-          endpointSecret
-        );
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
         console.log("Webhooks verifired");
       } catch (err) {
         console.log(`Webhook Error: ${err.message}`);
@@ -233,18 +277,20 @@ router.post(
         return;
       }
       data = event.data.object;
-      eventType = event.type
+      eventType = event.type;
     } else {
       data = req.body.data.object;
-      eventType = req.body.type
+      eventType = req.body.type;
     }
-    if(eventType === "checkout.session.completed"){
-      stripe.customers.retrieve(data.customer).then((customer) =>{
+    if (eventType === "checkout.session.completed") {
+      stripe.customers
+        .retrieve(data.customer)
+        .then((customer) => {
+          createOrder(customer, data);
+        })
+        .catch((err) => console.log(err.message));
+    }
 
-        createOrder(customer, data)
-      }).catch(err => console.log(err.message))
-    }
-    
     res.send().end();
   }
 );
@@ -252,3 +298,5 @@ router.post(
 module.exports = router;
 
 // stripe listen --forward-to localhost:4000/api/stripe/webhook
+// stripe trigger payment_intent.succeeded
+// edit

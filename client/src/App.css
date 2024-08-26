@@ -2443,11 +2443,11 @@ th {
 }
 
 
-.text-center {
+/* .text-center {
     text-align: center !important;
     padding-bottom: 135px;
     padding-top: 44px;
-}
+} */
 .rounded-lg {
   border-radius: 5px !important;
   background-color: green;

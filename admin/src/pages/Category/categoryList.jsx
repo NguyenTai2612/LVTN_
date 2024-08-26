@@ -43,10 +43,10 @@ function handleClick(event) {
 }
 
 const CategoryList = () => {
-    const [isAllChecked, setIsAllChecked] = useState(false);
     const [open, setOpen] = React.useState(false);
     const [catData, setCatData] = useState([]);
     const context = useContext(MyContext);
+    const [isAllChecked, setIsAllChecked] = useState(false);
 
     const selectAll = (e) => {
         setIsAllChecked(e.target.checked);

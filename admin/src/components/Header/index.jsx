@@ -69,7 +69,7 @@ const Header = () => {
 
                                 <span className="rounded-circle">
 
-                                    {context.user?.name?.charAt(0)}
+                                {context.user && context.user.name ? context.user.name.charAt(0) : 'U'}
 
                                 </span>
 

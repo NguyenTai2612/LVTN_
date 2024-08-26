@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Logo from '../../assets/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button';
 import { MdOutlineDashboard } from "react-icons/md";
 import { FaAngleRight } from "react-icons/fa6";
@@ -12,11 +12,28 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { FiUser } from "react-icons/fi";
 import { TbCategoryPlus } from "react-icons/tb";
+import { LuClipboardCheck } from "react-icons/lu";
 
 const Sidebar = () => {
 
   const [activeTab, setActiveTab] = useState(0);
   const [isToggleSubmenu, setIsToggleSubmenu] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+
+    if(token!=="" && token!==null && token!==undefined){
+      setIsLogin(true)
+
+    }else{
+      history("/login")
+    }
+
+
+  },[])
+  const history = useNavigate()
 
   const isOpenSubmenu = (index) => {
     if (activeTab === index) {
@@ -108,14 +125,18 @@ const Sidebar = () => {
             </div>
           </li>
 
+
+
           <li>
-            <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
-              <span className='icon w-[30px] h-[30px] flex items-center justify-center 
-                rounded-md'><MdOutlineShoppingCart /></span> &nbsp;
-              Order
-              <span className='arrow ml-auto w-[25px] h-[25px] flex items-center justify-center'>
-                <FaAngleRight /></span>
-            </Button>
+            <Link to="/orders">
+              <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
+                <span className='icon w-[30px] h-[30px] flex items-center justify-center 
+                rounded-md'><LuClipboardCheck /></span> &nbsp;
+                Order
+                <span className='arrow ml-auto w-[25px] h-[25px] flex items-center justify-center'>
+                  <FaAngleRight /></span>
+              </Button>
+            </Link>
           </li>
 
           <li>

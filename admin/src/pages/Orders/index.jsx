@@ -1,27 +1,56 @@
-import React, { useContext, useEffect, useState } from "react";
-import { fetchDataFromApi } from "../../utils/api";
-import { Pagination } from "@mui/material";
-import { MyContext } from "../../App";
-import Price from "../../Components/Price";
+import React, { useEffect, useState } from "react";
+import TooltipBox from '@mui/material/Tooltip';
+import Pagination from '@mui/material/Pagination';
+import { FiEdit3 } from "react-icons/fi";
+import { MdOutlineRemoveRedEye, MdOutlineDeleteOutline } from "react-icons/md";
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import HomeIcon from '@mui/icons-material/Home';
+import { emphasize, styled } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
+import { Link } from 'react-router-dom';
+import { MyContext } from '../../App';
+import { editData, fetchDataFromApi } from "../../utils/api";
+import Price from "../../components/Price";
 import Dialog from "@mui/material/Dialog";
 import { MdClose } from "react-icons/md";
-import Button from "@mui/material/Button";
+
+const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+
+const StyledBreadcrumb = styled(Chip)(({ theme }) => {
+  const backgroundColor =
+    theme.palette.mode === 'light'
+      ? theme.palette.grey[100]
+      : theme.palette.grey[800];
+  return {
+    backgroundColor,
+    height: theme.spacing(3),
+    color: theme.palette.text.primary,
+    fontWeight: theme.typography.fontWeightRegular,
+    '&:hover, &:focus': {
+      backgroundColor: emphasize(backgroundColor, 0.06),
+    },
+    '&:active': {
+      boxShadow: theme.shadows[1],
+      backgroundColor: emphasize(backgroundColor, 0.12),
+    },
+  };
+});
 
 const Orders = () => {
+  const [isAllChecked, setIsAllChecked] = useState(false);
   const [orders, setOrders] = useState([]);
-  const [product, setProducts] = useState([]);
-  const [isOpenModal, setIsOpenModal] = useState(false);
-
-  const context = useContext(MyContext);
   const [page, setPage] = useState(1);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [product, setProducts] = useState([]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  const [singleOrder, setSingleOrder] = useState();
 
-    fetchDataFromApi(`/api/stripe?page=1&perPage=8`).then((res) => {
-      setOrders(res);
-    });
-  }, []);
+
+  const selectAll = (e) => {
+    setIsAllChecked(e.target.checked);
+  }
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -41,12 +70,67 @@ const Orders = () => {
     });
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    fetchDataFromApi(`/api/stripe?page=1&perPage=8`).then((res) => {
+      setOrders(res);
+    });
+  }, []);
+
+  const orderStatus = (status, id) => {
+    fetchDataFromApi(`/api/stripe/${id}`).then((res) => {
+
+      const order = {
+        name: res.shipping.name,
+        email: res.shipping.email,
+        address: res.shipping.address.city,
+        phone: res.shipping.phone,
+        paymentId: res.customerId,
+        userid: res.userId,
+        products: res.products,
+        total: res.total,
+        deliver_status: status,
+      }
+      console.log(order)
+
+      editData(`/api/stripe/${id}`, order).then((res) => {
+        fetchDataFromApi(`/api/stripe?page=${1}&perPage=8`).then((res) => {
+          setOrders(res);
+          window.scrollTo({
+            top: 200,
+            behavior: "smooth",
+          });
+        });
+      })
+
+      setSingleOrder(res.products);
+    });
+  }
+
   return (
     <>
-      <section className="section">
-        <div className="container">
-          <h2 className="hd">Orders</h2>
-
+      <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
+        <div className="flex items-center justify-between">
+          <h1 className="font-weight-bold text-white">Orders List</h1>
+          <div className="ml-auto flex align-items-center gap-3">
+            <Breadcrumbs aria-label="breadcrumb">
+              <StyledBreadcrumb
+                component={Link}
+                href="#"
+                label="Dashboard"
+                to="/"
+                icon={<HomeIcon fontSize="small" />}
+              />
+              <StyledBreadcrumb label="Orders" />
+            </Breadcrumbs>
+           
+          </div>
+        </div>
+      </div>
+      <div className="card shadow my-4 border-0">
+        <div className="flex items-center mb-4 justify-between pt-3 px-4"></div>
+        <div className="table-responsive mb-2">
           <div className="table-responsive orderTable">
             <table className="table table-striped">
               <thead className="thead-dark">
@@ -96,11 +180,15 @@ const Orders = () => {
                           <td>{order?.userId}</td>
                           <td>
                             {order?.deliver_status === "pending" ? (
-                              <span className="badge badge-danger">
+                              <span className="badge badge-danger cursor"
+                                onClick={() => orderStatus("confirm", order?._id)}
+                              >
                                 {order?.deliver_status}
                               </span>
                             ) : (
-                              <span className="badge badge-success">
+                              <span className="badge badge-success cursor"
+                                onClick={() => orderStatus("pending", order?._id)}
+                              >
                                 {order?.deliver_status}
                               </span>
                             )}
@@ -113,6 +201,8 @@ const Orders = () => {
               </tbody>
             </table>
           </div>
+        </div>
+        <div className="table-footer flex items-center justify-between py-2 px-3 mb-2">
 
           {orders?.odrderList?.totalPages > 1 && (
             <div className="table-footer flex items-center justify-end py-2 px-3 mb-2 ml-auto">
@@ -127,7 +217,7 @@ const Orders = () => {
             </div>
           )}
         </div>
-      </section>
+      </div>
 
       <Dialog className="productModal" open={isOpenModal}>
         <Button className="close_" onClick={() => setIsOpenModal(false)}>

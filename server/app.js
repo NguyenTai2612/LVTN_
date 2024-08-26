@@ -24,6 +24,7 @@ const imageUploadRoutes = require('./routes/imageUpload'); // Add this line
 const userRoutes = require('./routes/user'); 
 const cart = require('./routes/cart.js'); 
 const productReviews = require('./routes/productReviews.js'); 
+const checkout = require('./routes/checkout.js'); 
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/category', categoryRoutes);
@@ -34,6 +35,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/cart', cart);
 app.use('/api/productReviews', productReviews);
 app.use('/api/stripe', stripe);
+app.use('/api/checkout', checkout);
 
 mongoose.connect(process.env.CONNECTION_STRING)
   .then(() => {
