@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import "bootstApp.cssrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Home from "./Pages/Home";
 import Header from "./Components/Header";
 import { createContext, useEffect, useState } from "react";
@@ -19,6 +19,12 @@ import React from "react";
 import Checkout from "./Pages/Checkout";
 import Success from "./Pages/Checkout/Success";
 import Orders from "./Pages/Orders";
+
+import { PersistGate } from "redux-persist/integration/react";
+import { Provider } from "react-redux";
+import reduxStore from "./redux";
+
+const { store, persistor } = reduxStore();
 
 const MyContext = createContext();
 
@@ -51,14 +57,13 @@ function App() {
   const [categoryData, setCategoryData] = useState([]);
   const [subCategoryData, setSubCategoryData] = useState([]);
   const [activeCat, setActiveCat] = useState("");
-  const [cartData, setCartData] = useState();
+  const [cartData, setCartData] = useState([]);
   const [user, setUser] = useState({
     name: "",
     email: "",
     userId: "",
   });
 
-  
   useEffect(() => {
     getCountry("https://provinces.open-api.vn/api/p/");
   }, []);
@@ -91,21 +96,21 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
 
-    if (token !== "" && token !== null && token !== undefined) {
-      setIsLogin(true);
-      console.log(isLogin);
-      localStorage.setItem("isLogin", "true");
-      const userData = JSON.parse(localStorage.getItem("user"));
+  //   if (token !== "" && token !== null && token !== undefined) {
+  //     setIsLogin(true);
+  //     console.log(isLogin);
+  //     localStorage.setItem("isLogin", "true");
+  //     const userData = JSON.parse(localStorage.getItem("user"));
 
-      setUser(userData);
-    } else {
-      setIsLogin(false);
-      localStorage.setItem("isLogin", "false");
-    }
-  }, [isLogin]);
+  //     setUser(userData);
+  //   } else {
+  //     setIsLogin(false);
+  //     localStorage.setItem("isLogin", "false");
+  //   }
+  // }, [isLogin]);
 
   useEffect(() => {
     isOpenProductModal.open === true &&
@@ -166,48 +171,54 @@ function App() {
   };
   return (
     <BrowserRouter>
-      <MyContext.Provider value={values}>
-        <Snackbar
-          open={alertBox.open}
-          autoHideDuration={6000}
-          onClose={handleClose}
-        >
-          <Alert
+      <MyContext.Provider store={store} value={values}>
+        <PersistGate loading={null} persistor={persistor}>
+          <Snackbar
+            open={alertBox.open}
+            autoHideDuration={6000}
             onClose={handleClose}
-            severity={alertBox.error === false ? "success" : "error"}
-            variant="filled"
-            sx={{ width: "100%" }}
           >
-            {alertBox.msg}
-          </Alert>
-        </Snackbar>
-        {isHeaderFooterShow === true && <Header />}
+            <Alert
+              onClose={handleClose}
+              severity={alertBox.error === false ? "success" : "error"}
+              variant="filled"
+              sx={{ width: "100%" }}
+            >
+              {alertBox.msg}
+            </Alert>
+          </Snackbar>
+          {isHeaderFooterShow === true && <Header />}
 
-        <Routes>
-          <Route path="/" exact={true} element={<Home />} />
-          <Route path="/subCat/:id" exact={true} element={<Listing />} />
-          <Route
-            path="/products/category/:id"
-            exact={true}
-            element={<Listing />}
-          />
-          <Route
-            path="/product/:id"
-            exact={true}
-            element={<ProductDetails />}
-          />
-          <Route path="/cart" exact={true} element={<Cart />} />
-          <Route path="/checkout-success" exact={true} element={<Success />} />
-          <Route path="/signIn" exact={true} element={<SignIn />} />
-          <Route path="/signUp" exact={true} element={<SignUp />} />
-          <Route path="/checkout" exact={true} element={<Checkout />} />
-          <Route path="/orders" exact={true} element={<Orders />} />
-        </Routes>
-        {isHeaderFooterShow === true && <Footer />}
+          <Routes>
+            <Route path="/" exact={true} element={<Home />} />
+            <Route path="/subCat/:id" exact={true} element={<Listing />} />
+            <Route
+              path="/products/category/:id"
+              exact={true}
+              element={<Listing />}
+            />
+            <Route
+              path="/product/:id"
+              exact={true}
+              element={<ProductDetails />}
+            />
+            <Route path="/cart" exact={true} element={<Cart />} />
+            <Route
+              path="/checkout-success"
+              exact={true}
+              element={<Success />}
+            />
+            <Route path="/signIn" exact={true} element={<SignIn />} />
+            <Route path="/signUp" exact={true} element={<SignUp />} />
+            <Route path="/checkout" exact={true} element={<Checkout />} />
+            <Route path="/orders" exact={true} element={<Orders />} />
+          </Routes>
+          {isHeaderFooterShow === true && <Footer />}
 
-        {isOpenProductModal.open === true && (
-          <ProductModal data={productData} />
-        )}
+          {isOpenProductModal.open === true && (
+            <ProductModal data={productData} />
+          )}
+        </PersistGate>
       </MyContext.Provider>
     </BrowserRouter>
   );
