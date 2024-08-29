@@ -110,12 +110,12 @@ const ProductDetails = () => {
     postData(`/api/productReviews/add`, reviews).then((res) => {
       setIsLoading(false);
 
-      reviews.customerRating = 1
-     
+      reviews.customerRating = 1;
+
       setReviews({
-        review:"",
-        customerRating:1 
-      })
+        review: "",
+        customerRating: 1,
+      });
 
       fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
         setReviewData(res);
@@ -357,40 +357,49 @@ const ProductDetails = () => {
                       <br />
 
                       {reviewData?.length !== 0 &&
-                        reviewData?.slice(0)?.reverse()?.map((item, index) => {
-                          return (
-                            <div
-                              className="card p-4 reviewsCard flex-row"
-                              key={index}
-                            >
-                              {/* <div className="image">
+                        reviewData
+                          ?.slice(0)
+                          ?.reverse()
+                          ?.map((item, index) => {
+                            return (
+                              <div
+                                className="card p-4 reviewsCard flex-row"
+                                key={index}
+                              >
+                                {/* <div className="image">
                                 <div className="rounded-circle"></div>
                                 <span className="text-g d-block text-center font-weight-bold">
                                   {item?.customerName}
                                 </span>
                               </div> */}
-                              <div className="info">
-                                <div className="d-flex align-items-center w-100">
-                                <h5 className="">{item?.customerName}</h5>
-                                 
-                                  <div className="ml-auto">
-                                    <Rating
-                                      name="half-rating-read"
-                                      value={item?.customerRating}
-                                      readOnly
-                                      size="small"
-                                    />
+                                <div className="info">
+                                  <div className="d-flex align-items-center w-100">
+                                    <h5 className="">{item?.customerName}</h5>
+
+                                    <div className="ml-auto">
+                                      <Rating
+                                        name="half-rating-read"
+                                        value={item?.customerRating}
+                                        readOnly
+                                        size="small"
+                                      />
+                                    </div>
                                   </div>
+                                  <h5 className="text-green-100">
+                                    {item?.dateCreated}
+                                  </h5>
+                                  <p>{item?.review}</p>
                                 </div>
-                                <h5 className="text-green-100">{item?.dateCreated}</h5>
-                                <p>{item?.review}</p>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
 
                       <br className="res-hide" />
-                      <form className="reviewForm" value={reviews.review} onSubmit={addReview}>
+                      <form
+                        className="reviewForm"
+                        value={reviews.review}
+                        onSubmit={addReview}
+                      >
                         <h4>Add a review</h4>
                         <div className="form-group">
                           <textarea

@@ -73,7 +73,6 @@ const ProductUpload = () => {
         price: null,
         oldPrice: null,
         catName: '',
-        subCatId: '',
         category: '',
         countInStock: null,
         rating: 0,
@@ -173,7 +172,6 @@ const ProductUpload = () => {
             ...formFields,
             subCat: event.target.value
         }))
-        formFields.subCatId=event.target.value
     }
 
     const handleChangeIsFeaturedValue = (event) => {
@@ -203,7 +201,7 @@ const ProductUpload = () => {
         formFields.catName = cat;
     }
 
- 
+
 
     const onChangeFile = async (e, apiEndPoint) => {
         const files = e.target.files;
@@ -277,7 +275,6 @@ const ProductUpload = () => {
         formData.append('brand', formFields.brand);
         formData.append('price', formFields.price);
         formData.append('oldPrice', formFields.oldPrice);
-        formData.append('subCatId', formFields.subCatId);
         formData.append('catName', formFields.catName);
         formData.append('category', formFields.category);
         formData.append('subCat', formFields.subCat);
@@ -289,11 +286,14 @@ const ProductUpload = () => {
 
 
         if (formFields.name !== "" || formFields.color !== "" || previews.length !== 0) {
+            setIsLoading(true);
             setIsSelectedFiles(true)
 
             try {
-                setIsLoading(true);
                 await postData(`/api/products/create`, formFields);
+                // await postData(`/api/products/create`, formData);
+
+                setIsLoading(false);
                 await deleteData("/api/imageUpload/deleteAllImages");
                 history('/product/list');
             } catch (error) {
@@ -303,9 +303,6 @@ const ProductUpload = () => {
                     error: true,
                     msg: 'Failed to add product.'
                 });
-            }
-            finally {
-                setIsLoading(false);
             }
         } else {
             context.setAlertBox({
@@ -411,9 +408,7 @@ const ProductUpload = () => {
                                                     context.subCatData?.subCategoryList?.length !== 0 && context.subCatData?.subCategoryList?.map((subCat, index) => {
                                                         return (
 
-                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}
-                                                                
-                                                            >{subCat.subCat}</MenuItem>
+                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}>{subCat.subCat}</MenuItem>
                                                         )
                                                     })
                                                 }
@@ -623,10 +618,13 @@ const ProductUpload = () => {
                         </div>
 
                         <br />
-                        <Button type="submit" className="btn-blue btn-lg btn-big w-100">
-                            <FaCloudUploadAlt /> &nbsp;
-                            {isLoading ? <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'}
-                        </Button>
+                        <Button type="submit" className="btn-blue btn-lg btn-big w-100"
+
+                        ><FaCloudUploadAlt /> &nbsp;
+                            {
+                                isLoading === true ?
+                                    <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
+                            }</Button>
 
                     </div>
                 </div>

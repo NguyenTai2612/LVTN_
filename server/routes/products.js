@@ -320,12 +320,12 @@ router.delete("/:id", async (req, res) => {
 });
 
 // PUT update an existing product edit
-router.put("/:id", upload.array("images"), async (req, res) => {
+router.put("/:id", upload.array('images'), async (req, res) => {
   try {
+    
     const updates = {
       name: req.body.name,
       description: req.body.description,
-      images: req.body.images,
       brand: req.body.brand,
       price: req.body.price,
       oldPrice: req.body.oldPrice,
@@ -336,9 +336,9 @@ router.put("/:id", upload.array("images"), async (req, res) => {
       countInStock: req.body.countInStock,
       rating: req.body.rating,
       isFeatured: req.body.isFeatured,
-      specifications: req.body.specifications || [],
+      // specifications: req.body.specifications || []
     };
-
+    // if (req.files.length > 0) {
     if (req.files && req.files.length > 0) {
       const imagesArr = [];
       for (const file of req.files) {
@@ -353,9 +353,11 @@ router.put("/:id", upload.array("images"), async (req, res) => {
       updates.images = imagesArr;
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-    });
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true }
+    );
 
     if (!product) {
       return res.status(404).json({

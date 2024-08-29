@@ -31,7 +31,7 @@ const productSchema = mongoose.Schema({
     type: String,
     default: "",
   },
-  subCatId: {
+  subCat: {
     type: String,
     default: "",
   },

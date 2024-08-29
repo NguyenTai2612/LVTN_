@@ -23,6 +23,7 @@ const Home = () => {
   const [fluteData, setFluteData] = useState([]);
   const [selectedCat, setSelectCat] = useState("AMPLIFIER");
   const [filterData, setFilterData] = useState([]);
+  const [guitarProducts, setGuitarProducts] = useState([]);
 
   const [value, setValue] = React.useState(0);
   const context = useContext(MyContext);
@@ -35,6 +36,15 @@ const Home = () => {
     { text: "Guitar Yamaha", href: "#" },
     { text: "Guitar Taylor", href: "#" },
   ];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    // Fetch products for the category "Đàn Guitar"
+    fetchDataFromApi(`/api/products?catName=Đàn Guitar`).then((res) => {
+      setGuitarProducts(res.products);
+    });
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -69,7 +79,7 @@ const Home = () => {
   };
 
   return (
-    <div >
+    <div>
       {/* <HomeSubCat /> */}
       {/* {context.subCategoryData?.length !== 0 && (
         <HomeSubCat catData={context.subCategoryData} />
@@ -81,8 +91,8 @@ const Home = () => {
 
       {/* <HomeBanner /> */}
 
-      <section className="homeProducts" >
-        <div className="container" >
+      <section className="homeProducts">
+        <div className="container">
           <div className="row">
             <div className="col-md-3">
               <div className="banner">
@@ -169,36 +179,22 @@ const Home = () => {
                 viewAllText="Xem tất cả →"
                 viewAllHref="#"
               />
-              <div className="product_grid">
-                {productsData?.products?.length !== 0 &&
-                  productsData?.products?.map((item, index) => {
-                    return (
-                      <div className="product_item_2_row ">
-                        {" "}
-                        <ProductItem key={index} item={item} />
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-            <GuitarHeader
-              logoText="SẢN PHẨM NỔI BẬT"
-              links={guitarLinks}
-              viewAllText="Xem tất cả →"
-              viewAllHref="#"
-            />
-
-            <div className="product_row w-100 mt-2 mb-5">
-              <div className="product_grid">
-                {productsData?.products?.length !== 0 &&
-                  productsData?.products?.map((item, index) => {
-                    return (
-                      <div className="product_item">
-                        {" "}
-                        <ProductItem key={index} item={item} />
-                      </div>
-                    );
-                  })}
+              <div className="product_row w-100 mt-2 mb-5">
+                <Swiper
+                  slidesPerView={4}
+                  spaceBetween={0}
+                  navigation={true}
+                  slidesPerGroup={3}
+                  modules={[Navigation]}
+                  className="mySwiper"
+                >
+                  {guitarProducts?.length !== 0 &&
+                    guitarProducts?.map((item, index) => (
+                      <SwiperSlide key={index}>
+                        <ProductItem item={item} />
+                      </SwiperSlide>
+                    ))}
+                </Swiper>
               </div>
             </div>
           </div>
@@ -209,3 +205,4 @@ const Home = () => {
 };
 
 export default Home;
+// edit 

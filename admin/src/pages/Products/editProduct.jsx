@@ -83,8 +83,6 @@ const EditProduct = () => {
         brand: '',
         price: null,
         oldPrice: null,
-        subCatId: '',
-        catName: '',
         category: '',
         countInStock: null,
         rating: 0,
@@ -137,7 +135,7 @@ const EditProduct = () => {
                 rating: res.rating,
                 isFeatured: res.isFeatured,
                 discount: res.discount,
-                specifications: res.specifications
+                specifications: res.specifications,
             });
 
             setRatingsValue(res.rating);
@@ -176,9 +174,6 @@ const EditProduct = () => {
         handleDialogClose();
     };
 
-    const selectCat = (cat) => {
-        formFields.catName = cat;
-    }
 
     const handleDeleteSpecification = (name) => {
         const updatedSpecifications = { ...formFields.specifications };
@@ -200,8 +195,6 @@ const EditProduct = () => {
             ...formFields,
             subCat: event.target.value
         }))
-        formFields.subCatId = event.target.value
-
     }
 
     const handleChangeIsFeaturedValue = (event) => {
@@ -277,7 +270,9 @@ const EditProduct = () => {
 
     const editProduct = (e) => {
         e.preventDefault()
+        // const updatedData = new FormData(); 1
 
+        
         const specsArray = Object.entries(formFields.specifications).map(([key, value]) => ({
             key,
             value
@@ -291,8 +286,6 @@ const EditProduct = () => {
         updatedData.append('brand', formFields.brand);
         updatedData.append('price', formFields.price);
         updatedData.append('oldPrice', formFields.oldPrice);
-        updatedData.append('subCatId', formFields.subCatId);
-        updatedData.append('catName', formFields.catName);
         updatedData.append('category', formFields.category);
         updatedData.append('countInStock', formFields.countInStock);
         updatedData.append('rating', formFields.rating);
@@ -304,104 +297,7 @@ const EditProduct = () => {
                 updatedData.append('images', file);
             }
         }
-        if (formFields.name === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product name',
-                error: true
-            })
-            return false
-        }
 
-        if (formFields.description === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product description',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.brand === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product brand',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.price === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product price',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.oldPrice === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product oldPrice',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.category === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select a category',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.subCat === "") {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select a sub category',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.countInStock === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product countInStock',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.rating === 0) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please add product rating',
-                error: true
-            })
-            return false
-
-        }
-
-        if (formFields.isFeatured === null) {
-            context.setAlertBox({
-                open: true,
-                msg: 'Please select product isFeatured',
-                error: true
-            })
-            return false
-
-        }
 
 
 
@@ -409,13 +305,14 @@ const EditProduct = () => {
             setIsLoading(true)
 
 
-            editData(`/api/products/${id}`, formFields).then((res) => {
+            editData(`/api/products/${id}`, updatedData).then((res) => {
                 context.setAlertBox({
                     open: true,
                     msg: 'The product is update success!',
                     error: false
                 })
 
+                setIsLoading(false)
 
                 history('/product/list')
 
@@ -495,9 +392,7 @@ const EditProduct = () => {
                                                     context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
                                                         return (
 
-                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}
-                                                                onClick={() => selectCat(cat.name)}
-                                                            >{cat.name}</MenuItem>
+                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
                                                         )
                                                     })
                                                 }
@@ -560,21 +455,21 @@ const EditProduct = () => {
                                 <div className='col-md-4 col_'>
                                     <h4>Price</h4>
                                     <div className='form-group'>
-                                        <input type='number' value={formFields.price} className='input' name='price' onChange={inputChange} />
+                                        <input type='text' value={formFields.price} className='input' name='price' onChange={inputChange} />
                                     </div>
                                 </div>
 
                                 <div className='col-md-4 col_'>
                                     <h4>Old Price</h4>
                                     <div className='form-group'>
-                                        <input type='number' value={formFields.oldPrice} className='input' name='oldPrice' onChange={inputChange} />
+                                        <input type='text' value={formFields.oldPrice} className='input' name='oldPrice' onChange={inputChange} />
                                     </div>
                                 </div>
 
                                 <div className='col-md-4 col_'>
                                     <h4>Product Stock</h4>
                                     <div className='form-group'>
-                                        <input type='number' value={formFields.countInStock} className='input' name='countInStock' onChange={inputChange} />
+                                        <input type='text' value={formFields.countInStock} className='input' name='countInStock' onChange={inputChange} />
                                     </div>
                                 </div>
 
@@ -746,10 +641,14 @@ const EditProduct = () => {
                         </div>
 
                         <br />
-                        <Button type="submit" className="btn-blue btn-lg btn-big w-100">
-                            <FaCloudUploadAlt /> &nbsp;
-                            {isLoading ? <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'}
-                        </Button>
+                        <Button type="submit" className="btn-blue btn-lg btn-big w-100"
+
+                        ><FaCloudUploadAlt /> &nbsp;
+                            {
+                                isLoading === true ?
+                                    <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
+                            }</Button>
+
                     </div>
                 </div>
 
@@ -764,3 +663,4 @@ const EditProduct = () => {
 }
 
 export default EditProduct
+// finish

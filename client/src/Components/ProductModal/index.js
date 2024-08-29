@@ -12,8 +12,15 @@ import { FaCartPlus } from "react-icons/fa";
 import Price from "../Price";
 
 const ProductModal = (props) => {
+  let [productQty, setProductQty] = useState();
+
   const context = useContext(MyContext);
   const specifications = props?.data?.specifications || {};
+  const quantity = (val) => {
+    setProductQty(val);
+  };
+
+  const selectedItem = () => {};
   return (
     <Dialog
       className="productModal"
@@ -86,7 +93,10 @@ const ProductModal = (props) => {
             </div>
 
             <div className="d-flex align-items-center mb-3">
-              <QuantityBox />
+            <QuantityBox
+                    quantity={quantity}
+                    selectedItem={selectedItem}
+                  />
               &nbsp; &nbsp; &nbsp; &nbsp;
               <Button className="btn-add-to-cart mr-auto">
                 <FaCartPlus /> &nbsp; Thêm vào giỏ hàng
