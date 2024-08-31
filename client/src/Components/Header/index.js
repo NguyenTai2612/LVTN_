@@ -31,12 +31,17 @@ import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import Price from "../Price";
+import { useSelector, useDispatch } from "react-redux";
+import * as action from '../../store/actions'
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const context = useContext(MyContext);
   const open = Boolean(anchorEl);
   const history = useNavigate();
+
+  const dispatch = useDispatch()
+  const { isLoggedIn } = useSelector(state=>state.auth)
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -45,21 +50,21 @@ const Header = () => {
     setAnchorEl(null);
   };
 
-  const logout = () => {
-    setAnchorEl(null);
-    localStorage.clear();
-    context.setIsLogin(false);
+  // const logout = () => {
+  //   setAnchorEl(null);
+  //   localStorage.clear();
+  //   context.setIsLogin(false);
 
-    context.setAlertBox({
-      open: true,
-      error: false,
-      msg: "Logout Successfully!",
-    });
+  //   context.setAlertBox({
+  //     open: true,
+  //     error: false,
+  //     msg: "Logout Successfully!",
+  //   });
 
-    setTimeout(() => {
-      history("/");
-    }, 2000);
-  };
+  //   setTimeout(() => {
+  //     history("/");
+  //   }, 2000);
+  // };
 
   return (
     <header className="header">
@@ -120,7 +125,7 @@ const Header = () => {
                 </div>
                 <div className="contact-item">
                   <div className="part3">
-                    {context.isLogin !== true ? (
+                    {isLoggedIn !== true ? (
                       <Link to={"/signIn"}>
                         <Button className="btn-white btn-round">Log In</Button>
                       </Link>
@@ -160,15 +165,13 @@ const Header = () => {
                         >
                           <MenuItem onClick={handleClose}>
                             <ListItemIcon>
-                              <FaUser
-                                style={{ fontSize: "20" }}
-                              />
+                              <FaUser style={{ fontSize: "20" }} />
                             </ListItemIcon>
                             My Account
                           </MenuItem>
 
                           <Divider />
-                          <Link to={'/orders'}>
+                          <Link to={"/orders"}>
                             <MenuItem onClick={handleClose}>
                               <ListItemIcon>
                                 <FaFileCircleCheck style={{ fontSize: "20" }} />
@@ -182,7 +185,7 @@ const Header = () => {
                             </ListItemIcon>
                             Settings
                           </MenuItem> */}
-                          <MenuItem onClick={logout}>
+                          <MenuItem onClick={() => dispatch(action.logout())}>
                             <ListItemIcon>
                               <MdLogout style={{ fontSize: "20" }} />
                             </ListItemIcon>
@@ -199,17 +202,20 @@ const Header = () => {
                             style={{ fontSize: "30", cursor: "pointer" }}
                           />
                         </Link>
-                        <span className="count text-white">{context.cartData?.length}</span>
+                        <span className="count text-white">
+                          {context.cartData?.length}
+                        </span>
                         <span className=" text-black">
-                          {context.cartData?.length !== 0 && (
+                          {/* {context.cartData?.length !== 0 && (
                             <Price
-                              amount={context.cartData?.map(
+                              amount={context.cartData
+                                ?.map(
                                   (item) => parseInt(item.price) * item.quantity
                                 )
                                 .reduce((total, value) => total + value, 0)}
                               className="your-custom-classname" // Replace with your actual class name if needed
                             />
-                          )}
+                          )} */}
                         </span>
                       </div>
                     </div>

@@ -1,0 +1,43 @@
+INSERT INTO Categories (name, description, createdAt, updatedAt)
+VALUES
+  ('Guitar', 'Stringed instrument played by plucking or strumming. Available in various types like acoustic, electric, and bass.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Piano', 'Keyboard instrument with keys that produce sound by striking strings. Available in grand, upright, and digital types.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Drum', 'Percussion instrument that produces sound by striking a membrane. Includes various types such as snare, bass, and toms.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Violin', 'String instrument played with a bow. Known for its use in classical and folk music.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Flute', 'Woodwind instrument that produces sound by blowing across an opening. Available in various types including concert and piccolo.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
+INSERT INTO ProductSpecifications (product_id, spec_key, spec_value, createdAt, updatedAt)
+VALUES
+  (1, 'Material', 'Solid Wood', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1, 'Color', 'Natural', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (2, 'Pickup Type', 'Humbucker', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (3, 'Number of Keys', '88', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
+INSERT INTO ProductImages (product_id, imageUrl, createdAt, updatedAt)
+VALUES
+  (1, 'http://example.com/images/product1.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1, 'http://example.com/images/product2.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (2, 'http://example.com/images/product3.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (3, 'http://example.com/images/product4.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO Products (name, description, price, oldPrice, brand_id, category_id, sub_category_id, countInStock, rating, isFeatured, discount, dateCreated, createdAt, updatedAt)
+VALUES
+  ('Yamaha Acoustic Guitar', 'High-quality acoustic guitar with a warm sound.', 299.99, 349.99, 1, 1, 1, 50, 4.5, TRUE, 10.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Gibson Les Paul', 'Iconic electric guitar with a rich tone and classic design.', 1999.99, 2199.99, 2, 1, NULL, 20, 4.8, TRUE, 5.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Roland Digital Piano', 'Compact digital piano with excellent sound quality.', 499.99, 549.99, 4, 2, NULL, 30, 4.3, FALSE, 8.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Fender Stratocaster', 'Versatile electric guitar with a classic feel.', 1299.99, 1399.99, 3, 1, NULL, 25, 4.7, TRUE, 7.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
+INSERT INTO SubCategories (category_id, subCat, createdAt, updatedAt)
+VALUES
+  (1, 'Electric Guitars', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1, 'Acoustic Guitars', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (2, 'Grand Pianos', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (2, 'Digital Pianos', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (3, 'Acoustic Drums', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (3, 'Electronic Drums', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (4, 'Digital Flutes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (4, 'Concert Flutes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+

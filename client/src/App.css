@@ -2487,3 +2487,65 @@ th {
 }
 .text-purple{color: #53348c !important;}
 .text-blue{color: #1c10be !important;}
+
+.input-container {
+  margin-bottom: 16px; /* Space between input fields */
+}
+
+.input-label {
+  font-size: 12px; /* Adjust label font size */
+  display: block;
+  margin-bottom: 4px; /* Space between label and input */
+}
+
+.input-field {
+  outline: none;
+  background-color: #e8f0fe;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+.input-field:focus {
+  border: 1px solid #007bff; /* Optional: Add border on focus */
+}
+
+.error-message {
+  color: #f44336; /* Red color for error messages */
+  font-style: italic;
+  font-size: 12px; /* Adjust error message font size */
+}
+.button {
+  padding: 8px; /* Padding inside the button */
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px; /* Space between text and icon */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition for hover effects */
+  font-size: 14px; /* Font size of the button text */
+}
+
+.button.full-width {
+  width: 100%; /* Full width button */
+}
+
+.button.outline {
+  border: 1px solid transparent; /* Remove default border */
+}
+
+.button:hover {
+  text-decoration: underline; /* Underline text on hover */
+}
+
+/* Additional classes for colors */
+.text-white {
+  color: #ffffff;
+}
+
+.bg-secondary1 {
+  background-color: #007bff; /* Example background color */
+}

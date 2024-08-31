@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,7 +16,6 @@ import SignUp from "./Pages/SignUp";
 import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import React from "react";
 import Checkout from "./Pages/Checkout";
 import Success from "./Pages/Checkout/Success";
 import Orders from "./Pages/Orders";
@@ -96,27 +96,13 @@ function App() {
     });
   };
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-
-  //   if (token !== "" && token !== null && token !== undefined) {
-  //     setIsLogin(true);
-  //     console.log(isLogin);
-  //     localStorage.setItem("isLogin", "true");
-  //     const userData = JSON.parse(localStorage.getItem("user"));
-
-  //     setUser(userData);
-  //   } else {
-  //     setIsLogin(false);
-  //     localStorage.setItem("isLogin", "false");
-  //   }
-  // }, [isLogin]);
-
   useEffect(() => {
     isOpenProductModal.open === true &&
-      fetchDataFromApi(`/api/products/${isOpenProductModal.id}`).then((res) => {
-        setProductData(res);
-      });
+      fetchDataFromApi(`/api/products/${isOpenProductModal.id}`).then(
+        (res) => {
+          setProductData(res);
+        }
+      );
   }, [isOpenProductModal]);
 
   const addToCat = (data) => {
@@ -126,7 +112,7 @@ function App() {
         setAlertBox({
           open: true,
           error: false,
-          msg: "Item is added the cart",
+          msg: "Item is added to the cart",
         });
 
         setTimeout(() => {
@@ -169,61 +155,63 @@ function App() {
     cartData,
     getCartData,
   };
+
   return (
-    <BrowserRouter>
-      <MyContext.Provider store={store} value={values}>
-        <PersistGate loading={null} persistor={persistor}>
-          <Snackbar
-            open={alertBox.open}
-            autoHideDuration={6000}
-            onClose={handleClose}
-          >
-            <Alert
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <MyContext.Provider value={values}>
+            <Snackbar
+              open={alertBox.open}
+              autoHideDuration={6000}
               onClose={handleClose}
-              severity={alertBox.error === false ? "success" : "error"}
-              variant="filled"
-              sx={{ width: "100%" }}
             >
-              {alertBox.msg}
-            </Alert>
-          </Snackbar>
-          {isHeaderFooterShow === true && <Header />}
+              <Alert
+                onClose={handleClose}
+                severity={alertBox.error === false ? "success" : "error"}
+                variant="filled"
+                sx={{ width: "100%" }}
+              >
+                {alertBox.msg}
+              </Alert>
+            </Snackbar>
+            {isHeaderFooterShow && <Header />}
 
-          <Routes>
-            <Route path="/" exact={true} element={<Home />} />
-            <Route path="/subCat/:id" exact={true} element={<Listing />} />
-            <Route
-              path="/products/category/:id"
-              exact={true}
-              element={<Listing />}
-            />
-            <Route
-              path="/product/:id"
-              exact={true}
-              element={<ProductDetails />}
-            />
-            <Route path="/cart" exact={true} element={<Cart />} />
-            <Route
-              path="/checkout-success"
-              exact={true}
-              element={<Success />}
-            />
-            <Route path="/signIn" exact={true} element={<SignIn />} />
-            <Route path="/signUp" exact={true} element={<SignUp />} />
-            <Route path="/checkout" exact={true} element={<Checkout />} />
-            <Route path="/orders" exact={true} element={<Orders />} />
-          </Routes>
-          {isHeaderFooterShow === true && <Footer />}
+            <Routes>
+              <Route path="/" exact={true} element={<Home />} />
+              <Route path="/subCat/:id" exact={true} element={<Listing />} />
+              <Route
+                path="/products/category/:id"
+                exact={true}
+                element={<Listing />}
+              />
+              <Route
+                path="/product/:id"
+                exact={true}
+                element={<ProductDetails />}
+              />
+              <Route path="/cart" exact={true} element={<Cart />} />
+              <Route
+                path="/checkout-success"
+                exact={true}
+                element={<Success />}
+              />
+              <Route path="/signIn" exact={true} element={<SignIn />} />
+              <Route path="/signUp" exact={true} element={<SignUp />} />
+              <Route path="/checkout" exact={true} element={<Checkout />} />
+              <Route path="/orders" exact={true} element={<Orders />} />
+            </Routes>
+            {isHeaderFooterShow && <Footer />}
 
-          {isOpenProductModal.open === true && (
-            <ProductModal data={productData} />
-          )}
-        </PersistGate>
-      </MyContext.Provider>
-    </BrowserRouter>
+            {isOpenProductModal.open === true && (
+              <ProductModal data={productData} />
+            )}
+          </MyContext.Provider>
+        </BrowserRouter>
+      </PersistGate>
+    </Provider>
   );
 }
 
 export default App;
-
 export { MyContext };
