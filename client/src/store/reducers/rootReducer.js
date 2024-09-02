@@ -1,3 +1,4 @@
+// src/store/reducers/rootReducer.js
 import authReducer from "./authReducer";
 import userReducer from "./userReducer";
 import { combineReducers } from "redux";
@@ -13,16 +14,16 @@ const commonConfig = {
 const authConfig = {
   ...commonConfig,
   key: "auth",
-  whitelist: ["isLoggedIn", "token"],
+  whitelist: ["isLoggedIn", "token", "user"], // Thêm user vào whitelist
 };
 
 const rootReducer = combineReducers({
   auth: persistReducer(authConfig, authReducer),
   user: userReducer,
-//   species: speciesReducer,
-//   province: provinceReducer,
-//   properties: propertiesReducer,
-//   genus: genusReducer,
+  // species: speciesReducer,
+  // province: provinceReducer,
+  // properties: propertiesReducer,
+  // genus: genusReducer,
 });
 
 export default rootReducer;

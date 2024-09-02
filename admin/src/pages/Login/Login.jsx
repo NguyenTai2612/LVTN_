@@ -3,110 +3,115 @@ import { MyContext } from '../../App';
 import Logo from '../../../src/assets/logo.png';
 import { FaUser, FaLock, FaHome } from 'react-icons/fa';
 import './Login.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { postData } from '../../utils/api';
+import { Link } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import Button from "../../components/Button.jsx";
+import InputForm from "../../components/InputForm.jsx";
+import { useLocation, useNavigate } from "react-router-dom";
+import * as actions from "../../store/actions";
+import { useDispatch, useSelector } from "react-redux";
+import Swal from 'sweetalert2'
 
 const Login = () => {
-
     const context = useContext(MyContext);
-    const history = useNavigate()
-    const [isLoading, setIsLoading] = useState(false)
 
-    const [showPassword, setShowPassword] = useState(false);
-
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
-    const [formFields, setFormFields] = useState({
-        email: "",
-        password: "",
-        isAdmin: true
-    })
 
     useEffect(() => {
-        context.setIsHeaderFooterShow(true);
-    }, []);
+        context.setIsHeaderFooterShow(false); // Ẩn header và sidebar
+        return () => {
+            context.setIsHeaderFooterShow(true); // Hiển thị lại khi rời trang Login
+        };
+    }, [context]);
 
-    const onChangeInput = (e) => {
-        setFormFields(() => ({
-            ...formFields,
-            [e.target.name]: e.target.value
-        }))
-        return false
+    // useEffect(() => {
+    //     context.setIsHeaderFooterShow(true);
+    // }, []);
 
-    }
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { isLoggedIn, msg, update } = useSelector((state) => state.auth);
+    const [isRegister, setIsRegister] = useState(location.state?.flag);
+    const [invalidFields, setInvalidFields] = useState([]);
+    const [payload, setPayload] = useState({
+        phone: "",
+        password: "",
+        name: "",
+    });
+    
+    useEffect(() => {
+        setIsRegister(location.state?.flag);
+    }, [location.state?.flag]);
 
-    const signIn = (e) => {
-        e.preventDefault()
+    useEffect(() => {
+        isLoggedIn && navigate("/");
+    }, [isLoggedIn]);
 
-        if (formFields.email === "") {
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: "email can not be blank!"
-            })
-            return false
-
-        }
-
-        if (formFields.password === "") {
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: "password can not be blank!"
-            })
-            return false
-
-        }
-        setIsLoading(true)
-
-        postData(`/api/user/signin`, formFields).then((res) => {
-            try {
-
-                if (res.status !== false) {
-                    localStorage.setItem("token", res.token)
-
-                    const user = {
-                        name: res.user?.name,
-                        email: res.user?.email,
-                        userId: res.user?.id,
-                    }
-
-                    localStorage.setItem("user", JSON.stringify(user))
-
-
-                    context.setAlertBox({
-                        open: true,
-                        error: false,
-                        msg: "User Login Successfully"
-                    })
-
-
-                    setTimeout(() => {
-
-                        // history("/") 
-                        window.location.href = "/"
-                    }, 2000)
-                } else {
-                    setIsLoading(false)
-
-                    context.setAlertBox({
-                        open: true,
-                        error: true,
-                        msg: res.msg
-                    })
-                }
-
-
-            } catch (error) {
-                console.log(error)
+    useEffect(() => {
+        msg && Swal.fire('Oops !', msg, 'error')
+    }, [msg, update])
+ 
+    const handleSubmit = async () => {
+        let finalPayload = isRegister
+            ? payload
+            : {
+                phone: payload.phone,
+                password: payload.password,
+            };
+        let invalids = validate(finalPayload);
+        if (invalids === 0)
+            isRegister
+                ? dispatch(actions.register(payload))
+                : dispatch(actions.login(payload));
+    };
+    const validate = (payload) => {
+        let invalids = 0;
+        let fields = Object.entries(payload);
+        fields.forEach((item) => {
+            if (item[1] === "") {
+                setInvalidFields((prev) => [
+                    ...prev,
+                    {
+                        name: item[0],
+                        message: "Bạn không được bỏ trống trường này.",
+                    },
+                ]);
+                invalids++;
             }
-        })
+        });
+        fields.forEach((item) => {
+            switch (item[0]) {
+                case "password":
+                    if (item[1].length < 6) {
+                        setInvalidFields((prev) => [
+                            ...prev,
+                            {
+                                name: item[0],
+                                message: "Mật khẩu phải có tối thiểu 6 kí tự.",
+                            },
+                        ]);
+                        invalids++;
+                    }
+                    break;
+                case "phone":
+                    if (!+item[1]) {
+                        setInvalidFields((prev) => [
+                            ...prev,
+                            {
+                                name: item[0],
+                                message: "Số điện thoại không hợp lệ.",
+                            },
+                        ]);
+                        invalids++;
+                    }
+                    break;
 
-    }
-
+                default:
+                    break;
+            }
+        });
+        return invalids;
+    };
     return (
         <div className='main1'>
             <div className='space1'></div>
@@ -118,36 +123,84 @@ const Login = () => {
 
                 </div>
                 <div className="right-panel">
-                    <h2>Login to your account</h2>
-                    <form onSubmit={signIn}>
-                        <div className="input-group">
-                            <FaUser className="input-icon" />
-                            <input
-                                type="text" name="email" onChange={onChangeInput}
-                                placeholder="enter your email" 
+                    <div className="login-container">
+                        <h3 className="login-title">
+                            {isRegister ? "Đăng kí tài khoản" : "Đăng nhập"}
+                        </h3>
+                        <div className="login-form">
+                            {isRegister && (
+                                <InputForm
+                                    setInvalidFields={setInvalidFields}
+                                    invalidFields={invalidFields}
+                                    label={"HỌ TÊN"}
+                                    value={payload.name}
+                                    setValue={setPayload}
+                                    keyPayload={"name"}
+                                />
+                            )}
+                            <InputForm
+                                setInvalidFields={setInvalidFields}
+                                invalidFields={invalidFields}
+                                label={"SỐ ĐIỆN THOẠI"}
+                                value={payload.phone}
+                                setValue={setPayload}
+                                keyPayload={"phone"}
+                            />
+                            <InputForm
+                                setInvalidFields={setInvalidFields}
+                                invalidFields={invalidFields}
+                                label={"MẬT KHÂU"}
+                                value={payload.password}
+                                setValue={setPayload}
+                                keyPayload={"password"}
+                                type='password'
+                            />
+                            <Button
+                                text={isRegister ? "Đăng kí" : "Đăng nhập"}
+                                bgColor="bg-secondary1"
+                                textColor="text-white"
+                                fullWidth
+                                onClick={handleSubmit}
                             />
                         </div>
-                        <div className="input-group">
-                            <FaLock className="input-icon" />
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password" onChange={onChangeInput}
-                                placeholder="enter your password"
-                                
-                            />
-                            <span onClick={togglePasswordVisibility} className="toggle-password">
-                                {showPassword ? "🙈" : "👁️"}
-                            </span>
+                        <div className="login-footer">
+                            {isRegister ? (
+                                <small>
+                                    Bạn đã có tài khoản?{" "}
+                                    <span
+                                        onClick={() => {
+                                            setIsRegister(false);
+                                            setPayload({
+                                                phone: "",
+                                                password: "",
+                                                name: "",
+                                            });
+                                        }}
+                                        className="login-link"
+                                    >
+                                        Đăng nhập ngay
+                                    </span>
+                                </small>
+                            ) : (
+                                <>
+                                    <small className="login-link">Bạn quên mật khẩu?</small> &nbsp; &nbsp;&nbsp;&nbsp;
+                                    <small
+                                        onClick={() => {
+                                            setIsRegister(true);
+                                            setPayload({
+                                                phone: "",
+                                                password: "",
+                                                name: "",
+                                            });
+                                        }}
+                                        className="login-link"
+                                    >
+                                        Tạo tài khoản mới
+                                    </small>
+                                </>
+                            )}
                         </div>
-                        <p className="my-5 text-white">
-                            Don't have account ? <Link to={"/signUp"} className="text-green-500 hover:text-green-800 hover:underline">Sign up</Link>
-                        </p>
-                        <button type="submit" className="sign-up-button">
-                            {
-                                isLoading === true ? <CircularProgress /> : 'Sign In '
-                            }
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

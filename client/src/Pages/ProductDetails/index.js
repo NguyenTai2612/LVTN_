@@ -7,72 +7,94 @@ import Button from "@mui/material/Button";
 import { FaCartPlus } from "react-icons/fa";
 import RelatedProduct from "./RelatedProducts";
 import { useParams } from "react-router-dom";
-import { fetchDataFromApi, postData } from "../../utils/api";
 import Price from "../../Components/Price";
 import { MyContext } from "../../App";
 import CircularProgress from "@mui/material/CircularProgress";
+import { apiGetProductDetails } from "../../services/product";
+import { apiGetProductSpecifications } from "../../services/productSpecification";
+import { apiGetReviews, apiAddReview } from "../../services/review";
+import { addToCart } from "../../services/cart";
 
 const ProductDetails = () => {
   const [activeSize, setActiveSize] = useState(null);
   const [activeTabs, setActiveTabs] = useState(0);
-  const [productData, setProductData] = useState([]);
+  const [productData, setProductData] = useState(null);
+  const [specifications, setSpecifications] = useState([]);
   const [relatedProductData, setRelatedProductData] = useState([]);
-  const [recentlyViewdProd, setRecentlyViewdProd] = useState([]);
-  let [cartFields, setCartFields] = useState({});
-  let [productQty, setProductQty] = useState();
+  const [recentlyViewedProd, setRecentlyViewedProd] = useState([]);
+  const [cartFields, setCartFields] = useState({});
+  const [productQty, setProductQty] = useState(1); // Khởi tạo với giá trị mặc định là 1
+
   const [isLoading, setIsLoading] = useState(false);
   const [reviewData, setReviewData] = useState([]);
 
-  const specifications = productData?.specifications || {};
   const { id } = useParams();
   const context = useContext(MyContext);
+  console.log("Product Quantity Before Add to Cart:", productQty);
+
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const fetchProductDetails = async () => {
+      try {
+        const response = await apiGetProductDetails(id);
+        setProductData(response.data.response);
 
-    fetchDataFromApi(`/api/products/${id}`).then((res) => {
-      setProductData(res);
+        // Fetch product specifications
+        const specResponse = await apiGetProductSpecifications(id);
+        setSpecifications(specResponse.data.response);
 
-      fetchDataFromApi(`/api/products?subCatId=${res?.subCatId}`).then(
-        (res) => {
-          const filteredData = res?.products?.filter((item) => item.id !== id);
-          setRelatedProductData(filteredData);
-        }
-      );
+        // Fetch reviews
+        const reviewResponse = await apiGetReviews(id);
+        // console.log(reviewResponse.data.response);
+        setReviewData(reviewResponse.data.response);
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+      }
+    };
 
-      fetchDataFromApi(`api/products/recentlyViewd`).then((response) => {
-        console.log("Recently Viewed Products Data:", response);
-        setRecentlyViewdProd(response);
-      });
-
-      postData(`/api/products/recentlyViewd`, res);
-    });
-
-    fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
-      setReviewData(res);
-    });
+    fetchProductDetails();
   }, [id]);
+
+  const handleQuantityChange = (val) => {
+    console.log("Updating quantity to:", val); // Kiểm tra giá trị nhận được
+    setProductQty(val);
+  };
 
   const quantity = (val) => {
     setProductQty(val);
   };
 
-  const addtoCart = (data) => {
+  const addtoCart = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
-
-    cartFields.productTitle = productData?.name;
-    cartFields.image = productData?.images[0];
-    cartFields.rating = productData?.rating;
-    cartFields.price = productData?.price;
-    cartFields.brand = productData?.brand;
-    cartFields.quantity = productQty;
-    cartFields.subTotal = parseInt(productData?.price * productQty);
-    cartFields.productId = productData?.id;
-    cartFields.userId = user?.userId;
-
-    context.addToCat(cartFields);
+  
+    if (!user) {
+      console.error("User not found in localStorage.");
+      return;
+    }
+  
+    const price = productData?.price || 0;
+    const subTotal = productQty * price;
+  
+    const cartItem = {
+      user_id: user.id,
+      product_id: productData.id,
+      quantity: productQty,
+      price: price,
+      subTotal: subTotal, // Đảm bảo giá trị subTotal được tính toán và truyền đúng
+    };
+  
+    console.log('Cart Item to be sent:', cartItem); // Thêm console.log để kiểm tra
+  
+    try {
+      await addToCart(cartItem);
+      context.setAddingInCart(true);
+      setTimeout(() => {
+        context.setAddingInCart(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
-
-  const selectedItem = () => {};
+  
 
   const [rating, setRating] = useState(1);
   const [reviews, setReviews] = useState({
@@ -84,44 +106,63 @@ const ProductDetails = () => {
   });
 
   const onChangeInput = (e) => {
-    setReviews(() => ({
+    setReviews({
       ...reviews,
       [e.target.name]: e.target.value,
-    }));
+    });
   };
 
   const changeRating = (e) => {
     setRating(e.target.value);
-    reviews.customerRating = e.target.value;
+    setReviews({
+      ...reviews,
+      customerRating: e.target.value,
+    });
   };
 
-  const addReview = (e) => {
+  const addReview = async (e) => {
     e.preventDefault();
-
-    // const formdata = new FormData();
     const user = JSON.parse(localStorage.getItem("user"));
 
-    reviews.customerName = user?.name;
-    reviews.customerId = user?.userId;
-    reviews.productId = id;
+    if (!user) {
+      console.error("User not found in localStorage.");
+      return;
+    }
+
+    const reviewData = {
+      user_id: user.id,
+      product_id: id,
+      rating: parseInt(reviews.customerRating, 10),
+      comment: reviews.review,
+      createdAt: new Date().toISOString(), // Format date if needed
+    };
 
     setIsLoading(true);
 
-    postData(`/api/productReviews/add`, reviews).then((res) => {
-      setIsLoading(false);
-
-      reviews.customerRating = 1;
-
+    try {
+      await apiAddReview(reviewData);
+      // Fetch reviews again to update the list
+      const reviewResponse = await apiGetReviews(id);
+      setReviewData(reviewResponse.data.response);
+      // Clear the form after submission
       setReviews({
+        productId: id,
+        customerName: user.name,
+        customerId: user.userId,
         review: "",
         customerRating: 1,
       });
-
-      fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
-        setReviewData(res);
-      });
-    });
+      setRating(1); // Reset rating
+    } catch (error) {
+      console.error("Error posting review:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (!productData) {
+    return <CircularProgress />;
+  }
 
   return (
     <div>
@@ -129,26 +170,28 @@ const ProductDetails = () => {
         <div className="container">
           <div className="row">
             <div className="col-md-4">
-              <ProductZoom images={productData?.images} />
+              <ProductZoom
+                images={productData.ProductImages.map((img) => img.imageUrl)}
+              />
             </div>
 
             <div className="col-md-8 d-flex">
               <div className="product-info">
-                <div className="product-title">{productData?.name}</div>
-                <div className="mt-2 ">
+                <div className="product-title">{productData.name}</div>
+                <div className="mt-2">
                   <span className="badge1 bg-blue text-white mr-3">
-                    {productData?.brand}
+                    {productData.Brand.name}
                   </span>
                 </div>
                 <div className="rating-review">
                   <Rating
                     name="read-only"
-                    value={parseInt(productData?.rating)}
+                    value={parseInt(productData.rating)}
                     readOnly
                     size="small"
                     precision={0.5}
                   />
-                  <span className="cursor">1 Review</span>
+                  <span className="cursor">{reviewData.length} Reviews</span>
                   <div
                     className="d-flex align-items-center mt-1"
                     style={{ marginLeft: "17px" }}
@@ -162,34 +205,34 @@ const ProductDetails = () => {
                 </div>
 
                 <div className="product-price mt-3 mr-2">
-                  <Price amount={productData?.price} />
+                  <Price amount={productData.price} />
                 </div>
                 <div className="d-flex align-items-center">
                   <span className="mb-3"> Giá gốc:</span>
                   <span className="original-price ml-4">
                     <div style={{ marginLeft: "9px" }}>
-                      <Price amount={productData?.oldPrice} />
+                      <Price amount={productData.oldPrice} />
                     </div>
                   </span>
                   <span className="discount mr-auto">
-                    -{productData?.discount} %
+                    -{productData.discount} %
                   </span>
                 </div>
 
-                <div className="warranty ">
+                <div className="warranty">
                   <span>Bảo hành:</span>
                   <span className="font-weight-bold ml-5">12 Tháng</span>
                 </div>
 
                 <div className="d-flex align-items-center mb-3">
                   <QuantityBox
-                    quantity={quantity}
-                    selectedItem={selectedItem}
+                    item={{ quantity: productQty }} // Kiểm tra giá trị truyền vào
+                    onQuantityChange={handleQuantityChange} // Hàm xử lý thay đổi số lượng
                   />
                   &nbsp; &nbsp; &nbsp; &nbsp;
                   <Button
                     className="btn-add-to-cart mr-auto"
-                    onClick={() => addtoCart()}
+                    onClick={addtoCart}
                   >
                     <FaCartPlus /> &nbsp;
                     {context.addingInCart === true
@@ -197,18 +240,17 @@ const ProductDetails = () => {
                       : "Thêm vào giỏ hàng"}
                   </Button>
                 </div>
+
                 <div className="details-table mt-4">
                   <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6>
                   <table>
                     <tbody>
-                      {Object.entries(specifications).map(
-                        ([key, value], index) => (
-                          <tr key={index}>
-                            <th>{key}</th>
-                            <td>{value}</td>
-                          </tr>
-                        )
-                      )}
+                      {specifications.map((spec, index) => (
+                        <tr key={index}>
+                          <th>{spec.spec_key}</th>
+                          <td>{spec.spec_value}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -245,106 +287,21 @@ const ProductDetails = () => {
                     className={`${activeTabs === 2 ? "active" : ""}`}
                     onClick={() => setActiveTabs(2)}
                   >
-                    Reviews (3)
+                    Reviews ({reviewData.length})
                   </Button>
                 </li>
               </ul>
               <br />
               {activeTabs === 0 && (
                 <div className="tabContent">
-                  <p>{productData?.description}</p>
+                  <p>{productData.description}</p>
                 </div>
               )}
               {activeTabs === 1 && (
                 <div className="tabContent">
                   <div className="table-responsive">
                     <table className="table table-bordered">
-                      <tbody>
-                        <tr className="stand-up">
-                          <th>Stand Up</th>
-                          <td>
-                            <p>35"L x 24"W x 37-45"H (front to back wheel)</p>
-                          </td>
-                        </tr>
-                        <tr className="folded-wo-wheels">
-                          <th>Folded (w/o wheels)</th>
-                          <td>
-                            <p>32.5"L x 18.5"W x 16.5"H</p>
-                          </td>
-                        </tr>
-                        <tr className="folded-w-wheels">
-                          <th>Folded (w/ wheels)</th>
-                          <td>
-                            <p>32.5"L x 24"W x 18.5"H</p>
-                          </td>
-                        </tr>
-                        <tr className="door-pass-through">
-                          <th>Door Pass Through</th>
-                          <td>
-                            <p>24</p>
-                          </td>
-                        </tr>
-                        <tr className="frame">
-                          <th>Frame</th>
-                          <td>
-                            <p>Aluminum</p>
-                          </td>
-                        </tr>
-                        <tr className="weight-wo-wheels">
-                          <th>Weight (w/o wheels)</th>
-                          <td>
-                            <p>20 LBS</p>
-                          </td>
-                        </tr>
-                        <tr className="weight-capacity">
-                          <th>Weight Capacity</th>
-                          <td>
-                            <p>60 LBS</p>
-                          </td>
-                        </tr>
-                        <tr className="width">
-                          <th>Width</th>
-                          <td>
-                            <p>24"</p>
-                          </td>
-                        </tr>
-                        <tr className="handle-height-ground-to-handle">
-                          <th>Handle height (ground to handle)</th>
-                          <td>
-                            <p>37-45"</p>
-                          </td>
-                        </tr>
-                        <tr className="wheels">
-                          <th>Wheels</th>
-                          <td>
-                            <p>12" air / wide track slick tread</p>
-                          </td>
-                        </tr>
-                        <tr className="seat-back-height">
-                          <th>Seat back height</th>
-                          <td>
-                            <p>21.5"</p>
-                          </td>
-                        </tr>
-                        <tr className="head-room-inside-canopy">
-                          <th>Head room (inside canopy)</th>
-                          <td>
-                            <p>25"</p>
-                          </td>
-                        </tr>
-                        <tr className="pa_color">
-                          <th>Color</th>
-                          <td>
-                            <p>Black, Blue, Red, White</p>
-                          </td>
-                        </tr>
-                        <tr className="pa_size">
-                          <th>Size</th>
-                          <td>
-                            <p>M, S</p>
-                          </td>
-                        </tr>
-                      </tbody>
+                      <tbody>{/* Render additional info here */}</tbody>
                     </table>
                   </div>
                 </div>
@@ -356,99 +313,72 @@ const ProductDetails = () => {
                       <h3>Customer questions & answers</h3>
                       <br />
 
-                      {reviewData?.length !== 0 &&
+                      {reviewData.length > 0 &&
                         reviewData
-                          ?.slice(0)
-                          ?.reverse()
-                          ?.map((item, index) => {
-                            return (
-                              <div
-                                className="card p-4 reviewsCard flex-row"
-                                key={index}
-                              >
-                                {/* <div className="image">
-                                <div className="rounded-circle"></div>
-                                <span className="text-g d-block text-center font-weight-bold">
-                                  {item?.customerName}
-                                </span>
-                              </div> */}
-                                <div className="info">
-                                  <div className="d-flex align-items-center w-100">
-                                    <h5 className="">{item?.customerName}</h5>
-
-                                    <div className="ml-auto">
-                                      <Rating
-                                        name="half-rating-read"
-                                        value={item?.customerRating}
-                                        readOnly
-                                        size="small"
-                                      />
-                                    </div>
-                                  </div>
-                                  <h5 className="text-green-100">
-                                    {item?.dateCreated}
+                          .slice(0)
+                          .reverse()
+                          .map((item, index) => (
+                            <div
+                              className="card p-4 reviewsCard flex-row"
+                              key={index}
+                            >
+                              <div className="info">
+                                <div className="d-flex align-items-center w-100">
+                                  <h5 className="">
+                                    {item["User.name"] || "Unknown User"}
                                   </h5>
-                                  <p>{item?.review}</p>
+                                  <div className="ml-auto">
+                                    <Rating
+                                      name="half-rating-read"
+                                      value={item.rating}
+                                      readOnly
+                                      size="small"
+                                    />
+                                  </div>
                                 </div>
+                                <h5 className="text-green-800 mt-1">
+                                  {item.comment}{" "}
+                                  {/* Sửa từ item.review thành item.comment */}
+                                </h5>
                               </div>
-                            );
-                          })}
-
-                      <br className="res-hide" />
-                      <form
-                        className="reviewForm"
-                        value={reviews.review}
-                        onSubmit={addReview}
-                      >
-                        <h4>Add a review</h4>
+                            </div>
+                          ))}
+                      <br />
+                      <h5>Write a review</h5>
+                      <form onSubmit={addReview}>
                         <div className="form-group">
-                          <textarea
+                          <label>Your Rating</label>
+                          <select
+                            name="customerRating"
                             className="form-control"
-                            placeholder="Write a Review"
-                            name="review"
-                            onChange={onChangeInput}
-                          ></textarea>
-                        </div>
-                        <div className="row">
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Name"
-                                name="customerName"
-                                onChange={onChangeInput}
-                              />
-                            </div>
-                          </div>
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <Rating
-                                name="rating"
-                                value={rating}
-                                precision={0.5}
-                                onChange={changeRating}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <br />
-                        <div className="form-group">
-                          <Button
-                            type="submit"
-                            className="btn-blue btn-lg btn-big btn-round"
+                            onChange={changeRating}
+                            value={rating}
                           >
-                            {" "}
-                            {isLoading === true ? (
-                              <CircularProgress
-                                color="inherit"
-                                className="loader"
-                              />
-                            ) : (
-                              "Submit Review"
-                            )}
-                          </Button>
+                            <option value={1}>1 Star</option>
+                            <option value={2}>2 Stars</option>
+                            <option value={3}>3 Stars</option>
+                            <option value={4}>4 Stars</option>
+                            <option value={5}>5 Stars</option>
+                          </select>
                         </div>
+                        <div className="form-group">
+                          <label>Your Review</label>
+                          <textarea
+                            name="review"
+                            className="form-control"
+                            rows="4"
+                            onChange={onChangeInput}
+                            value={reviews.review}
+                          />
+                        </div>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="primary"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? "Submitting..." : "Submit Review"}
+                        </Button>
                       </form>
                     </div>
                   </div>
@@ -456,19 +386,8 @@ const ProductDetails = () => {
               )}
             </div>
           </div>
-
           <br />
-          {relatedProductData?.length > 0 && (
-            <RelatedProduct title="Giảm giá sốc" data={relatedProductData} />
-          )}
-
-          {recentlyViewdProd.length > 0 && (
-            <RelatedProduct
-              title="Sản phẩm đã xem"
-              itemView={recentlyViewdProd}
-              data={recentlyViewdProd}
-            />
-          )}
+          <RelatedProduct />
         </div>
       </section>
     </div>
@@ -476,3 +395,4 @@ const ProductDetails = () => {
 };
 
 export default ProductDetails;
+//edit3

@@ -111,3 +111,43 @@
     background-color: #0056b3;
   }
    */
+
+   /* Styles for the login page */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Full viewport height */
+  padding: 20px;
+  background-color: #f4f4f4; /* Background color of the page */
+}
+
+.login-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px; /* Set a maximum width for the form */
+  background: #212529;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-footer {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.login-link {
+  color: #007bff; /* Link color */
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.login-link:hover {
+  color: #0056b3; /* Link hover color */
+}

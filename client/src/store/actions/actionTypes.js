@@ -5,6 +5,9 @@ const actionTypes = {
     LOGOUT: 'LOGOUT',
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
     LOGIN_FAIL: 'LOGIN_FAIL',
+    
+    // USER 
+    GET_CURRENT: 'GET_CURRENT'
 }
 
 export default actionTypes

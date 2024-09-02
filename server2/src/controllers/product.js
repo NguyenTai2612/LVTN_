@@ -1,4 +1,5 @@
 const services = require('../services/product');
+const productService = require('../services/product');
 
 const getProducts = async (req, res) => {
     try {
@@ -12,7 +13,19 @@ const getProducts = async (req, res) => {
     }
 };
 
+const getProductDetails = async (req, res) => {
+    const productId = parseInt(req.params.id, 10);
+
+    try {
+        const productDetails = await productService.getProductDetailsService(productId);
+        res.json({ err: 0, response: productDetails });
+    } catch (error) {
+        res.status(404).json({ err: 1, message: error.message });
+    }
+};
+
 // Exporting the function
 module.exports = {
     getProducts,
+    getProductDetails,
 };

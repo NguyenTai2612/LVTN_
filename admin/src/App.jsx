@@ -23,13 +23,18 @@ import SignUp from './pages/SignUp/index.jsx'
 import Login from './pages/Login/Login.jsx'
 import Orders from './pages/Orders/index.jsx'
 
+import { PersistGate } from "redux-persist/integration/react";
+import { Provider } from "react-redux";
+import reduxStore from "./redux";
+
+const { store, persistor } = reduxStore();
+
 const MyContext = createContext()
 
 function App() {
   const [catData, setCatData] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
 
-  const [isLogin, setIsLogin] = useState(false);
   const [isHeaderFooterShow, setIsHeaderFooterShow] = useState(false);
 
   const [user, setUser] = useState({
@@ -40,71 +45,51 @@ function App() {
 
 
   const [progress, setProgress] = useState(0)
-  const [baseUrl, setBaseUrl] = useState("http://localhost:4000")
   const [alertBox, setAlertBox] = React.useState({
     msg: '',
     error: false,
     open: false
   });
 
-  useEffect(() => {
-    setProgress(20)
-    fetchCategory()
-    fetchSubCategory()
-  }, [])
+  // useEffect(() => {
+  //   setProgress(20)
+  //   fetchCategory()
+  //   fetchSubCategory()
+  // }, [])
 
 
-  const fetchCategory = () => {
-    fetchDataFromApi('/api/category').then((res) => {
-      setCatData(res)
+  // const fetchCategory = () => {
+  //   fetchDataFromApi('/api/category').then((res) => {
+  //     setCatData(res)
 
-      setProgress(100)
-    })
-  }
+  //     setProgress(100)
+  //   })
+  // }
 
-  const fetchSubCategory = () => {
-    fetchDataFromApi('/api/subCat').then((res) => {
-      setSubCatData(res)
+  // const fetchSubCategory = () => {
+  //   fetchDataFromApi('/api/subCat').then((res) => {
+  //     setSubCatData(res)
 
 
-      setProgress(100)
-    })
-  }
-  useEffect(() => {
-    const token = localStorage.getItem("token")
-
-    if(token!=="" && token!==null && token!==undefined){
-      setIsLogin(true)
-
-      const userData = JSON.parse(localStorage.getItem("user"))
-      setUser(userData)
-
-    }else{
-      setIsLogin(false)
-    }
-
-   
-
-  },[isLogin])
-
+  //     setProgress(100)
+  //   })
+  // }
   
+
+
 
   const values = {
     setAlertBox,
     alertBox,
     setProgress,
-    baseUrl,
     catData,
-    fetchCategory,
-    fetchSubCategory,
+    // fetchCategory,
+    // fetchSubCategory,
     subCatData,
-    isLogin,
-    setIsLogin,
     isHeaderFooterShow,
     setIsHeaderFooterShow,
     setUser,
     user,
-    setIsLogin,
   }
 
 
@@ -122,69 +107,72 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <MyContext.Provider value={values}>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <BrowserRouter>
+            <MyContext.Provider value={values}>
 
-          <LoadingBar
-            className='topLoadingBar'
-            color='#f11946'
-            progress={progress}
-            onLoaderFinished={() => setProgress(0)}
-          />
-          <Snackbar open={alertBox.open} autoHideDuration={6000} onClose={handleClose}>
-            <Alert
-              onClose={handleClose}
-              severity={alertBox.error === false ? "success" : "error"}
-              variant="filled"
-              sx={{ width: '100%' }}
-            >
-              {
-                alertBox.msg
-              }
-            </Alert>
-          </Snackbar>
-          <section className='main flex'>
-            {
-              isHeaderFooterShow === false &&
-              (<div className='sidebarWrapper w-[17%]'>
-                <Sidebar />
-              </div>)
-            }
-
-
-            <div className={`w-[83%] px-4 ${isHeaderFooterShow ? '' : 'content_Right'}`}>
-              {
-                isHeaderFooterShow === false &&
-                <>
-                  <Header />
-                  <div className='space'></div>
-                </>
-              }
-              <Routes>
-                <Route path='/' exact={true} element={<Dashboard />} />
-                <Route path='/product/list' exact={true} element={<ProductList />} />
-                <Route path='/product/upload' exact={true} element={<ProductUpload />} />
-                <Route path='/product/detail/:id' exact={true} element={<ProductDetails />} />
-                <Route path='/product/edit/:id' exact={true} element={<EditProduct />} />
-                <Route path='/category' exact={true} element={<CategoryList />} />
-                <Route path='/category/add' exact={true} element={<CategoryAdd />} />
-                <Route path='/category/edit/:id' exact={true} element={<EditCategory />} />
-                <Route path='/subCategory' exact={true} element={<SubCatList />} />
-                <Route path='/subCategory/add' exact={true} element={<SubCatAdd />} />
-                <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
-                <Route path='/login' exact={true} element={<Login />} />
-                <Route path='/signUp' exact={true} element={<SignUp />} />
-                <Route path='/orders' exact={true} element={<Orders />} />
+              <LoadingBar
+                className='topLoadingBar'
+                color='#f11946'
+                progress={progress}
+                onLoaderFinished={() => setProgress(0)}
+              />
+              <Snackbar open={alertBox.open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert
+                  onClose={handleClose}
+                  severity={alertBox.error === false ? "success" : "error"}
+                  variant="filled"
+                  sx={{ width: '100%' }}
+                >
+                  {
+                    alertBox.msg
+                  }
+                </Alert>
+              </Snackbar>
+              <section className='main flex'>
+                {
+                  isHeaderFooterShow === false &&
+                  (<div className='sidebarWrapper w-[17%]'>
+                    <Sidebar />
+                  </div>)
+                }
 
 
+                <div className={`w-[83%] px-4 ${isHeaderFooterShow ? '' : 'content_Right'}`}>
+                  {
+                    isHeaderFooterShow === false &&
+                    <>
+                      <Header />
+                      <div className='space'></div>
+                    </>
+                  }
+                  <Routes>
+                    <Route path='/' exact={true} element={<Dashboard />} />
+                    <Route path='/product/list' exact={true} element={<ProductList />} />
+                    <Route path='/product/upload' exact={true} element={<ProductUpload />} />
+                    <Route path='/product/detail/:id' exact={true} element={<ProductDetails />} />
+                    <Route path='/product/edit/:id' exact={true} element={<EditProduct />} />
+                    <Route path='/category' exact={true} element={<CategoryList />} />
+                    <Route path='/category/add' exact={true} element={<CategoryAdd />} />
+                    <Route path='/category/edit/:id' exact={true} element={<EditCategory />} />
+                    <Route path='/subCategory' exact={true} element={<SubCatList />} />
+                    <Route path='/subCategory/add' exact={true} element={<SubCatAdd />} />
+                    <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
+                    <Route path='/login' exact={true} element={<Login />} />
+                    <Route path='/signUp' exact={true} element={<SignUp />} />
+                    <Route path='/orders' exact={true} element={<Orders />} />
 
-              </Routes>
-            </div>
-          </section>
 
-        </MyContext.Provider>
-      </BrowserRouter>
 
+                  </Routes>
+                </div>
+              </section>
+
+            </MyContext.Provider>
+          </BrowserRouter>
+        </PersistGate>
+      </Provider>
 
     </>
   )

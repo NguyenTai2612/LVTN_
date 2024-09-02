@@ -64,9 +64,9 @@ function App() {
     userId: "",
   });
 
-  useEffect(() => {
-    getCountry("https://provinces.open-api.vn/api/p/");
-  }, []);
+  // useEffect(() => {
+  //   getCountry("https://provinces.open-api.vn/api/p/");
+  // }, []);
 
   const getCountry = async (url) => {
     const responsive = await axios.get(url).then((res) => {
@@ -75,20 +75,20 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    fetchDataFromApi(`/api/category`).then((res) => {
-      setCategoryData(res.categoryList);
-      // setActiveCat(res.categoryList[0]?.name);
-    });
+  // useEffect(() => {
+  //   fetchDataFromApi(`/api/category`).then((res) => {
+  //     setCategoryData(res.categoryList);
+  //     // setActiveCat(res.categoryList[0]?.name);
+  //   });
 
-    fetchDataFromApi(`/api/subCat`).then((res) => {
-      setSubCategoryData(res.subCategoryList);
-    });
+  //   fetchDataFromApi(`/api/subCat`).then((res) => {
+  //     setSubCategoryData(res.subCategoryList);
+  //   });
 
-    fetchDataFromApi(`/api/cart`).then((res) => {
-      setCartData(res);
-    });
-  }, []);
+  //   fetchDataFromApi(`/api/cart`).then((res) => {
+  //     setCartData(res);
+  //   });
+  // }, []);
 
   const getCartData = () => {
     fetchDataFromApi(`/api/cart`).then((res) => {

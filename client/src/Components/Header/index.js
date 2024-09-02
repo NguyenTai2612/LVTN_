@@ -42,6 +42,7 @@ const Header = () => {
 
   const dispatch = useDispatch()
   const { isLoggedIn } = useSelector(state=>state.auth)
+  const { currentData } = useSelector((state) => state.user);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -167,7 +168,7 @@ const Header = () => {
                             <ListItemIcon>
                               <FaUser style={{ fontSize: "20" }} />
                             </ListItemIcon>
-                            My Account
+                            {currentData.name}
                           </MenuItem>
 
                           <Divider />

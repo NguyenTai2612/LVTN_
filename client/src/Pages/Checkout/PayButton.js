@@ -5,12 +5,12 @@ import { postData } from "../../utils/api";
 import axios from "axios";
 
 const PayButton = ({ cartItems }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  // const user = JSON.parse(localStorage.getItem("user"));
   const handleCheckout = () => {
     axios
       .post(`http://localhost:4000/api/stripe/create-checkout-session`, {
         cartItems,
-        userId: user?.userid,
+        // userId: user?.userid,
       })
       .then((res) => {
         if (res && res.data && res.data.url) {

@@ -1043,3 +1043,23 @@ button.add-specification-btn {
   padding-left: 10px;
   color: #000;
 }
+input {
+  font-family: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  font-size: 100%;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: black;
+  margin: 0;
+  padding: 0;
+}
+
+.content_Right .sidebarWrapper {
+  display: none;
+}
+
+.content_Right .header {
+  display: none;
+}

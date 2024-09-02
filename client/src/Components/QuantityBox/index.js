@@ -1,37 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 
-const QuantityBox = (props) => {
-  const [quantity, setQuantity] = useState(1); // State to track quantity
+const QuantityBox = ({ item, onQuantityChange }) => {
+  const [quantity, setQuantity] = useState(item?.quantity || 1); // Đảm bảo giá trị mặc định là 1
 
-  useEffect(()=>{
-    if(props?.value!==undefined && props?.value!==null && props?.value!=="" ){
-      setQuantity(parseInt(props?.value))
-    }
-  },[props.value])
-  
+  // Hàm tăng số lượng
   const increaseQuantity = () => {
-    setQuantity(quantity + 1);
+    setQuantity((prevQuantity) => prevQuantity + 1);
   };
 
+  // Hàm giảm số lượng
   const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
+    setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1));
   };
 
+  useEffect(() => {
+    if (onQuantityChange) {
+      onQuantityChange(quantity); // Chỉ gửi quantity
+    }
+  }, [quantity, onQuantityChange]);
 
-
-  useEffect(()=>{
-    props?.quantity(quantity)
-    props?.selectedItem(props.item, quantity)
-  },[quantity])
-
-  // useEffect(()=>{
-  //   if(props?.selectedQty!==undefined &&props?.selectedQty!==null) {
-  //     setQuantity(props?.selectedQty)
-  //   }
-  // },[props.selectedQty])
   return (
     <div>
       <div className="quantity-selector d-flex align-items-center">
@@ -52,7 +40,7 @@ const QuantityBox = (props) => {
             margin: "0 0px",
             border: "none",
             background: "transparent",
-            width: "10px",
+            width: "40px",
           }}
         />
         <Button
@@ -67,4 +55,6 @@ const QuantityBox = (props) => {
   );
 };
 
+
 export default QuantityBox;
+//edittttttt

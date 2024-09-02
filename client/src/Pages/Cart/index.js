@@ -6,86 +6,107 @@ import { FaTrashCan } from "react-icons/fa6";
 import Button from "@mui/material/Button";
 import { FaCartArrowDown } from "react-icons/fa";
 import { MyContext } from "../../App";
-import { deleteData, editData, fetchDataFromApi } from "../../utils/api";
+import {
+  deleteCartItem,
+  updateCartItem,
+  getCartItems,
+} from "../../services/cart";
 import Price from "../../Components/Price/index.js";
 import { IoBagCheckOutline } from "react-icons/io5";
 import PayButton from "../Checkout/PayButton.js";
+import { apiGetProductDetails } from "../../services/product.js";
+
 const Cart = () => {
   const context = useContext(MyContext);
   const [cartData, setCartData] = useState([]);
-  const [productQty, setProductQty] = useState();
-  let [cartFields, setCartFields] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedQty, setSelectedQty] = useState();
-  const [chengeQty, setChengeQty] = useState(0);
+  const [productDetails, setProductDetails] = useState({});
+  const [quantityUpdates, setQuantityUpdates] = useState({});
 
-  const quantity = (val) => {
-    setProductQty(val);
-    setChengeQty(val);
+  // Định nghĩa hàm fetchCartItems
+  const fetchCartItems = async () => {
+    setIsLoading(true);
+    try {
+      const userId = JSON.parse(localStorage.getItem("user")).id;
+      if (userId) {
+        const cartItems = await getCartItems(userId);
+        setCartData(cartItems);
+
+        const productDetailsMap = await Promise.all(
+          cartItems.map(async (item) => {
+            const response = await apiGetProductDetails(item.product_id);
+            return { id: item.product_id, data: response.data.response };
+          })
+        );
+
+        // Chuyển đổi mảng thành object để dễ dàng tra cứu
+        const productDetailsObj = productDetailsMap.reduce((acc, item) => {
+          acc[item.id] = item.data;
+          return acc;
+        }, {});
+
+        setProductDetails(productDetailsObj);
+      } else {
+        console.error("No user ID found in localStorage");
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Hàm lấy dữ liệu giỏ hàng khi component mount
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-      setCartData(res);
-      setSelectedQty(res?.quantity);
-    });
+    fetchCartItems();
   }, []);
 
-  const removeItem = (id) => {
+  // Hàm lấy dữ liệu giỏ hàng khi userId thay đổi trong context
+  useEffect(() => {
+    if (context.userId) {
+      fetchCartItems();
+    }
+  }, [context.userId]);
+
+  // Hàm xử lý xóa sản phẩm khỏi giỏ hàng
+  const removeItem = async (cartId) => {
     setIsLoading(true);
-
-    deleteData(`/api/cart/${id}`).then((res) => {
-      context.setAlertBox({
-        open: true,
-        error: false,
-        msg: "item remove from cart!",
-      });
-
-      const user = JSON.parse(localStorage.getItem("user"));
-      fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-        setCartData(res);
-        setIsLoading(false);
-      });
-
-      context.getCartData();
-    });
+    try {
+      await deleteCartItem(cartId);
+      // Cập nhật dữ liệu giỏ hàng sau khi xóa
+      fetchCartItems();
+    } catch (error) {
+      alert("Lỗi khi xóa sản phẩm khỏi giỏ hàng: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // const checkout=async()=>{
-  //   const stripe = await loadStripe(process.env.REACT_STRIPE_PUBLISHABLE_KEY)
+  // Hàm xử lý cập nhật số lượng sản phẩm
+  const handleQuantityChange = (cartId, quantity) => {
+    setQuantityUpdates((prev) => ({
+      ...prev,
+      [cartId]: quantity,
+    }));
+  };
 
-  //   const cartProducts = cartData.map((product)=>({
-  //     productTitle:product?.productTitle,
-  //     image:product?.image,
-  //     price:product?.price,
-  //     quantity:product?.quantity,
-  //   }))
-  // }
-
-  const selectedItem = (item, qtyVal) => {
-    if (chengeQty !== 0) {
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      cartFields.productTitle = item?.productTitle;
-      cartFields.image = item?.image;
-      cartFields.rating = item?.rating;
-      cartFields.price = item?.price;
-      cartFields.brand = item?.brand;
-      cartFields.quantity = qtyVal;
-      cartFields.subTotal = parseInt(item?.price * qtyVal);
-      cartFields.productId = item?.id;
-      cartFields.userId = user?.userId;
-
-      setIsLoading(true);
-      editData(`/api/cart/${item?._id}`, cartFields).then((res) => {
-        setTimeout(() => {
-          setIsLoading(false);
-          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-            setCartData(res);
-          });
-        }, 500);
-      });
+  const handleUpdateQuantities = async () => {
+    setIsLoading(true);
+    try {
+      // Duyệt qua tất cả các thay đổi trong quantityUpdates
+      for (const cartId in quantityUpdates) {
+        const quantity = quantityUpdates[cartId];
+        // Gửi yêu cầu cập nhật số lượng sản phẩm
+        await updateCartItem(cartId, quantity);
+      }
+      // Cập nhật dữ liệu giỏ hàng sau khi cập nhật số lượng
+      fetchCartItems();
+      // Sau khi cập nhật thành công, xóa quantityUpdates để tránh cập nhật lặp lại
+      setQuantityUpdates({});
+    } catch (error) {
+      alert("Lỗi khi cập nhật số lượng sản phẩm: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,7 +120,7 @@ const Cart = () => {
             </span>
           </div>
           <p>
-            Sản phẩm trong giỏ: <b className="text-red">{cartData?.length}</b>
+            Sản phẩm trong giỏ: <b className="text-red">{cartData.length}</b>
           </p>
           <div className="row">
             <div className="col-md-8">
@@ -115,26 +136,38 @@ const Cart = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {cartData?.length !== 0 &&
-                      cartData?.map((item, index) => {
+                    {cartData.length !== 0 &&
+                      cartData.map((item) => {
+                        const productDetail =
+                          productDetails[item.product_id] || {};
                         return (
-                          <tr>
+                          <tr key={item.id}>
                             <td>
                               <Link
-                                to={`/product/${item?.productId}`}
+                                to={`/product/${item.product_id}`}
                                 style={{ textDecoration: "none" }}
                               >
                                 <div className="cartItemimgWrapper">
                                   <div className="imgWrapper">
                                     <img
-                                      src={item?.image}
-                                      alt={item?.productTitle}
+                                      src={
+                                        productDetail.ProductImages?.[0]
+                                          ?.imageUrl ||
+                                        "/path/to/default/image.png"
+                                      }
+                                      alt={
+                                        productDetail.name || "Product Image"
+                                      }
                                     />
                                   </div>
                                   <div className="info">
-                                    <h6>{item?.productTitle}</h6>
+                                    <h6>
+                                      {productDetail.name || "Product Title"}
+                                    </h6>
                                     <Rating
-                                      value={item?.rating}
+                                      value={
+                                        parseFloat(productDetail.rating) || 0
+                                      }
                                       readOnly
                                       size="small"
                                     />
@@ -143,23 +176,25 @@ const Cart = () => {
                               </Link>
                             </td>
                             <td>
-                              <Price amount={item?.price} />
+                              <Price amount={item.price} />
                             </td>
                             <td>
                               <QuantityBox
-                                quantity={quantity}
+                                quantity={(value) =>
+                                  handleQuantityChange(item.id, value)
+                                }
                                 item={item}
-                                selectedItem={selectedItem}
-                                value={item?.quantity}
+                                selectedItem={item}
+                                value={item.quantity}
                               />
                             </td>
                             <td>
-                              <Price amount={item?.subTotal} />
+                              <Price amount={item.subTotal} />
                             </td>
                             <td>
                               <span
                                 className="remove"
-                                onClick={() => removeItem(item?._id)}
+                                onClick={() => removeItem(item.id)}
                               >
                                 <FaTrashCan />
                               </span>
@@ -170,6 +205,13 @@ const Cart = () => {
                   </tbody>
                 </table>
               </div>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleUpdateQuantities}
+              >
+                Cập Nhật Số Lượng
+              </Button>
             </div>
             <div className="col-md-4">
               <div className="card border p-3 cartDetails">
@@ -181,9 +223,8 @@ const Cart = () => {
                     {cartData.length !== 0 && (
                       <Price
                         amount={cartData
-                          .map((item) => parseInt(item.price) * item.quantity)
+                          .map((item) => parseFloat(item.price) * item.quantity)
                           .reduce((total, value) => total + value, 0)}
-                        className="your-custom-classname" // Replace with your actual class name if needed
                       />
                     )}
                   </span>
@@ -202,25 +243,23 @@ const Cart = () => {
                     {cartData.length !== 0 && (
                       <Price
                         amount={cartData
-                          .map((item) => parseInt(item.price) * item.quantity)
+                          .map((item) => parseFloat(item.price) * item.quantity)
                           .reduce((total, value) => total + value, 0)}
-                        className="your-custom-classname" // Replace with your actual class name if needed
                       />
                     )}
                   </span>
                 </div>
                 <br />
-                {/* <Link className="checkout-btn w-100" to={`/checkout`}> */}
-                  <PayButton cartItems={cartData}/>
-                {/* </Link> */}
+                <PayButton cartItems={cartData} />
               </div>
             </div>
           </div>
         </div>
       </section>
-      {isLoading === true && <div className="loading"></div>}
+      {isLoading && <div className="loading"></div>}
     </div>
   );
 };
 
 export default Cart;
+// editttttttttt

@@ -9,12 +9,18 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import Navigation1 from "../../Components/Header/Navigation1";
 import Tabs from "@mui/material/Tabs";
 import { MyContext } from "../../App.js";
 import Tab from "@mui/material/Tab";
-import HomeSubCat from "../../Components/HomeSubCat/index.js";
 import HomeCat from "../../Components/HomeCat/index.js";
+import {
+  apiGetProducts,
+  apiGetProductDetails,
+} from "../../services/product.js";
+import { apiGetCategories } from "../../services/category.js";
+import { useDispatch, useSelector } from "react-redux";
+import { apiGetCurrent } from "../../services/user.js";
+import * as actions from "../../store/actions/index.js";
 
 const Home = () => {
   const [catData, setCatData] = useState([]);
@@ -26,6 +32,9 @@ const Home = () => {
   const [guitarProducts, setGuitarProducts] = useState([]);
 
   const [value, setValue] = React.useState(0);
+  const [products, setProducts] = useState([]);
+  const [productDetails, setProductDetails] = useState({});
+
   const context = useContext(MyContext);
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -37,6 +46,48 @@ const Home = () => {
     { text: "Guitar Taylor", href: "#" },
   ];
 
+  const dispatch = useDispatch();
+  const { isLoggedIn } = useSelector((state) => state.auth);
+  const { currentData } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    setTimeout(() => {
+      isLoggedIn && dispatch(actions.getCurrent())
+    },1000);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (currentData) {
+      // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem("user", JSON.stringify(currentData));
+    }
+  }, [currentData]);
+
+
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const response = await apiGetProducts();
+      if (response?.data.err === 0) {
+        setProducts(response.data.response);
+        // Fetch details for all products
+        const detailsPromises = response.data.response.map((product) =>
+          apiGetProductDetails(product.id)
+        );
+        Promise.all(detailsPromises).then((results) => {
+          const details = {};
+          results.forEach((result) => {
+            if (result.data.err === 0) {
+              details[result.data.response.id] = result.data.response;
+            }
+          });
+          setProductDetails(details);
+        });
+      }
+    };
+    fetchProducts();
+  }, []);
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -46,31 +97,20 @@ const Home = () => {
     });
   }, []);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
 
-    setSelectCat(context.categoryData[0]?.name);
-    if (context.categoryData.length !== 0)
-      // fetchDataFromApi("/api/category/").then((res) => {
-      //   setCatData(res);
-      // });
-
-      // fetchDataFromApi(`/api/products/featured`).then((res) => {
-      //   setFeaturedProducts(res);
-      // });
-
-      fetchDataFromApi("/api/products?perPage=8").then((res) => {
-        setProductsData(res);
-      });
-  }, []);
+  //   setSelectCat(context.categoryData[0]?.name);
+  //   if (context.categoryData.length !== 0) {
+  //     fetchDataFromApi("/api/products?perPage=8").then((res) => {
+  //       setProductsData(res);
+  //     });
+  //   }
+  // }, []);
 
   useEffect(() => {
-    console.log(context.activeCat);
-
     fetchDataFromApi(`/api/products?catName=${selectedCat}`).then((res) => {
       setFilterData(res.products);
-
-      // console.log(selectedCat);
     });
   }, [selectedCat]);
 
@@ -78,18 +118,20 @@ const Home = () => {
     setSelectCat(cat);
   };
 
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await apiGetCategories();
+      if (response?.data.err === 0) {
+        setCategories(response.data.response);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return (
     <div>
-      {/* <HomeSubCat /> */}
-      {/* {context.subCategoryData?.length !== 0 && (
-        <HomeSubCat catData={context.subCategoryData} />
-      )} */}
-
-      {context.categoryData?.length !== 0 && (
-        <HomeCat catData={context.categoryData} />
-      )}
-
-      {/* <HomeBanner /> */}
+      <HomeCat catData={context.categoryData} />
 
       <section className="homeProducts">
         <div className="container">
@@ -131,11 +173,11 @@ const Home = () => {
                         className="filterTabs"
                         TabIndicatorProps={{
                           style: { backgroundColor: "#FF6347" },
-                        }} // Tùy chỉnh màu cho chỉ báo
+                        }}
                       >
-                        {context.categoryData?.map((item, index) => (
+                        {categories.map((item, index) => (
                           <Tab
-                            key={index} // Thêm key cho mỗi item
+                            key={index}
                             className="item"
                             label={item.name}
                             onClick={() => selectCat(item?.name)}
@@ -162,11 +204,11 @@ const Home = () => {
                   modules={[Navigation]}
                   className="mySwiper"
                 >
-                  {filterData?.length !== 0 &&
-                    filterData?.map((item, index) => {
+                  {products?.length !== 0 &&
+                    products?.map((item, index) => {
                       return (
                         <SwiperSlide key={index}>
-                          <ProductItem item={item} />
+                          <ProductItem item={productDetails[item.id]} />
                         </SwiperSlide>
                       );
                     })}
@@ -191,7 +233,7 @@ const Home = () => {
                   {guitarProducts?.length !== 0 &&
                     guitarProducts?.map((item, index) => (
                       <SwiperSlide key={index}>
-                        <ProductItem item={item} />
+                        <ProductItem item={productDetails[item.id]} />
                       </SwiperSlide>
                     ))}
                 </Swiper>
@@ -205,4 +247,3 @@ const Home = () => {
 };
 
 export default Home;
-// edit 

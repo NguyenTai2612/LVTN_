@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-const InputForm = ({ label, keyPayload, setValue, type = 'text', invalidFields, setInvalidFields }) => {
+const InputForm = ({ label, keyPayload, setValue, type = 'text', invalidFields, setInvalidFields, value }) => {
     return (
         <div className="input-container">
             <label htmlFor={keyPayload} className="input-label">{label}</label>
@@ -8,7 +8,7 @@ const InputForm = ({ label, keyPayload, setValue, type = 'text', invalidFields, 
                 type={type}
                 id={keyPayload}
                 className="input-field"
-                value={setValue[keyPayload]} // This line assumes setValue is a state object
+                value={value} // Use the `value` prop directly
                 onChange={(e) => setValue(prev => ({ ...prev, [keyPayload]: e.target.value }))}
                 onFocus={() => setInvalidFields([])}
             />

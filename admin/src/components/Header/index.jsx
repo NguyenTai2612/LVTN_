@@ -7,49 +7,36 @@ import PersonAdd from '@mui/icons-material/PersonAdd';
 import Logout from '@mui/icons-material/Logout';
 import { FaRegBell } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
-import UserImage from '../userImage';
-// import { Avatar, Divider } from '@mui/material';
-
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
-
-
 import Divider from '@mui/material/Divider';
-// import IconButton from '@mui/material/IconButton';
-// import Typography from '@mui/material/Typography';
-// import Tooltip from '@mui/material/Tooltip';
 import Settings from '@mui/icons-material/Settings';
 import SearchBox from '../SearchBox';
 import { Link, useNavigate } from 'react-router-dom';
 import { MyContext } from '../../App';
-
+import { useDispatch } from 'react-redux';
+import * as actions from '../../store/actions'; // Make sure this is the correct path
 
 const Header = () => {
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const history = useNavigate()
 
-    const context = useContext(MyContext)
+    const context = useContext(MyContext);
 
-    const logout=()=>{
-        localStorage.clear()
-
-        context.setAlertBox({
-            open: true,
-            error: false,
-            msg: "Logout Successfully!"
-        })
-
-        setTimeout(() =>{
-            history("/login")
-        }, 2000)
-    }
+    const handleLogout = () => {
+        dispatch(actions.logout()); // Call logout action
+        navigate('/login'); // Redirect to login page
+    };
 
     return (
         <header className='fixed top-0 right-0 bg-white py-3 z-[100] flex items-center justify-center px-4'>
@@ -64,19 +51,14 @@ const Header = () => {
                     </li>
                     <li>
                         <div className='myAcc' onClick={handleClick}>
-                            {/* <UserImage /> */}
                             <div className="userImg">
-
                                 <span className="rounded-circle">
-
-                                {context.user && context.user.name ? context.user.name.charAt(0) : 'U'}
-
+                                    {context.user && context.user.name ? context.user.name.charAt(0) : 'U'}
                                 </span>
-
                             </div>
                             <div className='user-info'>
-                            <div className="user-name">{context.user?.name}</div>
-                            <div className="user-email">{context.user?.email}</div>
+                                <div className="user-name">{context.user?.name}</div>
+                                <div className="user-email">{context.user?.email}</div>
                             </div>
                         </div>
 
@@ -134,21 +116,14 @@ const Header = () => {
                                 </ListItemIcon>
                                 Settings
                             </MenuItem>
-                            <Link to={'/login'}>
-                                <MenuItem onClick={logout}>
-                                    <ListItemIcon>
-                                        <Logout fontSize="small" />
-                                    </ListItemIcon>
-                                    Logout
-                                </MenuItem>
-                            </Link>
+                            <MenuItem onClick={handleClose}>
+                                <ListItemIcon>
+                                    <Logout fontSize="small" />
+                                </ListItemIcon>
+                                <span onClick={handleLogout}>Logout</span>
+                            </MenuItem>
                         </Menu>
                     </li>
-
-                    <li className="user-info">
-                        
-                    </li>
-
                 </ul>
             </div>
         </header>
