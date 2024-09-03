@@ -2549,3 +2549,74 @@ th {
 .bg-secondary1 {
   background-color: #007bff; /* Example background color */
 }
+
+
+.review-container {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #2c3e50; /* Dark gray background */
+  border-radius: 8px;
+}
+
+.review-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #000; /* White text */
+}
+
+.review-card {
+  padding: 15px;
+  border: 1px solid #34495e; /* Slightly darker border */
+  border-radius: 5px;
+  margin-bottom: 15px;
+  background-color: #34495e; /* Dark gray background */
+  position: relative;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #bdc3c7; /* Divider line */
+}
+
+.review-avatar-container {
+  flex-shrink: 0;
+}
+
+.review-user-info {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.review-username {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #ffffff; /* White text */
+}
+
+.review-date {
+  font-size: 0.875rem;
+  color: #bdc3c7; /* Lighter gray for date */
+}
+
+.review-rating {
+  margin-left: auto;
+  color: #f39c12; /* Gold color for stars */
+}
+
+.review-content {
+  margin-top: 10px;
+  padding-top: 15px;
+}
+
+.review-text {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #ffffff; /* White text */
+  margin: 0;
+}

@@ -6,17 +6,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 
-const HomeCat = () => {
+const HomeCat = ({catData }) => {
   const [categories, setCategories] = useState([]);
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const response = await apiGetCategories();
-      if (response?.data.err === 0) {
-        setCategories(response.data.response);
-      }
-    };
-    fetchCategories();
-  }, []);
+ 
+
+   
   return (
     <div className="container">
       <section className="homeCat">
@@ -29,8 +23,8 @@ const HomeCat = () => {
             modules={[Navigation]}
             className={`mySwiper`}
           >
-            {categories?.length !== 0 ? (
-              categories?.map((cat, index) => (
+            {catData?.length !== 0 ? (
+              catData?.map((cat, index) => (
                 <SwiperSlide key={index}>
                   <Link
                     to={`products/category/${cat?.id}`}

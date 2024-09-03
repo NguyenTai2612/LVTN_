@@ -14,7 +14,7 @@ import { apiGetProductDetails } from "../../services/product";
 import { apiGetProductSpecifications } from "../../services/productSpecification";
 import { apiGetReviews, apiAddReview } from "../../services/review";
 import { addToCart } from "../../services/cart";
-
+import { Avatar } from "@mui/material";
 const ProductDetails = () => {
   const [activeSize, setActiveSize] = useState(null);
   const [activeTabs, setActiveTabs] = useState(0);
@@ -65,15 +65,15 @@ const ProductDetails = () => {
 
   const addtoCart = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
-  
+
     if (!user) {
       console.error("User not found in localStorage.");
       return;
     }
-  
+
     const price = productData?.price || 0;
     const subTotal = productQty * price;
-  
+
     const cartItem = {
       user_id: user.id,
       product_id: productData.id,
@@ -81,9 +81,9 @@ const ProductDetails = () => {
       price: price,
       subTotal: subTotal, // Đảm bảo giá trị subTotal được tính toán và truyền đúng
     };
-  
-    console.log('Cart Item to be sent:', cartItem); // Thêm console.log để kiểm tra
-  
+
+    console.log("Cart Item to be sent:", cartItem); // Thêm console.log để kiểm tra
+
     try {
       await addToCart(cartItem);
       context.setAddingInCart(true);
@@ -94,7 +94,6 @@ const ProductDetails = () => {
       console.error("Error adding to cart:", error);
     }
   };
-  
 
   const [rating, setRating] = useState(1);
   const [reviews, setReviews] = useState({
@@ -307,44 +306,51 @@ const ProductDetails = () => {
                 </div>
               )}
               {activeTabs === 2 && (
-                <div className="tabContent">
+                <div className="tab-content">
                   <div className="row">
                     <div className="col-md-8">
-                      <h3>Customer questions & answers</h3>
-                      <br />
-
-                      {reviewData.length > 0 &&
-                        reviewData
-                          .slice(0)
-                          .reverse()
-                          .map((item, index) => (
-                            <div
-                              className="card p-4 reviewsCard flex-row"
-                              key={index}
-                            >
-                              <div className="info">
-                                <div className="d-flex align-items-center w-100">
-                                  <h5 className="">
-                                    {item["User.name"] || "Unknown User"}
-                                  </h5>
-                                  <div className="ml-auto">
-                                    <Rating
-                                      name="half-rating-read"
-                                      value={item.rating}
-                                      readOnly
-                                      size="small"
-                                    />
-                                  </div>
-                                </div>
-                                <h5 className="text-green-800 mt-1">
-                                  {item.comment}{" "}
-                                  {/* Sửa từ item.review thành item.comment */}
-                                </h5>
+                      <h6 className="review-title">Product Reviews</h6>
+                      {reviewData
+                        .slice(0)
+                        .reverse()
+                        .map((review, index) => (
+                          <div className="review-card" key={index}>
+                            <div className="review-header">
+                              <div className="review-avatar-container">
+                                <Avatar img="https://mironcoder-hotash.netlify.app/images/avatar/01.webp" />
+                              </div>
+                              <div className="review-user-info">
+                                <h6 className="review-username">
+                                  {review["User.name"] || "Unknown User"}
+                                </h6>
+                                <span className="review-date">
+                                  {review?.createdAt
+                                    ? new Date(
+                                        review.createdAt
+                                      ).toLocaleString()
+                                    : "Date and time not available"}
+                                </span>
+                              </div>
+                              <div className="review-rating">
+                                <Rating
+                                  name="read-only"
+                                  value={review.rating}
+                                  readOnly
+                                  size="small"
+                                  precision={0.5}
+                                />
                               </div>
                             </div>
-                          ))}
+                            <div className="review-content">
+                              <p className="review-text">
+                                {review?.comment ||
+                                  "This is a sample review text. The product was excellent, and I am very satisfied with my purchase!"}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
                       <br />
-                      <h5>Write a review</h5>
+                      <h5 className="write-review-title">Write a Review</h5>
                       <form onSubmit={addReview}>
                         <div className="form-group">
                           <label>Your Rating</label>

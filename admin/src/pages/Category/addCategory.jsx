@@ -37,7 +37,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
             backgroundColor: emphasize(backgroundColor, 0.12),
         },
     };
-}); // TypeScript only: need a type cast here because https://github.com/Microsoft/TypeScript/issues/26591
+}); 
 
 function handleClick(event) {
     event.preventDefault();
@@ -52,86 +52,20 @@ const AddCategory = () => {
     const [imgFiles, setImgFiles] = useState();
     const [previews, setPreviews] = useState([]);
 
-    const [isSelectedFiles, setIsSelectedFiles] = useState(false);
-
-    const [formFields, setFormFields] = useState({
-        name: '',
-        images: [],
-        color: ''
-    });
 
 
     const history = useNavigate()
-    const formData = new FormData();
 
     const context = useContext(MyContext)
 
-    useEffect(() => {
-        if (!imgFiles) return;
-
-        let tmp = [];
-
-        for (let i = 0; i < imgFiles.length; i++) {
-            tmp.push(URL.createObjectURL(imgFiles[i]));
-        }
-        const objectUrls = tmp;
-        setPreviews(objectUrls);
-
-        // Cleanup function để hủy bỏ URL object sau khi không sử dụng nữa
-        return () => {
-            objectUrls.forEach(url => URL.revokeObjectURL(url));
-        };
-    }, [imgFiles]);
-
+    
 
     // Đảm bảo rằng img_arr và uniqueArray được đặt lại đúng cách
     let img_arr = [];
     let uniqueArray = [];
 
-    const onChangeFile = async (e, apiEndPoint) => {
-        const files = e.target.files;
-        setUploading(true);
-        setPreviews([]);
-
-        const formData = new FormData();
-
-        for (let i = 0; i < files.length; i++) {
-            if (files[i] && (files[i].type === 'image/jpeg' || files[i].type === 'image/jpg' ||
-                files[i].type === 'image/png' || files[i].type === 'image/webp')) {
-                formData.append('images', files[i]);
-            } else {
-                context.setAlertBox({
-                    open: true,
-                    error: true,
-                    msg: 'Please select a valid JPG or PNG image file.'
-                });
-                return false;
-            }
-        }
-
-        try {
-            await postData(apiEndPoint, formData);
-            const response = await fetchDataFromApi("/api/imageUpload");
-            if (response && response.length) {
-                let newImages = response.map(item => item.images).flat();
-                setPreviews(newImages);
-            } else {
-                setPreviews([]);
-            }
-            setUploading(false);
-            context.setAlertBox({
-                open: true,
-                error: false,
-                msg: "Images Uploaded!"
-            });
-        } catch (error) {
-            console.error('Upload Error:', error);
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: 'Failed to upload images.'
-            });
-        }
+    const onChangeFile = async () => {
+       
     };
 
 
@@ -140,63 +74,20 @@ const AddCategory = () => {
 
     // Hàm để xóa ảnh khỏi danh sách previews
     const removeImg = (index) => {
-        const updatedPreviews = previews.filter((_, i) => i !== index);
-        setPreviews(updatedPreviews);
-        URL.revokeObjectURL(previews[index]);
+        
     };
 
 
 
     const changeInput = (e) => {
-        setFormFields(() => (
-            {
-                ...formFields,
-                [e.target.name]: e.target.value
-            }
-        ))
+        
     }
 
 
 
 
     const addCategory = async (e) => {
-        e.preventDefault();
-
-        // Reset trạng thái khi bắt đầu một lần tải lên mới
-        setPreviews([]);
-        setImgFiles([]);
-
-        const appendedArray = [...previews]; // Thay đổi từ uniqueArray nếu cần
-
-        formData.append('name', formFields.name);
-        formData.append('color', formFields.color);
-        formData.append('images', JSON.stringify(appendedArray)); // Đảm bảo chuyển đổi thành chuỗi
-
-        if (formFields.name !== "" || formFields.color !== "" || previews.length !== 0) {
-            setIsLoading(true);
-
-            try {
-                await postData(`/api/category/create`, formFields);
-                setIsLoading(false);
-                context.fetchCategory();
-                context.fetchSubCategory();
-                await deleteData("/api/imageUpload/deleteAllImages");
-                history('/category');
-            } catch (error) {
-                console.error('Error adding category:', error);
-                context.setAlertBox({
-                    open: true,
-                    error: true,
-                    msg: 'Failed to add category.'
-                });
-            }
-        } else {
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: 'Please fill all the details',
-            });
-        }
+       
     };
 
 
@@ -238,7 +129,7 @@ const AddCategory = () => {
 
                             <h4>Category Name</h4>
                             <div className='form-group'>
-                                <input type='text' className='input' name='name' value={formFields.name} onChange={changeInput} />
+                                <input type='text' className='input' name='name' onChange={changeInput} />
                             </div>
                         </div>
 
@@ -246,19 +137,14 @@ const AddCategory = () => {
 
 
 
-                        <div className='col-md-12 col_'>
-                            <h4>Color</h4>
-                            <div className='form-group'>
-                                <input type='text' className='input' name='color' value={formFields.color} onChange={changeInput} />
-                            </div>
-                        </div>
+                       
 
                         <div className='col-md-12 col_'>
                             <h5 className='mb-4 font-weight-bold'>Media And Published</h5>
 
                             <div className='imgUploadBox d-flex align-items-center'>
                                 {
-                                    previews?.length > 0 && previews.map((img, index) => (
+                                    length > 0 && map((img, index) => (
                                         <div className='uploadBox' key={index}>
                                             <span className="remove" onClick={() => removeImg(index, img)}>
                                                 <IoCloseSharp />
@@ -281,7 +167,6 @@ const AddCategory = () => {
                                             <input
                                                 type="file"
                                                 multiple
-                                                onChange={(e) => onChangeFile(e, '/api/category/upload')}
                                                 name="images"
                                             />
                                             <div className='info'>

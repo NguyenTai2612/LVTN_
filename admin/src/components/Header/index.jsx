@@ -53,7 +53,7 @@ const Header = () => {
                         <div className='myAcc' onClick={handleClick}>
                             <div className="userImg">
                                 <span className="rounded-circle">
-                                    {context.user && context.user.name ? context.user.name.charAt(0) : 'U'}
+                                    {/* {context.user && context.user.name ? context.user.name.charAt(0) : 'U'} */}
                                 </span>
                             </div>
                             <div className='user-info'>

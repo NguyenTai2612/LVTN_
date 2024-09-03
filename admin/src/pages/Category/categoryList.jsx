@@ -1,10 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import TooltipBox from '@mui/material/Tooltip';
+import React, { useEffect, useState } from 'react';
 import Pagination from '@mui/material/Pagination';
 import { FiEdit3 } from "react-icons/fi";
-import { MdOutlineRemoveRedEye, MdOutlineDeleteOutline } from "react-icons/md";
+import { MdOutlineDeleteOutline } from "react-icons/md";
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -12,8 +9,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import { emphasize, styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import { Link } from 'react-router-dom';
-import { MyContext } from '../../App';
-import { deleteData, fetchDataFromApi } from '../../utils/api';
+import { apiGetCategories, apiDeleteCategory } from '../../services/category';
+import TooltipBox from '@mui/material/Tooltip';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -37,49 +34,40 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     };
 });
 
-function handleClick(event) {
-    event.preventDefault();
-    console.info('You clicked a breadcrumb.');
-}
-
 const CategoryList = () => {
-    const [open, setOpen] = React.useState(false);
-    const [catData, setCatData] = useState([]);
-    const context = useContext(MyContext);
+    const [catData, setCatData] = useState({ data: [], totalPages: 0 });
+    const [currentPage, setCurrentPage] = useState(1);
     const [isAllChecked, setIsAllChecked] = useState(false);
+
+    useEffect(() => {
+        fetchCategories(currentPage);
+    }, [currentPage]);
+
+    const fetchCategories = async (page) => {
+        try {
+            const response = await apiGetCategories(page, 3);
+            setCatData(response); // Đảm bảo cập nhật dữ liệu và totalPages từ phản hồi API
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+
+    const handlePageChange = (event, page) => {
+        setCurrentPage(page);
+    };
 
     const selectAll = (e) => {
         setIsAllChecked(e.target.checked);
     };
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        context.setProgress(20);
-        fetchDataFromApi('/api/category').then((res) => {
-            setCatData(res);
-            console.log(res);
-            context.setProgress(100);
-        });
-    }, []);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const deleteCat = (id) => {
-        deleteData(`/api/category/${id}`).then(() => {
-            fetchDataFromApi('/api/category').then((res) => {
-                setCatData(res);
-            });
-        });
-    };
-
-    const handleChange = (event, value) => {
-        context.setProgress(40);
-        fetchDataFromApi(`/api/category?page=${value}`).then((res) => {
-            setCatData(res);
-            context.setProgress(100);
-        });
+    const deleteCat = async (categoryId) => {
+        try {
+            await apiDeleteCategory(categoryId);
+            fetchCategories(currentPage); // Tải lại danh mục sau khi xóa
+        } catch (error) {
+            console.error('Error deleting category:', error);
+        }
     };
 
     return (
@@ -90,11 +78,11 @@ const CategoryList = () => {
                     <div className="ml-auto flex align-items-center gap-3">
                         <Breadcrumbs aria-label="breadcrumb">
                             <StyledBreadcrumb
-                                 component={Link}
-                                 href="#"
-                                 label="Dashboard"
-                                 to="/"
-                                 icon={<HomeIcon fontSize="small" />}
+                                component={Link}
+                                href="#"
+                                label="Dashboard"
+                                to="/"
+                                icon={<HomeIcon fontSize="small" />}
                             />
                             <StyledBreadcrumb label="Category" />
                         </Breadcrumbs>
@@ -113,57 +101,59 @@ const CategoryList = () => {
                                 <th><Checkbox {...label} size="small" onChange={selectAll} /></th>
                                 <th>IMAGE</th>
                                 <th>CATEGORY</th>
-                                <th>COLOR</th>
                                 <th>ACTIONS</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            {catData?.categoryList?.length > 0 && catData?.categoryList?.map((item, index) => {
-                                const imageUrl = item.images.length ? item.images[0] : null; // Ensure there is an image
-                                return (
-                                    <tr key={item.id || index}> {/* Add a unique key */}
-                                        <td><Checkbox {...label} size="small" checked={isAllChecked} /><span>#{index + 1}</span></td>
-                                        <td>
-                                            <div className="flex items-center gap-5 w-[200px]">
-                                                {imageUrl && (
-                                                    <div className="imgWrapper shadow overflow-hidden w-[25%] h-[25%] rounded-md">
-                                                        <img src={imageUrl} className="w-100" alt="category" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td>{item.name}</td>
-                                        <td>{item.color}</td>
-                                        <td>
-                                            <div className="actions flex items-center gap-2">
-                                                <TooltipBox title="Edit" placement="top">
-                                                    <Link to={`/category/edit/${item.id}`}>
-                                                        <button
-                                                            className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
-                                                        ><FiEdit3 /></button>
-                                                    </Link>
-                                                </TooltipBox>
-
-                                                <TooltipBox title="Delete" placement="top">
+                            {catData.data.length > 0 && catData.data.map((item, index) => (
+                                <tr key={item.id || index}>
+                                    <td><Checkbox {...label} size="small" checked={isAllChecked} /><span>#{index + 1}</span></td>
+                                    <td>
+                                        <div className="flex items-center gap-5 w-[200px]">
+                                            {item.image && (
+                                                <div className="imgWrapper shadow overflow-hidden w-[25%] h-[25%] rounded-md">
+                                                    <img src={item.image} className="w-100" alt="category" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td>{item.name}</td>
+                                    <td>
+                                        <div className="actions flex items-center gap-2">
+                                            <TooltipBox title="Edit" placement="top">
+                                                <Link to={`/category/edit/${item.id}`}>
                                                     <button
-                                                        className="delete-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
-                                                        onClick={() => deleteCat(item.id)}
-                                                    ><MdOutlineDeleteOutline /></button>
-                                                </TooltipBox>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                                        className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
+                                                    ><FiEdit3 /></button>
+                                                </Link>
+                                            </TooltipBox>
+
+                                            <TooltipBox title="Delete" placement="top">
+                                                <button
+                                                    className="delete-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
+                                                    onClick={() => deleteCat(item.id)}
+                                                ><MdOutlineDeleteOutline /></button>
+                                            </TooltipBox>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="table-footer flex items-center justify-between py-2 px-3 mb-2">
-                    {catData?.totalPages > 1 &&
+                    {catData.totalPages > 1 &&
                         <div className="d-flex tableFooter flex items-center justify-end py-2 px-3 mb-2 ml-auto">
-                            <Pagination count={catData?.totalPages} color="primary" className="pagination"
-                                showFirstButton showLastButton onChange={handleChange} />
+                            <Pagination
+                                count={catData.totalPages}
+                                color="primary"
+                                className="pagination"
+                                page={currentPage}
+                                onChange={handlePageChange}
+                                showFirstButton
+                                showLastButton
+                            />
                         </div>
                     }
                 </div>

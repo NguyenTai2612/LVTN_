@@ -34,7 +34,7 @@ const Home = () => {
   const [value, setValue] = React.useState(0);
   const [products, setProducts] = useState([]);
   const [productDetails, setProductDetails] = useState({});
-
+  const [categories, setCategories] = useState([]);
   const context = useContext(MyContext);
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -52,8 +52,8 @@ const Home = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      isLoggedIn && dispatch(actions.getCurrent())
-    },1000);
+      isLoggedIn && dispatch(actions.getCurrent());
+    }, 1000);
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -62,8 +62,6 @@ const Home = () => {
       localStorage.setItem("user", JSON.stringify(currentData));
     }
   }, [currentData]);
-
-
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -92,21 +90,10 @@ const Home = () => {
     window.scrollTo(0, 0);
 
     // Fetch products for the category "Đàn Guitar"
-    fetchDataFromApi(`/api/products?catName=Đàn Guitar`).then((res) => {
-      setGuitarProducts(res.products);
-    });
+    // fetchDataFromApi(`/api/products?catName=Đàn Guitar`).then((res) => {
+    //   setGuitarProducts(res.products);
+    // });
   }, []);
-
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-
-  //   setSelectCat(context.categoryData[0]?.name);
-  //   if (context.categoryData.length !== 0) {
-  //     fetchDataFromApi("/api/products?perPage=8").then((res) => {
-  //       setProductsData(res);
-  //     });
-  //   }
-  // }, []);
 
   useEffect(() => {
     fetchDataFromApi(`/api/products?catName=${selectedCat}`).then((res) => {
@@ -118,20 +105,24 @@ const Home = () => {
     setSelectCat(cat);
   };
 
-  const [categories, setCategories] = useState([]);
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await apiGetCategories();
-      if (response?.data.err === 0) {
-        setCategories(response.data.response);
-      }
+        try {
+            const response = await apiGetCategories();
+            if (response?.err === 0) {
+                setCategories(response.response.data); 
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error); 
+        }
     };
     fetchCategories();
-  }, []);
+}, []);
 
+  
   return (
     <div>
-      <HomeCat catData={context.categoryData} />
+     <HomeCat catData={categories} />
 
       <section className="homeProducts">
         <div className="container">
@@ -175,12 +166,25 @@ const Home = () => {
                           style: { backgroundColor: "#FF6347" },
                         }}
                       >
-                        {categories.map((item, index) => (
+                        {categories.length > 0 ? (
+                          categories.map((item, index) => (
+                            <Tab
+                              key={index}
+                              className="item"
+                              label={item.name}
+                              onClick={() => selectCat(item.name)}
+                              style={{
+                                color: "#333",
+                                fontWeight: "bold",
+                                textTransform: "uppercase",
+                                padding: "10px 20px",
+                              }}
+                            />
+                          ))
+                        ) : (
                           <Tab
-                            key={index}
                             className="item"
-                            label={item.name}
-                            onClick={() => selectCat(item?.name)}
+                            label="No Categories Available"
                             style={{
                               color: "#333",
                               fontWeight: "bold",
@@ -188,7 +192,7 @@ const Home = () => {
                               padding: "10px 20px",
                             }}
                           />
-                        ))}
+                        )}
                       </Tabs>
                     </div>
                   </div>
