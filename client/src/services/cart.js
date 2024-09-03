@@ -31,18 +31,18 @@ export const getCartItems = (userId) => new Promise(async (resolve, reject) => {
 // Cập nhật số lượng sản phẩm trong giỏ hàng
 export const updateCartItem = async (cartId, quantity) => {
     try {
-        console.log("Updating cart item with cartId:", cartId, "and quantity:", quantity); // Kiểm tra dữ liệu
+        console.log("Updating cart item with cartId:", cartId, "and quantity:", quantity);
         const response = await axiosConfig({
             method: 'put',
-            url: `/api/v1/cart/${cartId}`, // Giả sử cartId được gửi trong URL
+            url: `/api/v1/cart/${cartId}`, // Đảm bảo URL có cartId
             data: { quantity } // Chỉ gửi quantity
         });
-        return response.data; // Trả về dữ liệu phản hồi
+        return response.data;
     } catch (error) {
-        console.error('Error updating cart item:', error.message); // Đảm bảo có thông tin lỗi
         throw new Error('Error updating cart item: ' + error.message);
     }
 };
+
 
 
 

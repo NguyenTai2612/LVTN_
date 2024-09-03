@@ -23,7 +23,7 @@ const Cart = () => {
   const [productDetails, setProductDetails] = useState({});
   const [quantityUpdates, setQuantityUpdates] = useState({});
 
-  // Định nghĩa hàm fetchCartItems
+  // Fetch cart items
   const fetchCartItems = async () => {
     setIsLoading(true);
     try {
@@ -39,7 +39,7 @@ const Cart = () => {
           })
         );
 
-        // Chuyển đổi mảng thành object để dễ dàng tra cứu
+        // Convert array to object for easier lookup
         const productDetailsObj = productDetailsMap.reduce((acc, item) => {
           acc[item.id] = item.data;
           return acc;
@@ -56,58 +56,68 @@ const Cart = () => {
     }
   };
 
-  // Hàm lấy dữ liệu giỏ hàng khi component mount
   useEffect(() => {
     fetchCartItems();
   }, []);
 
-  // Hàm lấy dữ liệu giỏ hàng khi userId thay đổi trong context
   useEffect(() => {
     if (context.userId) {
       fetchCartItems();
     }
   }, [context.userId]);
 
-  // Hàm xử lý xóa sản phẩm khỏi giỏ hàng
+  // Remove item from cart
   const removeItem = async (cartId) => {
     setIsLoading(true);
     try {
       await deleteCartItem(cartId);
-      // Cập nhật dữ liệu giỏ hàng sau khi xóa
       fetchCartItems();
     } catch (error) {
-      alert("Lỗi khi xóa sản phẩm khỏi giỏ hàng: " + error.message);
+      alert("Error removing item from cart: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Hàm xử lý cập nhật số lượng sản phẩm
-  const handleQuantityChange = (cartId, quantity) => {
-    setQuantityUpdates((prev) => ({
-      ...prev,
-      [cartId]: quantity,
+  // Handle quantity change
+  const handleQuantityChange = (cartId, newQuantity) => {
+    setCartData((prevCartData) =>
+      prevCartData.map((item) =>
+        item.id === cartId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+    setQuantityUpdates((prevUpdates) => ({
+      ...prevUpdates,
+      [cartId]: newQuantity,
     }));
   };
 
+  // Update quantities
   const handleUpdateQuantities = async () => {
     setIsLoading(true);
     try {
-      // Duyệt qua tất cả các thay đổi trong quantityUpdates
       for (const cartId in quantityUpdates) {
-        const quantity = quantityUpdates[cartId];
-        // Gửi yêu cầu cập nhật số lượng sản phẩm
-        await updateCartItem(cartId, quantity);
+        const updatedQuantity = quantityUpdates[cartId];
+        await updateCartItem(cartId, updatedQuantity); // Make API call
       }
-      // Cập nhật dữ liệu giỏ hàng sau khi cập nhật số lượng
-      fetchCartItems();
-      // Sau khi cập nhật thành công, xóa quantityUpdates để tránh cập nhật lặp lại
+      await fetchCartItems(); // Refresh cart items
       setQuantityUpdates({});
     } catch (error) {
-      alert("Lỗi khi cập nhật số lượng sản phẩm: " + error.message);
+      alert("Error updating item quantities: " + error.message);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Calculate total price and subtotal
+  const calculateTotal = () => {
+    return cartData
+      .reduce((total, item) => {
+        const itemPrice = parseFloat(item.price);
+        const itemQuantity = parseInt(item.quantity);
+        return total + itemPrice * itemQuantity;
+      }, 0)
+      .toFixed(2); // Convert to 2 decimal places
   };
 
   return (
@@ -116,11 +126,11 @@ const Cart = () => {
         <div className="container pt-3">
           <div className="order-info">
             <span className="order-info-text">
-              <FaCartArrowDown className="mb-1" /> Thông Tin Đơn Hàng
+              <FaCartArrowDown className="mb-1" /> Order Information
             </span>
           </div>
           <p>
-            Sản phẩm trong giỏ: <b className="text-red">{cartData.length}</b>
+            Items in cart: <b className="text-red">{cartData.length}</b>
           </p>
           <div className="row">
             <div className="col-md-8">
@@ -128,11 +138,11 @@ const Cart = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th width="40%">Sản Phẩm</th>
-                      <th>Giá</th>
-                      <th>Số Lượng</th>
-                      <th>Thành Tiền</th>
-                      <th>Xóa</th>
+                      <th width="40%">Product</th>
+                      <th>Price</th>
+                      <th>Quantity</th>
+                      <th>Subtotal</th>
+                      <th>Remove</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -180,12 +190,10 @@ const Cart = () => {
                             </td>
                             <td>
                               <QuantityBox
-                                quantity={(value) =>
-                                  handleQuantityChange(item.id, value)
-                                }
                                 item={item}
-                                selectedItem={item}
-                                value={item.quantity}
+                                onQuantityChange={(newQuantity) =>
+                                  handleQuantityChange(item.id, newQuantity)
+                                }
                               />
                             </td>
                             <td>
@@ -210,22 +218,18 @@ const Cart = () => {
                 color="primary"
                 onClick={handleUpdateQuantities}
               >
-                Cập Nhật Số Lượng
+                Update Quantities
               </Button>
             </div>
             <div className="col-md-4">
               <div className="card border p-3 cartDetails">
-                <h4>Giỏ hàng</h4>
+                <h4>Cart Summary</h4>
 
                 <div className="d-flex align-items-center mb-3">
-                  <span>Tổng Phụ</span>
+                  <span>Subtotal</span>
                   <span className="ml-auto font-weight-medium">
                     {cartData.length !== 0 && (
-                      <Price
-                        amount={cartData
-                          .map((item) => parseFloat(item.price) * item.quantity)
-                          .reduce((total, value) => total + value, 0)}
-                      />
+                      <Price amount={calculateTotal()} />
                     )}
                   </span>
                 </div>
@@ -238,14 +242,10 @@ const Cart = () => {
                 </div>
 
                 <div className="d-flex align-items-center mb-3">
-                  <span>Tổng Tiền</span>
+                  <span>Total</span>
                   <span className="ml-auto text-red font-weight-bold">
                     {cartData.length !== 0 && (
-                      <Price
-                        amount={cartData
-                          .map((item) => parseFloat(item.price) * item.quantity)
-                          .reduce((total, value) => total + value, 0)}
-                      />
+                      <Price amount={calculateTotal()} />
                     )}
                   </span>
                 </div>
@@ -262,4 +262,3 @@ const Cart = () => {
 };
 
 export default Cart;
-// editttttttttt

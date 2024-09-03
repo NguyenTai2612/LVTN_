@@ -9,7 +9,7 @@ router.post('/', cartController.addToCart);
 router.get('/:userId', cartController.getCartByUserId);
 
 // Cập nhật số lượng sản phẩm trong giỏ hàng
-router.put('/', cartController.updateCartItem);
+router.put('/:cartId', cartController.updateCartItem);
 
 // Xóa sản phẩm khỏi giỏ hàng
 router.delete('/:cartId', cartController.deleteCartItem);

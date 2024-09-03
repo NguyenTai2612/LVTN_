@@ -1,24 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 
 const QuantityBox = ({ item, onQuantityChange }) => {
-  const [quantity, setQuantity] = useState(item?.quantity || 1); // Đảm bảo giá trị mặc định là 1
+  const [quantity, setQuantity] = useState(item?.quantity || 1); // Ensure default value is 1
 
-  // Hàm tăng số lượng
+  // Function to increase quantity
   const increaseQuantity = () => {
-    setQuantity((prevQuantity) => prevQuantity + 1);
+    setQuantity((prevQuantity) => {
+      const newQuantity = prevQuantity + 1;
+      if (onQuantityChange) {
+        onQuantityChange(newQuantity); // Notify parent with updated quantity
+      }
+      return newQuantity;
+    });
   };
 
-  // Hàm giảm số lượng
+  // Function to decrease quantity
   const decreaseQuantity = () => {
-    setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1));
+    setQuantity((prevQuantity) => {
+      const newQuantity = prevQuantity > 1 ? prevQuantity - 1 : 1;
+      if (onQuantityChange) {
+        onQuantityChange(newQuantity); // Notify parent with updated quantity
+      }
+      return newQuantity;
+    });
   };
-
-  useEffect(() => {
-    if (onQuantityChange) {
-      onQuantityChange(quantity); // Chỉ gửi quantity
-    }
-  }, [quantity, onQuantityChange]);
 
   return (
     <div>
@@ -27,6 +33,7 @@ const QuantityBox = ({ item, onQuantityChange }) => {
           className="quantity-button font-weight-bold"
           onClick={decreaseQuantity}
           sx={{ minWidth: "20px", height: "20px", padding: 0 }}
+          aria-label="Decrease quantity"
         >
           -
         </Button>
@@ -42,11 +49,13 @@ const QuantityBox = ({ item, onQuantityChange }) => {
             background: "transparent",
             width: "40px",
           }}
+          aria-label="Quantity"
         />
         <Button
           className="quantity-button font-weight-bold"
           onClick={increaseQuantity}
           sx={{ minWidth: "20px", height: "20px", padding: 0 }}
+          aria-label="Increase quantity"
         >
           +
         </Button>
@@ -55,6 +64,4 @@ const QuantityBox = ({ item, onQuantityChange }) => {
   );
 };
 
-
 export default QuantityBox;
-//edittttttt

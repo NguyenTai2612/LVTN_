@@ -21,15 +21,34 @@ const getCartByUserId = async (userId) => {
 
 const updateCartItem = async (updateData) => {
   try {
-    const [updated] = await Cart.update(updateData, { where: { id: updateData.id } });
+    const cartItem = await Cart.findByPk(updateData.id);
+
+    if (!cartItem) {
+      throw new Error('Cart item not found');
+    }
+
+    // Recalculate subTotal
+    const newSubTotal = (cartItem.price * updateData.quantity).toFixed(2);
+
+    // Update the item with new quantity and subTotal
+    const [updated] = await Cart.update(
+      {
+        quantity: updateData.quantity,
+        subTotal: newSubTotal
+      },
+      { where: { id: updateData.id } }
+    );
+
     if (updated) {
       return await Cart.findByPk(updateData.id);
     }
-    throw new Error('Cart item not found');
+
+    throw new Error('Error updating cart item');
   } catch (error) {
     throw new Error(`Error updating cart item: ${error.message}`);
   }
 };
+
 
 const deleteCartItem = async (id) => {
   try {
