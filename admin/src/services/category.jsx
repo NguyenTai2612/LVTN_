@@ -1,6 +1,5 @@
 import axiosConfig from '../axiosConfig'
 
-// src/utils/api.js
 
 export const apiGetCategories = (page = 1, limit = 3) => new Promise(async (resolve, reject) => {
     try {
@@ -14,20 +13,53 @@ export const apiGetCategories = (page = 1, limit = 3) => new Promise(async (reso
     }
 });
 
-
-// export const apiGetCategories = () => new Promise(async (resolve, reject) => {
+// export const apiGetCategoryById = (categoryId) => new Promise(async (resolve, reject) => {
 //     try {
 //         const response = await axiosConfig({
 //             method: 'get',
-//             url: '/api/v1/category/all',
-//         })
-//         resolve(response)
-
+//             url: `/api/v1/category/${categoryId}`, // Endpoint for fetching category by ID
+//         });
+//         resolve(response.data.response); // Adjust according to your API response structure
 //     } catch (error) {
-//         reject(error)
+//         reject(error);
 //     }
-// })
-//edit
+// });
+
+// services/category.js
+
+export const apiGetCategoryById = (categoryId) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'get',
+            url: `/api/v1/category/${categoryId}`, // Endpoint for fetching category by ID
+        });
+        resolve(response.data); // Adjust according to your API response structure
+    } catch (error) {
+        reject(error);
+    }
+});
+
+
+
+
+export const apiAddCategory = (categoryData) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'post',
+            url: `/api/v1/category/`,
+            data: categoryData, // Make sure this is correct
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        resolve(response.data);
+    } catch (error) {
+        reject(error);
+    }
+});
+
+
+
 
 export const apiUpdateCategory = (categoryId, updatedData) => new Promise(async (resolve, reject) => {
     try {
@@ -36,7 +68,7 @@ export const apiUpdateCategory = (categoryId, updatedData) => new Promise(async 
             url: `/api/v1/category/${categoryId}`,
             data: updatedData
         })
-        resolve(response)
+        resolve(response.data)
 
     } catch (error) {
         reject(error)

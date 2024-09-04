@@ -1,10 +1,21 @@
 const express = require('express');
-const { getCategories, addCategory, deleteCategory } = require('../controllers/category');
-
 const router = express.Router();
+const multer = require('multer');
+const { getCategories, addCategory, deleteCategory ,updateCategory, getCategoryById } = require('../controllers/category');
+
+// Configure multer to handle file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Define the route with multer middleware
+router.post('/', upload.single('image'), addCategory);
+router.put('/:categoryId', upload.single('image'), updateCategory);
+
 
 router.get('/all', getCategories); // This should match the route defined in your Express app
-router.post('/', addCategory);
+router.get('/:categoryId', getCategoryById);
+
+// router.post('/', addCategory);
 router.delete('/:categoryId', deleteCategory);
 
 

@@ -1,24 +1,14 @@
 const db = require('../models');
 
-// GET ALL CATEGORIES
-// const getCategoriesService = async () => {
-//     try {
-//         const response = await db.Category.findAll({ 
-//             raw: true,
-//             attributes: {
-//                 exclude: ['createdAt', 'updatedAt', 'description']
-//             }
-//          });
-//         return {
-//             err: response ? 0 : 1,
-//             msg: response ? 'OK' : 'Fail to get categories',
-//             response
-//         };
-//     } catch (error) {
-//         throw new Error(error.message);
-//     }
-// };
+const cloudinary = require('cloudinary').v2;
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// GET ALL CATEGORIES
 const getCategoriesService = async (page = 1, limit = 3) => {
     try {
         console.log(`Page: ${page}`); // Debug giá trị page
@@ -46,9 +36,21 @@ const getCategoriesService = async (page = 1, limit = 3) => {
         throw new Error(error.message);
     }
 };
-
-
 //edit
+
+const getCategoryByIdService = async (categoryId) => {
+    try {
+        const category = await db.Category.findByPk(categoryId); // Tìm category theo ID
+
+        if (!category) {
+            return null; // Không tìm thấy category
+        }
+
+        return category; // Trả về category tìm được
+    } catch (error) {
+        throw new Error(error.message); // Xử lý lỗi nếu có
+    }
+};
 
 const addCategoryService = async (categoryData) => {
     try {
@@ -62,6 +64,28 @@ const addCategoryService = async (categoryData) => {
         throw new Error(error.message);
     }
 };
+//edit success
+
+
+const updateCategoryService = async (categoryId, updatedData) => {
+    try {
+        const response = await db.Category.update(updatedData, {
+            where: { id: categoryId },
+            returning: true,
+            plain: true,
+        });
+
+        return {
+            err: response[1] ? 0 : 1,
+            msg: response[1] ? 'Category updated successfully' : 'Fail to update category',
+            response: response[1]
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+
 
 const deleteCategoryService = async (categoryId) => {
     try {
@@ -84,4 +108,6 @@ module.exports = {
     getCategoriesService,
     addCategoryService,
     deleteCategoryService,
+    updateCategoryService,
+    getCategoryByIdService,
 };
