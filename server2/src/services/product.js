@@ -42,7 +42,63 @@ const getProductDetailsService = async (productId) => {
     }
 };
 
+const createProductService = async (productData) => {
+    try {
+        const product = await Product.create(productData);
+        return {
+            err: 0,
+            msg: 'Product created successfully',
+            response: product
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+const updateProductService = async (productId, productData) => {
+    try {
+        const [updated] = await Product.update(productData, {
+            where: { id: productId }
+        });
+
+        if (!updated) {
+            throw new Error('Product not found');
+        }
+
+        const updatedProduct = await Product.findByPk(productId);
+        return {
+            err: 0,
+            msg: 'Product updated successfully',
+            response: updatedProduct
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+const deleteProductService = async (productId) => {
+    try {
+        const deleted = await Product.destroy({
+            where: { id: productId }
+        });
+
+        if (!deleted) {
+            throw new Error('Product not found');
+        }
+
+        return {
+            err: 0,
+            msg: 'Product deleted successfully'
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
 module.exports = {
     getProductsService,
     getProductDetailsService,
+    createProductService,
+    updateProductService,
+    deleteProductService,
 };

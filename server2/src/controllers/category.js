@@ -132,7 +132,22 @@ const getCategoryById = async (req, res) => {
 };
 
 //edit 
-
+const getAllCategories = async (req, res) => {
+    try {
+        const result = await services.getAllCategories();
+        if (result.err === 0) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in getAllCategories controller:', error);
+        res.status(500).json({
+            err: -1,
+            msg: 'Failed to fetch categories'
+        });
+    }
+};
 
 // Exporting the function
 module.exports = {
@@ -141,4 +156,5 @@ module.exports = {
     deleteCategory,
     updateCategory,
     getCategoryById,
+    getAllCategories,
 };

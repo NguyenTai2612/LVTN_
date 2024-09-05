@@ -7,4 +7,10 @@ router.get('/all', getProducts); // Route to get all products
 
 router.get('/:id/details', productController.getProductDetails);
 
+router.post('/create', productController.createProduct);
+
+router.put('/:id/update', productController.updateProduct);
+
+router.delete('/:id', productController.deleteProduct);
+
 module.exports = router;

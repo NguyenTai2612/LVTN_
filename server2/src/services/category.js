@@ -1,7 +1,7 @@
 const db = require('../models');
 
 const cloudinary = require('cloudinary').v2;
-
+const { Category } = require('../models');
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -102,7 +102,27 @@ const deleteCategoryService = async (categoryId) => {
     }
 };
 
-
+const getAllCategories = async () => {
+    try {
+        const response = await Category.findAll({
+            raw: true,
+            attributes: {
+                exclude: ['createdAt', 'updatedAt'] // Loại trừ các thuộc tính không cần thiết
+            }
+        });
+        return {
+            err: response.length > 0 ? 0 : 1,
+            msg: response.length > 0 ? 'OK' : 'No categories found',
+            response
+        };
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        return {
+            err: -1,
+            msg: 'Failed to fetch categories'
+        };
+    }
+};
 
 module.exports = {
     getCategoriesService,
@@ -110,4 +130,5 @@ module.exports = {
     deleteCategoryService,
     updateCategoryService,
     getCategoryByIdService,
+    getAllCategories
 };

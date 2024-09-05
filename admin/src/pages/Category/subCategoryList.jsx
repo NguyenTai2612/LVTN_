@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TooltipBox from '@mui/material/Tooltip';
 import Pagination from '@mui/material/Pagination';
 import { FiEdit3 } from "react-icons/fi";
-import { MdOutlineRemoveRedEye, MdOutlineDeleteOutline } from "react-icons/md";
+import { MdOutlineDeleteOutline } from "react-icons/md";
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -13,7 +13,8 @@ import { emphasize, styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import { Link } from 'react-router-dom';
 import { MyContext } from '../../App';
-import { deleteData, fetchDataFromApi } from '../../utils/api';
+import { apiDeleteSubCategory, apiGetSubCategories } from '../../services/subCategory';
+import { apiGetCategories } from '../../services/category';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -37,48 +38,59 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     };
 });
 
-function handleClick(event) {
-    event.preventDefault();
-    console.info('You clicked a breadcrumb.');
-}
-
 const SubCategoryList = () => {
     const [isAllChecked, setIsAllChecked] = useState(false);
     const [subCatData, setSubCatData] = useState([]);
+    const [totalPages, setTotalPages] = useState(0);
     const context = useContext(MyContext);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        window.scrollTo(0, 0);
-        context.setProgress(20);
+        fetchData(currentPage);
+    }, [currentPage]);
 
-        fetchDataFromApi('/api/subCat').then((res) => {
-            setSubCatData(res);
-            console.log(res);
-            context.setProgress(100);
-        });
-    }, []);
+    const fetchData = async (page) => {
+        try {
+            const result = await apiGetSubCategories(page, 3);
+            console.log('Fetched Data:', result);
+
+            setSubCatData(result.data || []);
+            setTotalPages(result.totalPages || 0);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const handlePageChange = (event, page) => {
+        console.log('Page changed to:', page);
+        setCurrentPage(page);
+    };
 
     const selectAll = (e) => {
         setIsAllChecked(e.target.checked);
     };
 
-    const deleteCat = (id) => {
-        deleteData(`/api/subCat/${id}`).then(() => {
-            fetchDataFromApi('/api/subCat').then((res) => {
-                setSubCatData(res);
-            });
-        });
+    const deleteCat = async (id) => {
+        try {
+            const result = await apiDeleteSubCategory(id);
+            console.log('Delete response:', result); // Log result to verify
+    
+            if (result.err === 0) {
+                await fetchData(currentPage); // Reload the current page’s data
+            } else {
+                alert('Failed to delete subcategory');
+            }
+        } catch (error) {
+            console.error('Error deleting subcategory:', error);
+        }
     };
-
-    const handleChange = (event, value) => {
-        context.setProgress(40);
-
-        fetchDataFromApi(`/api/subCat?page=${value}`).then((res) => {
-            setSubCatData(res);
-            context.setProgress(100);
-        });
-    };
-
+    
+    
+    
+    
+    
+    
+    
     return (
         <>
             <div className='card shadow my-4 border-0 flex-center p-3' style={{ backgroundColor: '#343A40' }}>
@@ -115,8 +127,8 @@ const SubCategoryList = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {subCatData?.subCategoryList?.length > 0 && subCatData.subCategoryList.map((item, index) => {
-                                const categoryImage = item.category?.images?.[0];
+                            {subCatData.length > 0 ? subCatData.map((item, index) => {
+                                const category = item.Category;
                                 return (
                                     <tr key={item.id || index}>
                                         <td>
@@ -125,14 +137,14 @@ const SubCategoryList = () => {
                                         </td>
                                         <td>
                                             <div className='flex items-center gap-5 w-[200px]'>
-                                                {categoryImage && (
+                                                {category?.image && (
                                                     <div className='imgWrapper shadow overflow-hidden w-[25%] h-[25%] rounded-md'>
-                                                        <img src={categoryImage} className='w-100' alt="category" />
+                                                        <img src={category.image} className='w-100' alt="category" />
                                                     </div>
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{item.category?.name}</td>
+                                        <td>{category?.name}</td>
                                         <td>{item.subCat}</td>
                                         <td>
                                             <div className='actions flex items-center gap-2'>
@@ -152,16 +164,32 @@ const SubCategoryList = () => {
                                         </td>
                                     </tr>
                                 );
-                            })}
+                            }) : (
+                                <tr>
+                                    <td colSpan="5">No sub-categories available</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
-                <div className='table-footer flex items-center justify-between py-2 px-3 mb-2'>
-                    {subCatData?.totalPages > 1 && (
+
+
+
+
+                <div className="table-footer flex items-center justify-between py-2 px-3 mb-2">
+                    {totalPages > 1 &&
                         <div className="d-flex tableFooter flex items-center justify-end py-2 px-3 mb-2 ml-auto">
-                            <Pagination count={subCatData.totalPages} color="primary" className="pagination" showFirstButton showLastButton onChange={handleChange} />
+                            <Pagination
+                                count={totalPages}
+                                color="primary"
+                                className="pagination"
+                                page={currentPage}
+                                onChange={handlePageChange}
+                                showFirstButton
+                                showLastButton
+                            />
                         </div>
-                    )}
+                    }
                 </div>
             </div>
         </>

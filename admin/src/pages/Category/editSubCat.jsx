@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react';
 import { emphasize, styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import HomeIcon from '@mui/icons-material/Home';
@@ -6,8 +6,9 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { MyContext } from '../../App';
 import { Button, CircularProgress, FormControl, MenuItem, Select } from '@mui/material';
 import { FaCloudUploadAlt } from 'react-icons/fa';
-import { editData, fetchDataFromApi, postData } from '../../utils/api';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { apiGetSubCategoryById, apiUpdateSubCategory } from '../../services/subCategory';
+import { apiGetAllCategories } from '../../services/category';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   const backgroundColor =
@@ -29,76 +30,84 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   };
 });
 
-const editSubCat = () => {
-
-  const [data, setData] = useState([]);
+const EditSubCategory = () => {
+  const { id } = useParams(); // Get ID from route params
   const [categoryVal, setCategoryVal] = useState('');
-  const [isLoading, setIsLoading] = useState(false)
-  const history = useNavigate()
-
-  const [formFields, setFormFields] = useState({
-    category: '',
-    subCat: '',
-  });
-
-  let { id } = useParams()
-  const context = useContext(MyContext)
+  const [subCat, setSubCat] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubCatLoading, setIsSubCatLoading] = useState(true);
+  const navigate = useNavigate();
+  const context = useContext(MyContext);
 
   useEffect(() => {
-    fetchDataFromApi(`/api/subCat/${id}`).then((res) => {
-      setData(res)
-      setCategoryVal(res.category.id)
-      setFormFields(() => ({
-        ...formFields,
-        category: res.category.id,
-        subCat: res.subCat
-      }))
-    })
-  }, [])
+    // Fetch categories and subcategory
+    const fetchCategories = async () => {
+      try {
+        const result = await apiGetAllCategories();
+        console.log('Fetched categories:', result); // Debugging
+        setCategories(result);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+
+    const fetchSubCategory = async () => {
+      try {
+        const result = await apiGetSubCategoryById(id);
+        if (result.err === 0) {
+          const { category_id, subCat } = result.response;
+          setCategoryVal(category_id);  // Update state with current category ID
+          setSubCat(subCat);
+        }
+      } catch (error) {
+        console.error('Failed to fetch subcategory:', error);
+      } finally {
+        setIsSubCatLoading(false);
+      }
+    };
+
+    fetchCategories().then(() => {
+      fetchSubCategory().finally(() => setIsLoading(false));
+    });
+  }, [id]);
 
   const handleChangeCategory = (event) => {
-    setCategoryVal(event.target.value)
-    setFormFields(() => ({
-      ...formFields,
-      category: event.target.value
-    }))
-  }
+    setCategoryVal(event.target.value);
+  };
+
   const inputChange = (e) => {
-    setFormFields(() => ({
-      ...formFields,
-      [e.target.name]: e.target.value
-    }))
-  }
+    setSubCat(e.target.value);
+  };
 
-  const editSubCat = (e) => {
-    e.preventDefault()
-    const formdata = new FormData()
-    formdata.append('category', formFields.category);
-    formdata.append('subCat', formFields.subCat);
-
-    if (formFields.category === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: 'Please select a category',
-      })
-      return false
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+  
+    try {
+      const data = {
+        category_id: categoryVal,  // category ID
+        subCat                     // sub-category name
+      };
+  
+      // Call the API, passing the ID and the data object
+      const response = await apiUpdateSubCategory(id, data); // Pass id separately
+  
+      if (response.err === 0) {
+        navigate('/subCategory');
+      } else {
+        alert('Failed to update subcategory');
+      }
+    } catch (error) {
+      console.error('Failed to update subcategory:', error);
+      alert('Failed to update subcategory');
+    } finally {
+      setIsLoading(false);
     }
-
-    if (formFields.subCat === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: 'Please enter sub category',
-      })
-      return false
-    }
-
-
-    editData(`/api/subCat/${id}`, formFields).then((res) => {
-      setIsLoading(false)
-      history('/subCategory')
-    })
+  };
+  
+  if (isLoading || isSubCatLoading) {
+    return <CircularProgress />;
   }
 
   return (
@@ -106,26 +115,22 @@ const editSubCat = () => {
       <div className='card shadow my-4 border-0 flex-center p-3' style={{ backgroundColor: '#343A40' }}>
         <div className='flex items-center justify-between'>
           <h1 className='font-weight-bold text-white'>Edit Sub Category</h1>
-
           <div className='ml-auto flex items-center gap-3'>
             <Breadcrumbs aria-label="breadcrumb">
               <StyledBreadcrumb
-                component="a"
-                href="#"
+                component={Link}
+                to="/"
                 label="Dashboard"
                 icon={<HomeIcon fontSize="small" />}
               />
-              <StyledBreadcrumb component="a" href="#" label="Category" />
-              <StyledBreadcrumb
-                label="Edit Category"
-              />
+              <StyledBreadcrumb component={Link} to='/subCategory' label="Sub Category" />
+              <StyledBreadcrumb label="Edit Sub Category" />
             </Breadcrumbs>
           </div>
         </div>
       </div>
-      <form className='form w-[100%] mt-4' onSubmit={editSubCat} style={{ width: '75%' }}>
+      <form className='form w-[100%] mt-4' onSubmit={handleSubmit} style={{ width: '75%' }}>
         <div className='card shadow my-4 border-0 flex-center p-3'>
-
           <div className='row'>
             <div className='col-md-6 col_'>
               <h4>Category</h4>
@@ -139,18 +144,14 @@ const editSubCat = () => {
                     labelId="demo-select-small-label"
                     className="w-100"
                     name='category'
+                    disabled={isLoading}
                   >
-                    <MenuItem value=""> <em value={null}>None</em>
-                    </MenuItem>
-                    {
-                      context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
-                        return (
-
-                          <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
-                        )
-                      })
-                    }
-
+                    <MenuItem value=""><em>None</em></MenuItem>
+                    {categories.map((cat) => (
+                      <MenuItem className='text-capitalize' value={cat.id} key={cat.id}>
+                        {cat.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </div>
@@ -158,25 +159,18 @@ const editSubCat = () => {
             <div className='col-md-6 col_'>
               <h4>Sub Category</h4>
               <div className='form-group'>
-                <input type='text' value={formFields.subCat} className='input' name='subCat' onChange={inputChange} />
+                <input type='text' value={subCat} className='input' name='subCat' onChange={inputChange} />
               </div>
             </div>
           </div>
-          <Button type="submit" className="btn-blue btn-lg btn-big w-100"
-
-          ><FaCloudUploadAlt /> &nbsp;
-            {
-              isLoading === true ?
-                <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
-            }</Button>
-
-
-
+          <Button type="submit" className="btn-blue btn-lg btn-big w-100" disabled={isLoading}>
+            <FaCloudUploadAlt /> &nbsp;
+            {isLoading ? <CircularProgress color="inherit" className="loader" /> : 'UPDATE AND VIEW'}
+          </Button>
         </div>
-
       </form>
-    </div >
-  )
-}
+    </div>
+  );
+};
 
-export default editSubCat
+export default EditSubCategory;

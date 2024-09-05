@@ -13,19 +13,18 @@ export const apiGetCategories = (page = 1, limit = 3) => new Promise(async (reso
     }
 });
 
-// export const apiGetCategoryById = (categoryId) => new Promise(async (resolve, reject) => {
-//     try {
-//         const response = await axiosConfig({
-//             method: 'get',
-//             url: `/api/v1/category/${categoryId}`, // Endpoint for fetching category by ID
-//         });
-//         resolve(response.data.response); // Adjust according to your API response structure
-//     } catch (error) {
-//         reject(error);
-//     }
-// });
+export const apiGetAllCategories = () => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'get',
+            url: '/api/v1/category',
+        });
+        resolve(response.data.response); // Đảm bảo trả về đúng dữ liệu từ API
+    } catch (error) {
+        reject(error);
+    }
+});
 
-// services/category.js
 
 export const apiGetCategoryById = (categoryId) => new Promise(async (resolve, reject) => {
     try {

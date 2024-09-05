@@ -6,6 +6,7 @@ const productSpecificationRouter = require('./productSpecification.js');
 const reviewRouter = require('./review.js');
 const userRouter = require('./user.js');
 const cartRouter = require('./cart.js');
+const subCategoryRouter = require('./subCategory.js'); 
 
 const initRoutes = (app) => {
     app.use('/api/v1/auth', authRouter)
@@ -16,7 +17,9 @@ const initRoutes = (app) => {
     app.use('/api/v1/review', reviewRouter); 
     app.use('/api/v1/user', userRouter); 
     app.use('/api/v1/cart', cartRouter);
+    app.use('/api/v1/subCategory', subCategoryRouter);
 
+    
     return app.use('/', (req, res) => {
         res.send('server on...')
 
