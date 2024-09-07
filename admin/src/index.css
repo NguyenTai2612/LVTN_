@@ -1063,3 +1063,27 @@ input {
 .content_Right .header {
   display: none;
 }
+
+/* Ensure images are displayed correctly and within a set size */
+.image-container {
+  position: relative;
+  width: 150px; /* Adjust width as needed */
+  height: 150px; /* Adjust height as needed */
+}
+
+.image-thumbnail {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover; /* Adjust the image to cover the container */
+  border-radius: 4px; /* Optional: Add rounded corners */
+}
+
+/* Style for the remove button */
+.remove-button {
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  border: none;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.6);
+}

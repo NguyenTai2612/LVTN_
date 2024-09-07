@@ -4,10 +4,10 @@ import { IoCloseSharp } from "react-icons/io5";
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { apiAddCategory } from '../../services/category';
+import { apiAddBrand } from '../../services/brand';
 const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dilsy0sqq/image/upload`;
 
-const AddCategory = () => {
+const AddBrand = () => {
     const [name, setName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [imgFiles, setImgFiles] = useState(null);
@@ -43,66 +43,66 @@ const AddCategory = () => {
 
     // Handle form submission
     // Handle form submission
-    const addCategory = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
+const addCategory = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-        try {
-            const formData = new FormData();
-            formData.append('name', name);
+    try {
+        const formData = new FormData();
+        formData.append('name', name);
 
-            if (imgFiles) {
-                setUploading(true);
+        if (imgFiles) {
+            setUploading(true);
 
-                const imageData = new FormData();
-                imageData.append('file', imgFiles[0]);
-                imageData.append('upload_preset', 'web_nhac');
+            const imageData = new FormData();
+            imageData.append('file', imgFiles[0]);
+            imageData.append('upload_preset', 'web_nhac');
 
-                const cloudinaryRes = await fetch(cloudinaryUrl, {
-                    method: 'POST',
-                    body: imageData,
-                });
+            const cloudinaryRes = await fetch(cloudinaryUrl, {
+                method: 'POST',
+                body: imageData,
+            });
 
-                const cloudinaryData = await cloudinaryRes.json();
+            const cloudinaryData = await cloudinaryRes.json();
 
-                if (cloudinaryData.secure_url) {
-                    formData.append('image', imgFiles[0]);  // Send the file object itself
-                    formData.append('image_url', cloudinaryData.secure_url); // Optionally send the Cloudinary URL
-                } else {
-                    throw new Error(cloudinaryData.error.message);
-                }
-
-                setUploading(false);
-            }
-
-            const response = await apiAddCategory(formData);
-
-            if (response.err === 0) {
-                history('/category');
+            if (cloudinaryData.secure_url) {
+                formData.append('image', imgFiles[0]);  // Send the file object itself
+                formData.append('image_url', cloudinaryData.secure_url); // Optionally send the Cloudinary URL
             } else {
-                alert(response.msg);
+                throw new Error(cloudinaryData.error.message);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('There was an error adding the category.');
-        } finally {
-            setIsLoading(false);
+
+            setUploading(false);
         }
-    };
 
+        const response = await apiAddBrand(formData);
 
+        if (response.err === 0) {
+            history('/brand');
+        } else {
+            alert(response.msg);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('There was an error adding the category.');
+    } finally {
+        setIsLoading(false);
+    }
+};
+
+    
 
     return (
         <>
             <div className='card shadow my-4 border-0 flex-center p-3'>
-                <h1 className='font-weight-bold'>Add Category</h1>
+                <h1 className='font-weight-bold'>Add Brand</h1>
             </div>
 
             <form className='form w-[100%] mt-4' onSubmit={addCategory} style={{ width: '75%' }}>
                 <div className='card shadow my-4 border-0 flex-center p-3'>
                     <div className='row'>
                         <div className='col-md-12 col_'>
-                            <h4>Category Name</h4>
+                            <h4>Brand Name</h4>
                             <div className='form-group'>
                                 <input
                                     type='text'
@@ -163,4 +163,4 @@ const AddCategory = () => {
     );
 };
 
-export default AddCategory;
+export default AddBrand;

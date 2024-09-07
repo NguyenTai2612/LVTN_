@@ -15,6 +15,18 @@ export const apiGetSubCategories = (page = 1, limit = 3) => new Promise(async (r
     }
 });
 
+export const apiGetAllSubCategories = () => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'get',
+            url: '/api/v1/subcategory', // Adjust the URL path based on your API endpoint
+        });
+        resolve(response.data.response); // Ensure to return the correct data from the API
+    } catch (error) {
+        reject(error);
+    }
+});
+
 // Get a subcategory by ID
 export const apiGetSubCategoryById = (id) => new Promise(async (resolve, reject) => {
     try {

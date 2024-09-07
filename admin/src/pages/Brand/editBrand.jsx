@@ -1,20 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { IoCloseSharp } from "react-icons/io5";
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { apiAddCategory } from '../../services/category';
+import { apiGetBrandById, apiUpdateBrand } from '../../services/brand';
 const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dilsy0sqq/image/upload`;
 
-const AddCategory = () => {
+const EditBrand = () => {
+    const { id } = useParams();
     const [name, setName] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [currentImage, setCurrentImage] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
     const [imgFiles, setImgFiles] = useState(null);
     const [previews, setPreviews] = useState([]);
     const [uploading, setUploading] = useState(false);
 
     const history = useNavigate();
+
+    // Fetch category data by ID
+    useEffect(() => {
+      const fetchCategory = async () => {
+          try {
+              const response = await apiGetBrandById(id);
+              console.log('Fetch Category Response:', response); // Debugging
+
+              // Check if the response contains error
+              if (response.err === 0) {
+                  setName(response.response.name);
+                  setCurrentImage(response.response.image || '');
+                  setPreviews(response.response.image ? [response.response.image] : []);
+              } else {
+                  console.error('API Error:', response); // Debugging
+                  alert(response.msg || 'Failed to fetch category.');
+              }
+          } catch (error) {
+              console.error('Error fetching category:', error);
+              alert('There was an error fetching the category details.');
+          } finally {
+              setIsLoading(false);
+          }
+      };
+
+      fetchCategory();
+  }, [id]);
 
     // Handle file input change
     const onChangeFile = (e) => {
@@ -42,63 +71,75 @@ const AddCategory = () => {
     };
 
     // Handle form submission
-    // Handle form submission
-    const addCategory = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-
-        try {
-            const formData = new FormData();
-            formData.append('name', name);
-
-            if (imgFiles) {
-                setUploading(true);
-
-                const imageData = new FormData();
-                imageData.append('file', imgFiles[0]);
-                imageData.append('upload_preset', 'web_nhac');
-
-                const cloudinaryRes = await fetch(cloudinaryUrl, {
-                    method: 'POST',
-                    body: imageData,
-                });
-
-                const cloudinaryData = await cloudinaryRes.json();
-
-                if (cloudinaryData.secure_url) {
-                    formData.append('image', imgFiles[0]);  // Send the file object itself
-                    formData.append('image_url', cloudinaryData.secure_url); // Optionally send the Cloudinary URL
-                } else {
-                    throw new Error(cloudinaryData.error.message);
-                }
-
-                setUploading(false);
-            }
-
-            const response = await apiAddCategory(formData);
-
-            if (response.err === 0) {
-                history('/category');
-            } else {
-                alert(response.msg);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('There was an error adding the category.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-
+    const updateCategory = async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+  
+      try {
+          const formData = new FormData();
+          formData.append('name', name);
+  
+          if (imgFiles && imgFiles.length > 0) {
+              setUploading(true);
+  
+              const imageData = new FormData();
+              imageData.append('file', imgFiles[0]);
+              imageData.append('upload_preset', 'web_nhac');
+  
+              const cloudinaryRes = await fetch(cloudinaryUrl, {
+                  method: 'POST',
+                  body: imageData,
+              });
+  
+              const cloudinaryData = await cloudinaryRes.json();
+  
+              console.log('Cloudinary Response:', cloudinaryData); // Debugging
+  
+              if (cloudinaryData.secure_url) {
+                  formData.append('image_url', cloudinaryData.secure_url); // Add the image URL
+              } else {
+                  throw new Error(cloudinaryData.error.message);
+              }
+  
+              setUploading(false);
+          } else {
+              if (currentImage) {
+                  formData.append('image_url', currentImage); // Use existing image URL
+              } else {
+                  throw new Error('No image provided');
+              }
+          }
+  
+          const response = await apiUpdateBrand(id, formData);
+  
+          console.log('Update Category Response:', response); // Debugging
+  
+          // Detailed Logging
+          if (response.err === 0) {
+              console.log('Category updated successfully');
+              history('/brand');
+          } else {
+              console.error('Failed to update category:', response);
+              alert(response.msg || 'Failed to update category.');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert('There was an error updating the category.');
+      } finally {
+          setIsLoading(false);
+      }
+  };
+  
+  
+  
 
     return (
         <>
             <div className='card shadow my-4 border-0 flex-center p-3'>
-                <h1 className='font-weight-bold'>Add Category</h1>
+                <h1 className='font-weight-bold'>Edit Category</h1>
             </div>
 
-            <form className='form w-[100%] mt-4' onSubmit={addCategory} style={{ width: '75%' }}>
+            <form className='form w-[100%] mt-4' onSubmit={updateCategory} style={{ width: '75%' }}>
                 <div className='card shadow my-4 border-0 flex-center p-3'>
                     <div className='row'>
                         <div className='col-md-12 col_'>
@@ -154,7 +195,7 @@ const AddCategory = () => {
                         </div>
 
                         <Button type="submit" className="btn-blue btn-lg btn-big w-100">
-                            {isLoading ? <CircularProgress color="inherit" /> : 'PUBLISH AND VIEW'}
+                            {isLoading ? <CircularProgress color="inherit" /> : 'UPDATE AND VIEW'}
                         </Button>
                     </div>
                 </div>
@@ -163,4 +204,5 @@ const AddCategory = () => {
     );
 };
 
-export default AddCategory;
+export default EditBrand;
+// show cat success

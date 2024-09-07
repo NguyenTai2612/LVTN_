@@ -11,8 +11,9 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      description: {
-        type: Sequelize.TEXT
+      image: {  // Change description to image
+        type: Sequelize.STRING,
+        allowNull: true 
       },
       createdAt: {
         allowNull: false,

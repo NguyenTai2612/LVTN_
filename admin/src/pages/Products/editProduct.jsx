@@ -1,666 +1,436 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import { emphasize, styled } from '@mui/material/styles';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Chip from '@mui/material/Chip';
-import HomeIcon from '@mui/icons-material/Home';
-import { FormControl, MenuItem, Select } from '@mui/material';
-import Button from '@mui/material/Button';
-import Rating from '@mui/material/Rating';
-import { FaCloudUploadAlt, FaRegImages } from 'react-icons/fa';
-import { editData, fetchDataFromApi, postData } from '../../utils/api';
-import { MyContext } from '../../App';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { IoCloseSharp } from "react-icons/io5";
 import CircularProgress from '@mui/material/CircularProgress';
-import { useNavigate } from 'react-router-dom'
-import { Link, useParams } from 'react-router-dom';
-import { CiEdit } from "react-icons/ci";
-import { FaDeleteLeft } from "react-icons/fa6";
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
-import { IoCloseSharp } from 'react-icons/io5';
-
-const StyledBreadcrumb = styled(Chip)(({ theme }) => {
-    const backgroundColor =
-        theme.palette.mode === 'light'
-            ? theme.palette.grey[100]
-            : theme.palette.grey[800];
-    return {
-        backgroundColor,
-        height: theme.spacing(3),
-        color: theme.palette.text.primary,
-        fontWeight: theme.typography.fontWeightRegular,
-        '&:hover, &:focus': {
-            backgroundColor: emphasize(backgroundColor, 0.06),
-        },
-        '&:active': {
-            boxShadow: theme.shadows[1],
-            backgroundColor: emphasize(backgroundColor, 0.12),
-        },
-    };
-});
-
-function handleClick(event) {
-    event.preventDefault();
-    console.info('You clicked a breadcrumb.');
-}
+import Button from '@mui/material/Button';
+import {
+    apiGetProductDetails,
+    apiUpdateProduct,
+    apiGetAllBrand,
+    apiGetAllCategories,
+    apiGetAllSubCategories,
+    apiGetProductImages,
+    apiAddProductImage,
+    apiDeleteProductImage
+} from '../../services/index'; // Import các API services cần thiết
+const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dilsy0sqq/image/upload';
 
 const EditProduct = () => {
-    const [uploading, setUploading] = useState(false);
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-    const [categoryVal, setCategoryVal] = useState('');
-    const [ratingsValue, setRatingsValue] = useState('');
-    const [subCategoryVal, setSubCategoryVal] = useState('');
-    const [isFeaturedValue, setIsFeaturedValue] = useState('');
-    const [productImagesArr, setProductImagesArr] = useState([]);
-    const [count, setCount] = useState(0);
-    const [isLoading, setIsLoading] = useState(false)
-    const [isSelectedFiles, setIsSelectedFiles] = useState(false);
-    const [isSelectedImages, setIsSelectedImages] = useState(false)
-    const [subCatData, setSubCatData] = useState([]);
-    const [currentSpecName, setCurrentSpecName] = useState('');
-    const [newSpecValue, setNewSpecValue] = useState('');
-    const [newSpecName, setNewSpecName] = useState('');
-    const [isEditing, setIsEditing] = useState(false);
-
-    const [openDialog, setOpenDialog] = useState(false);
-
-
-    const [files, setFiles] = useState([])
-    const [product, setProduct] = useState([])
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState('');
+    const [oldPrice, setOldPrice] = useState('');
+    const [brandId, setBrandId] = useState('');
+    const [categoryId, setCategoryId] = useState('');
+    const [subCategoryId, setSubCategoryId] = useState('');
+    const [countInStock, setCountInStock] = useState('');
+    const [rating, setRating] = useState('');
+    const [isFeatured, setIsFeatured] = useState(false);
+    const [discount, setDiscount] = useState('');
     const [imgFiles, setImgFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
-    const history = useNavigate()
+    const [isLoading, setIsLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
-    let { id } = useParams()
-
-    const [catData, setCatData] = useState([]);
-
-    const context = useContext(MyContext)
-
-    const [formFields, setFormFields] = useState({
-        name: '',
-        subCat: '',
-        description: '',
-        images: [],
-        brand: '',
-        price: null,
-        oldPrice: null,
-        category: '',
-        countInStock: null,
-        rating: 0,
-        isFeatured: null,
-        discount: 0,
-        specifications: [] // Add specifications to state
-    });
-    const specificationsArray = Object.entries(formFields.specifications).map(([name, value]) => ({
-        name,
-        value
-    }));
-
-    const handleDialogClose = () => {
-        setOpenDialog(false);
-        setIsEditing(false);
-        setNewSpecName('');
-        setNewSpecValue('');
-    };
+    const [brands, setBrands] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
 
     useEffect(() => {
-        if (!imgFiles.length) return;
+        const fetchData = async () => {
+            try {
+                // Fetch product details
+                const productResponse = await apiGetProductDetails(id);
+                const productData = productResponse.data.response;
 
-        const objectUrls = imgFiles.map(file => URL.createObjectURL(file));
-        setPreviews(objectUrls);
+                // Fetch all brands, categories, and subCategories
+                const [brandsResponse, categoriesResponse, subCategoriesResponse] = await Promise.all([
+                    apiGetAllBrand(),
+                    apiGetAllCategories(),
+                    apiGetAllSubCategories()
+                ]);
 
-        return () => {
-            objectUrls.forEach(url => URL.revokeObjectURL(url));
+                setBrands(brandsResponse || []);
+                setCategories(categoriesResponse || []);
+                setSubCategories(subCategoriesResponse || []);
+
+                // Set the product details state
+                setName(productData.name);
+                setDescription(productData.description);
+                setPrice(productData.price);
+                setOldPrice(productData.oldPrice);
+                setBrandId(productData.brand_id);
+                setCategoryId(productData.category_id);
+                setSubCategoryId(productData.sub_category_id);
+                setCountInStock(productData.countInStock);
+                setRating(productData.rating);
+                setIsFeatured(productData.isFeatured);
+                setDiscount(productData.discount);
+
+                // Fetch existing images
+                const imagesResponse = await apiGetProductImages(id);
+                setExistingImages(imagesResponse.images || []); // Ensure we get both id and imageUrl
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Error fetching data.');
+            }
         };
-    }, [imgFiles]);
 
-    useEffect(() => {
-        window.scrollTo(0, 0)
-        context.setProgress(20)
-        setCatData(context.catData)
-
-
-        fetchDataFromApi(`/api/products/${id}`).then((res) => {
-
-            setProduct(res);
-
-            setFormFields({
-                name: res.name,
-                description: res.description,
-                brand: res.brand,
-                price: res.price,
-                oldPrice: res.oldPrice,
-                category: res.category,
-                subCat: res.subCat,
-                countInStock: res.countInStock,
-                rating: res.rating,
-                isFeatured: res.isFeatured,
-                discount: res.discount,
-                specifications: res.specifications,
-            });
-
-            setRatingsValue(res.rating);
-            setCategoryVal(res.category);
-            setSubCategoryVal(res.subCat);
-            setIsFeaturedValue(res.isFeatured);
-            setPreviews(res.images);
-            context.setProgress(100);
-
-        });
-
+        fetchData();
     }, [id]);
 
-    const handleAddSpecification = () => {
-        setIsEditing(false);
-        setOpenDialog(true);
-    };
-    const handleEditSpecification = (name, value) => {
-        setCurrentSpecName(name);
-        setNewSpecName(name);
-        setNewSpecValue(value);
-        setIsEditing(true);
-        setOpenDialog(true);
+    const onChangeFile = (e) => {
+        const files = Array.from(e.target.files);
+        setImgFiles(files);
+
+        const previewUrls = files.map(file => URL.createObjectURL(file));
+        setPreviews(previewUrls);
     };
 
+    const removeImg = (index) => {
+        const newFiles = [...imgFiles];
+        newFiles.splice(index, 1);
+        setImgFiles(newFiles);
 
-    const handleSaveSpecification = () => {
-        const updatedSpecifications = { ...formFields.specifications };
+        const newPreviews = [...previews];
+        newPreviews.splice(index, 1);
+        setPreviews(newPreviews);
+    };
 
-        if (isEditing) {
-            delete updatedSpecifications[currentSpecName]; // Remove the old key if the name has changed
+    const handleDeleteImage = async (imageId) => {
+        try {
+            const response = await apiDeleteProductImage(imageId);
+            if (response.err === 0) {
+                // Cập nhật danh sách hình ảnh sau khi xóa thành công
+                setExistingImages(existingImages.filter(image => image.id !== imageId));
+            } else {
+                alert(response.msg || 'Error deleting image.');
+            }
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            alert('Error deleting image.');
         }
-
-        updatedSpecifications[newSpecName] = newSpecValue;
-        setFormFields({ ...formFields, specifications: updatedSpecifications });
-        handleDialogClose();
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    const handleDeleteSpecification = (name) => {
-        const updatedSpecifications = { ...formFields.specifications };
-        delete updatedSpecifications[name];
-        setFormFields({ ...formFields, specifications: updatedSpecifications });
-    };
-
-    const handleChangeCategory = (event) => {
-        setCategoryVal(event.target.value)
-        setFormFields(() => ({
-            ...formFields,
-            category: event.target.value
-        }))
-    }
-
-    const handleChangeSubCategory = (event) => {
-        setSubCategoryVal(event.target.value)
-        setFormFields(() => ({
-            ...formFields,
-            subCat: event.target.value
-        }))
-    }
-
-    const handleChangeIsFeaturedValue = (event) => {
-        setIsFeaturedValue(event.target.value)
-        setFormFields(() => ({
-            ...formFields,
-            isFeatured: event.target.value
-        }))
-    }
-
-    useEffect(() => {
-        window.scrollTo(0, 0)
-    }, [])
-    const productImages = useRef()
-
-
-
-
-    const inputChange = (e) => {
-        setFormFields(() => ({
-            ...formFields,
-            [e.target.name]: e.target.value
-        }))
-    }
-
-
-
-    const onChangeFile = async (e, apiEndPoint) => {
-        const files = e.target.files;
-        setUploading(true);
-
-        const formData = new FormData();
-        const validImages = Array.from(files).filter(file =>
-            ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)
-        );
-
-        if (validImages.length !== files.length) {
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: 'Please select a valid JPG or PNG image file.',
-            });
-            setUploading(false);
+        if (!name || !description || !price || !countInStock) {
+            alert('Please fill in all required fields.');
             return;
         }
 
-        validImages.forEach(file => formData.append('images', file));
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', description);
+        formData.append('price', price);
+        formData.append('oldPrice', oldPrice || '');
+        formData.append('countInStock', countInStock);
+        formData.append('rating', rating || '');
+        formData.append('isFeatured', isFeatured ? 'true' : 'false');
+        formData.append('discount', discount || '');
+        formData.append('brand_id', brandId);
+        formData.append('category_id', categoryId);
+        formData.append('sub_category_id', subCategoryId);
 
-        try {
-            await postData(apiEndPoint, formData);
-            setImgFiles(validImages);
-            context.setAlertBox({
-                open: true,
-                error: false,
-                msg: 'Images uploaded successfully!',
-            });
-        } catch (error) {
-            console.error('Upload Error:', error);
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: 'Failed to upload images.',
-            });
-        } finally {
+        let imageUrls = [];
+        if (imgFiles.length > 0) {
+            setUploading(true);
+
+            for (let i = 0; i < imgFiles.length; i++) {
+                const imageData = new FormData();
+                imageData.append('file', imgFiles[i]);
+                imageData.append('upload_preset', 'web_nhac');
+
+                const cloudinaryRes = await fetch(cloudinaryUrl, {
+                    method: 'POST',
+                    body: imageData,
+                });
+
+                const cloudinaryData = await cloudinaryRes.json();
+
+                if (cloudinaryData.secure_url) {
+                    imageUrls.push(cloudinaryData.secure_url);
+                } else {
+                    throw new Error(cloudinaryData.error.message);
+                }
+            }
+
             setUploading(false);
         }
-    };
-    const removeImg = (index) => {
-        const updatedPreviews = previews.filter((_, i) => i !== index);
-        setPreviews(updatedPreviews);
-        URL.revokeObjectURL(previews[index]);
-    };
-
-    const editProduct = (e) => {
-        e.preventDefault()
-        // const updatedData = new FormData(); 1
-
-        
-        const specsArray = Object.entries(formFields.specifications).map(([key, value]) => ({
-            key,
-            value
-        }));
-
-        const updatedData = new FormData();
-
-        updatedData.append('name', formFields.name);
-        updatedData.append('subCat', formFields.subCat);
-        updatedData.append('description', formFields.description);
-        updatedData.append('brand', formFields.brand);
-        updatedData.append('price', formFields.price);
-        updatedData.append('oldPrice', formFields.oldPrice);
-        updatedData.append('category', formFields.category);
-        updatedData.append('countInStock', formFields.countInStock);
-        updatedData.append('rating', formFields.rating);
-        updatedData.append('isFeatured', formFields.isFeatured);
-        updatedData.append('discount', formFields.discount);
-        updatedData.append('specifications', JSON.stringify(specsArray));
-        if (imgFiles) {
-            for (const file of imgFiles) {
-                updatedData.append('images', file);
-            }
-        }
-
-
-
 
         try {
-            setIsLoading(true)
-
-
-            editData(`/api/products/${id}`, updatedData).then((res) => {
-                context.setAlertBox({
-                    open: true,
-                    msg: 'The product is update success!',
-                    error: false
-                })
-
-                setIsLoading(false)
-
-                history('/product/list')
-
-
-            })
+            setIsLoading(true);
+            const productResponse = await apiUpdateProduct(id, formData);
+        
+            const productId = productResponse.id || id;  // Sử dụng productId từ response hoặc id ban đầu
+        
+            console.log(productResponse);
+        
+            if (productResponse.err === 0) {
+                // Không cần khai báo lại productId ở đây
+                for (let url of imageUrls) {
+                    await apiAddProductImage(productId, { imageUrl: url });
+                }
+        
+                navigate('/product/list');
+            } else {
+                alert(productResponse.msg);
+            }
+        
+            navigate(`/product/list`);
         } catch (error) {
-            console.error(error);
-            context.setAlertBox({
-                open: true,
-                error: true,
-                msg: 'Failed to update product',
-            });
+            console.error('Error updating product:', error);
+            alert('Error updating product.');
         } finally {
             setIsLoading(false);
         }
-    }
+        
+    };
+
 
     return (
         <>
-            <div className='card shadow my-4 border-0 flex-center p-3' style={{ backgroundColor: '#343A40' }}>
-                <div className='flex items-center justify-between'>
-                    <h1 className='font-weight-bold text-white'> Edit Product</h1>
-
-                    <div className='ml-auto flex items-center gap-3'>
-                        <Breadcrumbs aria-label="breadcrumb">
-                            <StyledBreadcrumb
-                                component={Link}
-                                href="#"
-                                label="Dashboard"
-                                to="/"
-                                icon={<HomeIcon fontSize="small" />}
-                            />
-                            <StyledBreadcrumb component={Link} href="#" label="Product" to='http://localhost:5173/product/list' />
-
-                            <StyledBreadcrumb
-                                label="Edit Product"
-                            />
-                        </Breadcrumbs>
-                    </div>
-                </div>
+            <div className='card shadow my-4 border-0 flex-center p-3'>
+                <h1 className='font-weight-bold'>Edit Product</h1>
             </div>
 
-            <form className='form w-[100%] mt-4' style={{ width: '100%' }} onSubmit={editProduct}>
-                <div className='row'>
-                    <div className='col-md-12'>
-                        <div className='card shadow my-4 border-0 flex-center p-3'>
-                            <h2 className='font-weight-bold text-black/70 mb-4'>Basic Information</h2>
-                            <div className='row'>
-                                <div className='col-md-12 col_'>
-                                    <h4>Product Name</h4>
-                                    <div className='form-group'>
-                                        <input type='text' className='input' name='name' value={formFields.name} onChange={inputChange} />
-                                    </div>
-                                </div>
-
-                                <div className='col-md-12 col_'>
-                                    <h4>Product Description</h4>
-                                    <div className='form-group'>
-                                        <textarea className='input' name='description' value={formFields.description} onChange={inputChange} />
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Category</h4>
-                                    <div className='form-group'>
-                                        <FormControl size="small" className="w-100">
-                                            <Select
-                                                value={categoryVal}
-                                                onChange={handleChangeCategory}
-                                                displayEmpty
-                                                inputProps={{ 'aria-label': 'Without label' }}
-                                                labelId="demo-select-small-label"
-                                                className="w-100">
-                                                <MenuItem value=""> <em value={null}>None</em>
-                                                </MenuItem>
-                                                {
-                                                    context.catData?.categoryList?.length !== 0 && context.catData?.categoryList?.map((cat, index) => {
-                                                        return (
-
-                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
-                                                        )
-                                                    })
-                                                }
-
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Sub Category</h4>
-                                    <div className='form-group'>
-                                        <FormControl size="small" className="w-100">
-                                            <Select
-                                                value={subCategoryVal}
-                                                onChange={handleChangeSubCategory}
-                                                displayEmpty
-                                                inputProps={{ 'aria-label': 'Without label' }}
-                                                labelId="demo-select-small-label"
-                                                className="w-100">
-                                                <MenuItem value=""> <em value={null}>None</em>
-                                                </MenuItem>
-                                                {
-                                                    context.subCatData?.subCategoryList?.length !== 0 && context.subCatData?.subCategoryList?.map((subCat, index) => {
-                                                        return (
-
-                                                            <MenuItem className='text-capitalize' value={subCat.id} key={index}>{subCat.subCat}</MenuItem>
-                                                        )
-                                                    })
-                                                }
-
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Is Featured</h4>
-                                    <div className='form-group'>
-                                        <FormControl size="small" className="w-100">
-                                            <Select
-                                                value={isFeaturedValue}
-                                                onChange={handleChangeIsFeaturedValue}
-                                                displayEmpty
-                                                inputProps={{ 'aria-label': 'Without label' }}
-                                                labelId="demo-select-small-label"
-                                                className="w-100">
-                                                <MenuItem value=""> <em value={null}>None</em>
-                                                </MenuItem>
-                                                <MenuItem value={true}>True</MenuItem>
-                                                <MenuItem value={false}>False</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div className='row'>
-                                <div className='col-md-4 col_'>
-                                    <h4>Price</h4>
-                                    <div className='form-group'>
-                                        <input type='text' value={formFields.price} className='input' name='price' onChange={inputChange} />
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Old Price</h4>
-                                    <div className='form-group'>
-                                        <input type='text' value={formFields.oldPrice} className='input' name='oldPrice' onChange={inputChange} />
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Product Stock</h4>
-                                    <div className='form-group'>
-                                        <input type='text' value={formFields.countInStock} className='input' name='countInStock' onChange={inputChange} />
-                                    </div>
-                                </div>
-
-
-                            </div>
-
-                            <div className='row'>
-
-
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Brand</h4>
-                                    <div className='form-group'>
-                                        <input type='text'
-                                            value={formFields.brand} className='input' name='brand' onChange={inputChange} />
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Discount</h4>
-                                    <div className='form-group'>
-                                        <input type='number' className='input' name='discount' value={formFields.discount || ''} onChange={inputChange} />
-                                    </div>
-                                </div>
-
-                                <div className='col-md-4 col_'>
-                                    <h4>Rating</h4>
-                                    <div className='form-group'>
-                                        <Rating
-                                            name='read-only'
-                                            value={ratingsValue}
-                                            size='small'
-                                            precision={0.5}
-                                            onChange={(event, newValue) => {
-                                                setRatingsValue(newValue)
-                                                setFormFields(() => ({
-                                                    ...formFields,
-                                                    rating: newValue
-                                                }))
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-
-                            <div className='row'>
-                                <div className='col-md-12 col_ specifications-container'>
-                                    <h4>Specifications</h4>
-                                    <table className="specification-table">
-                                        <tbody>
-                                            {Object.entries(formFields.specifications).map(([key, value], index) => (
-                                                <tr key={index}>
-                                                    <th>{key}</th>
-                                                    <td>{value}</td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            className="edit-specification-btn "
-                                                            onClick={() => handleEditSpecification(key, value)}
-                                                        >
-                                                            <CiEdit />
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            className="delete-specification-btn ml-3"
-                                                            onClick={() => handleDeleteSpecification(key)}
-                                                        >
-                                                            <FaDeleteLeft />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    <button type="button" className="add-specification-btn" onClick={handleAddSpecification}>
-                                        Add Specification
-                                    </button>
-
-                                    <Dialog open={openDialog} onClose={handleDialogClose}>
-                                        <DialogTitle>{isEditing ? 'Edit Specification' : 'Add Specification'}</DialogTitle>
-                                        <DialogContent>
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                label="Specification Name"
-                                                fullWidth
-                                                variant="outlined"
-                                                value={newSpecName}
-                                                onChange={(e) => setNewSpecName(e.target.value)}
-                                            />
-                                            <TextField
-                                                margin="dense"
-                                                label="Specification Value"
-                                                fullWidth
-                                                variant="outlined"
-                                                value={newSpecValue}
-                                                onChange={(e) => setNewSpecValue(e.target.value)}
-                                            />
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={handleDialogClose} color="primary">
-                                                Cancel
-                                            </Button>
-                                            <Button onClick={handleSaveSpecification} color="primary">
-                                                Save
-                                            </Button>
-                                        </DialogActions>
-                                    </Dialog>
-                                </div>
-                            </div>
-
-
-
-
-
-
-                        </div>
-
-
-                    </div>
-
-
-
-
-                </div>
-
+            <form className='form w-[100%] mt-4' onSubmit={handleSubmit} style={{ width: '75%' }}>
                 <div className='card shadow my-4 border-0 flex-center p-3'>
-                    <div className='imagesUploadSec'>
-
-                        <h5 className='mb-4 font-weight-bold'>Media And Published</h5>
-                        <div className='imgUploadBox d-flex align-items-center'>
-                            {
-                                previews.length > 0 && previews.map((img, index) => (
-                                    <div className='uploadBox' key={index}>
-                                        <span className="remove" onClick={() => removeImg(index)}>
-                                            <IoCloseSharp />
-                                        </span>
-                                        <div className='box'>
-                                            <img src={img} className="w-100" alt="Category Preview" />
-                                        </div>
-                                    </div>
-                                ))
-                            }
-
-                            <div className='uploadBox'>
-                                {uploading ?
-                                    <div className="progressBar text-center d-flex align-items-center justify-content-center flex-column">
-                                        <CircularProgress />
-                                        <span>Uploading...</span>
-                                    </div>
-                                    :
-                                    <>
-                                        <input
-                                            type="file"
-                                            multiple
-                                            onChange={(e) => onChangeFile(e, '/api/products/upload')}
-                                            name="images"
-                                        />
-                                        <div className='info'>
-                                            <FaRegImages />
-                                            <h5>Image Upload</h5>
-                                        </div>
-                                    </>
-                                }
+                    <div className='row'>
+                        <div className='col-md-12'>
+                            <h4>Product Name</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='text'
+                                    className='input'
+                                    name='name'
+                                    onChange={(e) => setName(e.target.value)}
+                                    value={name}
+                                />
                             </div>
                         </div>
 
-                        <br />
-                        <Button type="submit" className="btn-blue btn-lg btn-big w-100"
+                        {/* Description */}
+                        <div className='col-md-12'>
+                            <h4>Description</h4>
+                            <div className='form-group'>
+                                <textarea
+                                    className='input'
+                                    name='description'
+                                    rows='5'
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    value={description}
+                                ></textarea>
+                            </div>
+                        </div>
 
-                        ><FaCloudUploadAlt /> &nbsp;
-                            {
-                                isLoading === true ?
-                                    <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
-                            }</Button>
+                        {/* Price */}
+                        <div className='col-md-12'>
+                            <h4>Price</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='number'
+                                    className='input'
+                                    name='price'
+                                    onChange={(e) => setPrice(e.target.value)}
+                                    value={price}
+                                />
+                            </div>
+                        </div>
 
+                        {/* Old Price */}
+                        <div className='col-md-12'>
+                            <h4>Old Price</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='number'
+                                    className='input'
+                                    name='oldPrice'
+                                    onChange={(e) => setOldPrice(e.target.value)}
+                                    value={oldPrice}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Brand ID */}
+                        <div className='col-md-12'>
+                            <h4>Brand</h4>
+                            <div className='form-group'>
+                                <select
+                                    className='input'
+                                    name='brand_id'
+                                    onChange={(e) => setBrandId(e.target.value)}
+                                    value={brandId}
+                                >
+                                    <option value=''>Select Brand</option>
+                                    {brands.map((brand) => (
+                                        <option key={brand.id} value={brand.id}>
+                                            {brand.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Category ID */}
+                        <div className='col-md-12'>
+                            <h4>Category</h4>
+                            <div className='form-group'>
+                                <select
+                                    className='input'
+                                    name='category_id'
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                    value={categoryId}
+                                >
+                                    <option value=''>Select Category</option>
+                                    {categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Sub-Category ID */}
+                        <div className='col-md-12'>
+                            <h4>Sub-Category</h4>
+                            <div className='form-group'>
+                                <select
+                                    className='input'
+                                    name='sub_category_id'
+                                    onChange={(e) => setSubCategoryId(e.target.value)}
+                                    value={subCategoryId}
+                                >
+                                    <option value=''>Select Sub-Category</option>
+                                    {subCategories.map((subCategory) => (
+                                        <option key={subCategory.id} value={subCategory.id}>
+                                            {subCategory.subCat}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Count In Stock */}
+                        <div className='col-md-12'>
+                            <h4>Count In Stock</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='number'
+                                    className='input'
+                                    name='countInStock'
+                                    onChange={(e) => setCountInStock(e.target.value)}
+                                    value={countInStock}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Rating */}
+                        <div className='col-md-12'>
+                            <h4>Rating</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='number'
+                                    className='input'
+                                    name='rating'
+                                    onChange={(e) => setRating(e.target.value)}
+                                    value={rating}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Is Featured */}
+                        <div className='col-md-12'>
+                            <h4>Featured</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='checkbox'
+                                    name='isFeatured'
+                                    onChange={(e) => setIsFeatured(e.target.checked)}
+                                    checked={isFeatured}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Discount */}
+                        <div className='col-md-12'>
+                            <h4>Discount</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='number'
+                                    className='input'
+                                    name='discount'
+                                    onChange={(e) => setDiscount(e.target.value)}
+                                    value={discount}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Upload Images */}
+                        <div className='col-md-12'>
+                            <h4>Upload Images</h4>
+                            <div className='form-group'>
+                                <input
+                                    type='file'
+                                    className='input'
+                                    multiple
+                                    onChange={onChangeFile}
+                                />
+                                <div className='mt-3'>
+                                    {previews.map((url, index) => (
+                                        <div key={index} className='d-inline-block mr-2 position-relative'>
+                                            <img src={url} alt={`preview-${index}`} style={{ width: '100px', height: '100px' }} />
+                                            <button
+                                                type='button'
+                                                className='btn btn-danger position-absolute'
+                                                style={{ top: '0', right: '0' }}
+                                                onClick={() => removeImg(index)}
+                                            >
+                                                <IoCloseSharp />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className='mt-3'>
+                                    {existingImages.map((image) => (
+                                        <div key={image.id} className='d-inline-block mr-2 position-relative'>
+                                            <img src={image.imageUrl} alt={`existing-${image.id}`} style={{ width: '100px', height: '100px' }} />
+                                            <button
+                                                type='button'
+                                                className='btn btn-danger position-absolute'
+                                                style={{ top: '0', right: '0' }}
+                                                onClick={() => handleDeleteImage(image.id)}
+                                            >
+                                                <IoCloseSharp />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className='col-md-12 mt-4'>
+                            <Button
+                                type='submit'
+                                variant='contained'
+                                color='primary'
+                                disabled={isLoading}
+                            >
+                                {isLoading ? <CircularProgress size={24} /> : 'Save Changes'}
+                            </Button>
+                        </div>
                     </div>
                 </div>
-
-
-
-                <br />
-                <br />
-                <br />
             </form>
         </>
-    )
-}
+    );
+};
 
-export default EditProduct
-// finish
+export default EditProduct;

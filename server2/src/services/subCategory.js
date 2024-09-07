@@ -33,7 +33,27 @@ const getSubCategoriesService = async (page = 1, limit = 3) => {
     }
 };
 
-
+const getAllSubCategories = async () => {
+    try {
+        const response = await SubCategory.findAll({
+            raw: true,
+            attributes: {
+                exclude: ['createdAt', 'updatedAt'] // Exclude unnecessary attributes
+            }
+        });
+        return {
+            err: response.length > 0 ? 0 : 1,
+            msg: response.length > 0 ? 'OK' : 'No subcategories found',
+            response
+        };
+    } catch (error) {
+        console.error('Error fetching subcategories:', error);
+        return {
+            err: -1,
+            msg: 'Failed to fetch subcategories'
+        };
+    }
+};
 
 const getSubCategoryById = async (id) => {
     return await SubCategory.findByPk(id);
@@ -77,5 +97,6 @@ module.exports = {
     getSubCategoryById,
     updateSubCategory,
     deleteSubCategory,
-    createSubCategory
+    createSubCategory,
+    getAllSubCategories
 };

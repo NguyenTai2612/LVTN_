@@ -26,6 +26,9 @@ import Orders from './pages/Orders/index.jsx'
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import reduxStore from "./redux";
+import BrandList from './pages/Brand/brandList.jsx'
+import AddBrand from './pages/Brand/addBrand.jsx'
+import EditBrand from './pages/Brand/editBrand.jsx'
 
 const { store, persistor } = reduxStore();
 
@@ -163,7 +166,9 @@ function App() {
                     <Route path='/signUp' exact={true} element={<SignUp />} />
                     <Route path='/orders' exact={true} element={<Orders />} />
 
-
+                    <Route path='/brand' exact={true} element={<BrandList />} />
+                    <Route path='/brand/add' exact={true} element={<AddBrand />} />
+                    <Route path='/brand/edit/:id' exact={true} element={<EditBrand />} />
 
                   </Routes>
                 </div>

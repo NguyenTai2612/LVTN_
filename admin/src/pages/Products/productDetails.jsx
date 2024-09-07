@@ -226,7 +226,7 @@ const ProductDetails = () => {
                                                     <FaRegCalendarAlt className="icon" />
                                                     <span className="label">Published</span>
                                                     <span className="colon">:</span>
-                                                    <span className="value">{productData?.dateCreated}</span>
+                                                    <span className="value">{productData?.createdAt}</span>
                                                 </li>
                                             </ul>
                                         </div>

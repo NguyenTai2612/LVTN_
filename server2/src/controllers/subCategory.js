@@ -1,6 +1,6 @@
 const subCatService = require('../services/subCategory');
 
-const getAllSubCategories = async (req, res) => {
+const getSubCategories = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 3;
@@ -13,6 +13,22 @@ const getAllSubCategories = async (req, res) => {
     }
 };
 
+const getAllSubCategories = async (req, res) => {
+    try {
+        const result = await subCatService.getAllSubCategories();
+        if (result.err === 0) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in getAllSubCategories controller:', error);
+        res.status(500).json({
+            err: -1,
+            msg: 'Failed to fetch subcategories'
+        });
+    }
+};
 
 const getSubCategoryById = async (req, res) => {
     try {
@@ -66,4 +82,4 @@ const deleteSubCategory = async (req, res) => {
     }
 };
 
-module.exports = { getAllSubCategories, getSubCategoryById, createSubCategory, updateSubCategory, deleteSubCategory };
+module.exports = { getSubCategories,getAllSubCategories, getSubCategoryById, createSubCategory, updateSubCategory, deleteSubCategory };

@@ -1,5 +1,12 @@
 const db = require('../models');
 const { Product, ProductImage, Brand, Category, SubCategory } = db;
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 // GET ALL PRODUCTS
 const getProductsService = async () => {
@@ -42,12 +49,24 @@ const getProductDetailsService = async (productId) => {
     }
 };
 
-const createProductService = async (productData) => {
+
+const addProductService = async (productData, imageUrls) => {
     try {
-        const product = await Product.create(productData);
+        // Tạo sản phẩm mới
+        const product = await db.Product.create(productData);
+        
+        // Tạo bản ghi hình ảnh cho sản phẩm vừa tạo
+        if (imageUrls.length > 0) {
+            const images = imageUrls.map(url => ({
+                product_id: product.id,
+                imageUrl: url
+            }));
+            await db.ProductImage.bulkCreate(images);
+        }
+        
         return {
-            err: 0,
-            msg: 'Product created successfully',
+            err: product ? 0 : 1,
+            msg: product ? 'Product added successfully' : 'Fail to add product',
             response: product
         };
     } catch (error) {
@@ -55,26 +74,19 @@ const createProductService = async (productData) => {
     }
 };
 
-const updateProductService = async (productId, productData) => {
-    try {
-        const [updated] = await Product.update(productData, {
-            where: { id: productId }
-        });
 
-        if (!updated) {
-            throw new Error('Product not found');
-        }
 
-        const updatedProduct = await Product.findByPk(productId);
-        return {
-            err: 0,
-            msg: 'Product updated successfully',
-            response: updatedProduct
-        };
-    } catch (error) {
-        throw new Error(error.message);
+const updateProductService = async (productId, productData, imageUrls) => {
+    const product = await Product.findByPk(productId);
+    if (product) {
+        await product.update(productData);
+        return product;
     }
+    return null;
 };
+
+
+
 
 const deleteProductService = async (productId) => {
     try {
@@ -98,7 +110,7 @@ const deleteProductService = async (productId) => {
 module.exports = {
     getProductsService,
     getProductDetailsService,
-    createProductService,
+    addProductService,
     updateProductService,
     deleteProductService,
 };

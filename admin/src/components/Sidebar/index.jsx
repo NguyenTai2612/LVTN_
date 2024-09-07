@@ -13,6 +13,8 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { FiUser } from "react-icons/fi";
 import { TbCategoryPlus } from "react-icons/tb";
 import { LuClipboardCheck } from "react-icons/lu";
+import { MdOutlineBrandingWatermark } from "react-icons/md";
+import { MdOutlineCategory } from "react-icons/md";
 
 const Sidebar = () => {
 
@@ -96,7 +98,7 @@ const Sidebar = () => {
           <li className={`${activeTab === 2 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
             <Button className={`w-100 ${activeTab === 2 ? 'active' : ''}`} onClick={() => isOpenSubmenu(2)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
-                 rounded-md'><TbCategoryPlus /></span> &nbsp;
+                 rounded-md'><MdOutlineCategory  /></span> &nbsp;
               Category
               <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
               justify-center ${activeTab === 2 && isToggleSubmenu ? 'rotate' : ''}`}>
@@ -121,6 +123,33 @@ const Sidebar = () => {
                 <Link to="/subCategory/add">
                   <Button className='w-100 '>Add Sub Category</Button>
                 </Link>
+              </div>
+            </div>
+          </li>
+
+          <li className={`${activeTab === 10 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
+            <Button className={`w-100 ${activeTab === 10 ? 'active' : ''}`} onClick={() => isOpenSubmenu(10)}>
+              <span className='icon w-[30px] h-[30px] flex items-center justify-center 
+                 rounded-md'><MdOutlineBrandingWatermark /></span> &nbsp;
+              Brand
+              <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
+              justify-center ${activeTab === 10 && isToggleSubmenu ? 'rotate' : ''}`}>
+                <FaAngleRight /></span>
+            </Button>
+
+            <div className={`submenuWrapper ${activeTab === 10 && isToggleSubmenu
+              ? "colapse"
+              : "colapsed"
+              }`}
+            >
+              <div className='submenu'>
+                <Link to="/brand">
+                  <Button className='w-100 '>Brand List</Button>
+                </Link>
+                <Link to="/brand/add">
+                  <Button className='w-100 '>Add Brand</Button>
+                </Link>
+                
               </div>
             </div>
           </li>
