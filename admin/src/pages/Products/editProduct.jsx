@@ -15,6 +15,10 @@ import {
 } from '../../services/index'; // Import các API services cần thiết
 const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dilsy0sqq/image/upload';
 
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
+import { apiCreateProductSpecification, apiUpdateProductSpecification, apiDeleteProductSpecification, apiGetProductSpecifications } from '../../services/productSpecification';
+import { FaDeleteLeft } from "react-icons/fa6";
+
 const EditProduct = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -39,6 +43,17 @@ const EditProduct = () => {
     const [categories, setCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
+
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
+    const [specifications, setSpecifications] = useState([]);
+    const [newSpecName, setNewSpecName] = useState('');
+    const [newSpecValue, setNewSpecValue] = useState('');
+    const [editingSpecId, setEditingSpecId] = useState(null);
+
+   
 
     useEffect(() => {
         const fetchData = async () => {
@@ -166,22 +181,24 @@ const EditProduct = () => {
         try {
             setIsLoading(true);
             const productResponse = await apiUpdateProduct(id, formData);
-        
+
             const productId = productResponse.id || id;  // Sử dụng productId từ response hoặc id ban đầu
-        
+
             console.log(productResponse);
-        
+
             if (productResponse.err === 0) {
                 // Không cần khai báo lại productId ở đây
                 for (let url of imageUrls) {
                     await apiAddProductImage(productId, { imageUrl: url });
                 }
-        
+
+               
+
                 navigate('/product/list');
             } else {
                 alert(productResponse.msg);
             }
-        
+
             navigate(`/product/list`);
         } catch (error) {
             console.error('Error updating product:', error);
@@ -189,9 +206,93 @@ const EditProduct = () => {
         } finally {
             setIsLoading(false);
         }
-        
+
     };
 
+    const handleEditSpecification = (id, name, value) => {
+        setIsEditing(true);
+        setOpenDialog(true);
+        setEditingSpecId(id); // Set the id of the specification being edited
+        setNewSpecName(name);
+        setNewSpecValue(value);
+    };
+
+    const handleDeleteSpecification = async (id) => {
+        try {
+            await apiDeleteProductSpecification(id);
+            setSpecifications(prevSpecs => prevSpecs.filter(spec => spec.id !== id));
+        } catch (error) {
+            console.error('Error deleting specification:', error);
+            alert('Error deleting specification.');
+        }
+    };
+
+    const handleAddSpecification = () => {
+        setIsEditing(false);
+        setOpenDialog(true);
+        setNewSpecName('');
+        setNewSpecValue('');
+    };
+
+    const handleDialogClose = () => {
+        setIsEditing(false);
+        setOpenDialog(false);
+    };
+    
+    const fetchSpecifications = async () => {
+        if (id) {
+            try {
+                const response = await apiGetProductSpecifications(id);
+                console.log('API response for specifications:', response); // Log API response
+                if (response.err === 0) {
+                    setSpecifications(response.response);
+                    console.log('Set specifications:', response.response); // Log after setting state
+                } else {
+                    console.error('Failed to fetch specifications:', response.message);
+                }
+            } catch (error) {
+                console.error('Error fetching specifications:', error);
+            }
+        }
+    };
+
+    const handleSaveSpecification = async () => {
+        try {
+            let response;
+            const specData = { spec_key: newSpecName, spec_value: newSpecValue };
+            if (isEditing) {
+                response = await apiUpdateProductSpecification(editingSpecId, specData);
+                if (response.err === 0) {
+                    setSpecifications(prevSpecs =>
+                        prevSpecs.map(spec =>
+                            spec.id === editingSpecId ? { ...spec, spec_key: newSpecName, spec_value: newSpecValue } : spec
+                        )
+                    );
+                } else {
+                    throw new Error(response.message || 'Unknown error.');
+                }
+            } else {
+                response = await apiCreateProductSpecification(id, specData); // Truyền productId vào đây
+                if (response.err === 0) {
+                    setSpecifications(prevSpecs => [...prevSpecs, response]);
+                    fetchSpecifications();
+                } else {
+                    throw new Error(response.message || 'Unknown error.');
+                }
+            }
+            handleDialogClose();
+        } catch (error) {
+            console.error('Error saving specification:', error);
+            alert('Error saving specification: ' + (error.message || 'Unknown error.'));
+        }
+    };
+    
+    useEffect(() => {   
+
+        fetchSpecifications();
+    }, [id]);
+
+  
 
     return (
         <>
@@ -415,6 +516,46 @@ const EditProduct = () => {
                             </div>
                         </div>
 
+
+                        <div className='col-md-12'>
+                            <h4>Specifications</h4>
+                            <table className="specification-table">
+                                <tbody>
+                                    {specifications.map((spec) => (
+                                        <tr key={spec.id}>
+                                            <th>{spec.spec_key}</th>
+                                            <td>{spec.spec_value}</td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    className="edit-specification-btn"
+                                                    onClick={() => handleEditSpecification(spec.id, spec.name, spec.value)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="delete-specification-btn"
+                                                    onClick={() => handleDeleteSpecification(spec.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleAddSpecification}
+                            >
+                                Add Specification
+                            </Button>
+                        </div>
+
+
+
                         {/* Submit Button */}
                         <div className='col-md-12 mt-4'>
                             <Button
@@ -427,8 +568,40 @@ const EditProduct = () => {
                             </Button>
                         </div>
                     </div>
+
+
                 </div>
             </form>
+
+            <Dialog open={openDialog} onClose={handleDialogClose}>
+                <DialogTitle>{isEditing ? 'Edit Specification' : 'Add Specification'}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Specification Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={newSpecName}
+                        onChange={(e) => setNewSpecName(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Specification Value"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={newSpecValue}
+                        onChange={(e) => setNewSpecValue(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDialogClose}>Cancel</Button>
+                    <Button onClick={handleSaveSpecification}>Save</Button>
+                </DialogActions>
+            </Dialog>
+
         </>
     );
 };

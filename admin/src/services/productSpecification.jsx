@@ -7,24 +7,27 @@ export const apiGetProductSpecifications = (productId) => new Promise(async (res
             method: 'get',
             url: `/api/v1/productSpecification/${productId}`,
         });
-        resolve(response);
+        resolve(response.data);
     } catch (error) {
         reject(error);
     }
 });
 
-export const apiCreateProductSpecification = (specData) => new Promise(async (resolve, reject) => {
+export const apiCreateProductSpecification = (product_id, specData) => new Promise(async (resolve, reject) => {
     try {
         const response = await axiosConfig({
             method: 'post',
             url: '/api/v1/productSpecification/create',
-            data: specData,
+            data: { product_id, ...specData }, // Kết hợp product_id với specData
         });
-        resolve(response);
+        resolve(response.data);  // Trả về dữ liệu phản hồi từ API
     } catch (error) {
-        reject(error);
+        // Trả về thông tin lỗi chi tiết
+        console.error('Error creating product specification:', error.response || error.message || error);
+        reject(error.response ? error.response.data : error.message || 'Unknown error');
     }
 });
+
 
 export const apiUpdateProductSpecification = (specId, updatedData) => new Promise(async (resolve, reject) => {
     try {
