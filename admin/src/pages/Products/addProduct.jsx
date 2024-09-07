@@ -1,17 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IoCloseSharp } from "react-icons/io5";
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { apiAddProduct, apiUpdateProduct, apiDeleteProduct } from '../../services/product';
+import { apiAddProduct, apiUpdateProduct } from '../../services/product';
 import { apiAddProductImage } from '../../services/productImage';
 import { apiGetAllBrand } from '../../services/brand';
 import { apiGetAllCategories } from '../../services/category';
 import { apiGetAllSubCategories } from '../../services/subCategory';
 import { apiCreateProductSpecification, apiUpdateProductSpecification, apiDeleteProductSpecification, apiGetProductSpecifications } from '../../services/productSpecification';
+import { CiEdit } from "react-icons/ci";
 import { FaDeleteLeft } from "react-icons/fa6";
-import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Rating, Select, TextField } from '@mui/material';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Chip from '@mui/material/Chip';
+import { emphasize, styled } from '@mui/material/styles';
+import HomeIcon from '@mui/icons-material/Home';
+
+const StyledBreadcrumb = styled(Chip)(({ theme }) => {
+    const backgroundColor =
+        theme.palette.mode === 'light'
+            ? theme.palette.grey[100]
+            : theme.palette.grey[800];
+    return {
+        backgroundColor,
+        height: theme.spacing(3),
+        color: theme.palette.text.primary,
+        fontWeight: theme.typography.fontWeightRegular,
+        '&:hover, &:focus': {
+            backgroundColor: emphasize(backgroundColor, 0.06),
+        },
+        '&:active': {
+            boxShadow: theme.shadows[1],
+            backgroundColor: emphasize(backgroundColor, 0.12),
+        },
+    };
+});
 
 const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dilsy0sqq/image/upload';
 
@@ -141,9 +166,7 @@ const AddProduct = () => {
                     await apiAddProductImage(productId, { imageUrl: url });
                 }
 
-                // Fetch product specifications
-                const specsResponse = await apiGetProductSpecifications(productId);
-                setSpecifications(specsResponse.data || []); // Update specifications state
+
 
                 navigate('/product/list');
             } else {
@@ -217,250 +240,317 @@ const AddProduct = () => {
             alert('Error saving specification: ' + error.message);
         }
     };
-    
+
 
     return (
         <>
-            <div className='card shadow my-4 border-0 flex-center p-3'>
-                <h1 className='font-weight-bold'>Add Product</h1>
+            <div className='card shadow my-4 border-0 flex-center p-3' style={{ backgroundColor: '#343A40' }}>
+                <div className='flex items-center justify-between'>
+                    <h1 className='font-weight-bold text-white'>Product Upload</h1>
+
+                    <div className='ml-auto flex items-center gap-3'>
+                        <Breadcrumbs aria-label="breadcrumb">
+                            <StyledBreadcrumb
+                                component={Link}
+                                href="#"
+                                label="Dashboard"
+                                to="/"
+                                icon={<HomeIcon fontSize="small" />}
+                            />
+                            <StyledBreadcrumb component={Link} href="#" label="Product" to='http://localhost:5173/product/list' />
+
+                            <StyledBreadcrumb
+                                label="Create"
+                            />
+                        </Breadcrumbs>
+                    </div>
+                </div>
             </div>
 
-            <form className='form w-[100%] mt-4' onSubmit={handleSubmit} style={{ width: '75%' }}>
-                <div className='card shadow my-4 border-0 flex-center p-3'>
-                    <div className='row'>
-                        {/* Product Name */}
-                        <div className='col-md-12'>
-                            <h4>Product Name</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='text'
-                                    className='input'
-                                    name='name'
-                                    onChange={(e) => setName(e.target.value)}
-                                    value={name}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className='col-md-12'>
-                            <h4>Description</h4>
-                            <div className='form-group'>
-                                <textarea
-                                    className='input'
-                                    name='description'
-                                    rows='5'
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    value={description}
-                                ></textarea>
-                            </div>
-                        </div>
-
-                        {/* Price */}
-                        <div className='col-md-6'>
-                            <h4>Price</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='number'
-                                    className='input'
-                                    name='price'
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    value={price}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Old Price */}
-                        <div className='col-md-6'>
-                            <h4>Old Price</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='number'
-                                    className='input'
-                                    name='oldPrice'
-                                    onChange={(e) => setOldPrice(e.target.value)}
-                                    value={oldPrice}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Brand */}
-                        <div className='col-md-6'>
-                            <h4>Brand</h4>
-                            <FormControl fullWidth>
-                                <Select
-                                    value={brandId}
-                                    onChange={(e) => setBrandId(e.target.value)}
-                                >
-                                    {brands.map((brand) => (
-                                        <MenuItem key={brand.id} value={brand.id}>{brand.name}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </div>
-
-                        {/* Category */}
-                        <div className='col-md-6'>
-                            <h4>Category</h4>
-                            <FormControl fullWidth>
-                                <Select
-                                    value={categoryId}
-                                    onChange={(e) => setCategoryId(e.target.value)}
-                                >
-                                    {categories.map((category) => (
-                                        <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </div>
-
-                        {/* Subcategory */}
-                        <div className='col-md-6'>
-                            <h4>Subcategory</h4>
-                            <FormControl fullWidth>
-                                <Select
-                                    value={subCategoryId}
-                                    onChange={(e) => setSubCategoryId(e.target.value)}
-                                >
-                                    {subCategories.map((subCategory) => (
-                                        <MenuItem key={subCategory.id} value={subCategory.id}>{subCategory.name}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </div>
-
-                        {/* Count in Stock */}
-                        <div className='col-md-6'>
-                            <h4>Count in Stock</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='number'
-                                    className='input'
-                                    name='countInStock'
-                                    onChange={(e) => setCountInStock(e.target.value)}
-                                    value={countInStock}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Rating */}
-                        <div className='col-md-6'>
-                            <h4>Rating</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='number'
-                                    className='input'
-                                    name='rating'
-                                    onChange={(e) => setRating(e.target.value)}
-                                    value={rating}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Is Featured */}
-                        <div className='col-md-6'>
-                            <h4>Is Featured</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='checkbox'
-                                    className='input'
-                                    name='isFeatured'
-                                    checked={isFeatured}
-                                    onChange={(e) => setIsFeatured(e.target.checked)}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Discount */}
-                        <div className='col-md-6'>
-                            <h4>Discount</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='number'
-                                    className='input'
-                                    name='discount'
-                                    onChange={(e) => setDiscount(e.target.value)}
-                                    value={discount}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Image Upload */}
-                        <div className='col-md-12'>
-                            <h4>Product Images</h4>
-                            <div className='form-group'>
-                                <input
-                                    type='file'
-                                    className='input'
-                                    multiple
-                                    onChange={onChangeFile}
-                                />
-                            </div>
-                            <div className='image-previews'>
-                                {previews.map((preview, index) => (
-                                    <div key={index} className='image-preview'>
-                                        <img src={preview} alt={`preview-${index}`} />
-                                        <button type="button" className="remove-img-btn" onClick={() => removeImg(index)}>
-                                            <IoCloseSharp />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            <form className='form w-[100%] mt-4' style={{ width: '100%' }} onSubmit={handleSubmit}>
                 <div className='row'>
                     <div className='col-md-12'>
-                        <h4>Specifications</h4>
-                        <table className="specification-table">
-                            <tbody>
-                                {specifications.map((spec, index) => (
-                                    <tr key={index}>
-                                        <th>{spec.name}</th>
-                                        <td>{spec.value}</td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                className="edit-specification-btn"
-                                                onClick={() => handleEditSpecification(spec.id, spec.name, spec.value)}
+                        <div className='card shadow my-4 border-0 flex-center p-3'>
+                            <h2 className='font-weight-bold text-black/70 mb-4'>Basic Information</h2>
+
+                            <div className='row'>
+                                <div className='col-md-12 col_'>
+                                    <h4>Product Name</h4>
+                                    <div className='form-group'>
+                                        <input
+                                            type='text'
+                                            className='input'
+                                            name='name'
+                                            onChange={(e) => setName(e.target.value)}
+                                            value={name}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className='col-md-12 col_'>
+                                    <h4>Description</h4>
+                                    <div className='form-group'>
+                                        <textarea
+                                            className='input'
+                                            name='description'
+                                            rows='5'
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            value={description}
+                                        ></textarea>
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Category</h4>
+                                    <div className='form-group'>
+                                        <FormControl fullWidth size="small" className="w-100">
+                                            <Select
+                                                value={categoryId}
+                                                onChange={(e) => setCategoryId(e.target.value)}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100"
                                             >
-                                                Edit
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="delete-specification-btn"
-                                                onClick={() => handleDeleteSpecification(spec.id)}
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {categories.map((category) => (
+                                                    <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Sub Category</h4>
+                                    <div className='form-group'>
+                                        <FormControl fullWidth size="small" className="w-100">
+                                            <Select
+                                                value={subCategoryId}
+                                                onChange={(e) => setSubCategoryId(e.target.value)}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100"
                                             >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleAddSpecification}
-                        >
-                            Add Specification
-                        </Button>
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {subCategories.map((subCategory) => (
+                                                    <MenuItem key={subCategory.id} value={subCategory.id}>{subCategory.subCat}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Brand</h4>
+                                    <div className='form-group'>
+                                        <FormControl fullWidth size="small" className="w-100">
+                                            <Select
+                                                value={brandId}
+                                                onChange={(e) => setBrandId(e.target.value)}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100"
+                                            >
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {brands.map((brand) => (
+                                                    <MenuItem key={brand.id} value={brand.id}>{brand.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='row'>
+                                <div className='col-md-4 col_'>
+                                    <h4>Price</h4>
+                                    <div className='form-group'>
+                                        <input
+                                            type='number'
+                                            className='input'
+                                            name='price'
+                                            onChange={(e) => setPrice(e.target.value)}
+                                            value={price}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Old Price</h4>
+                                    <div className='form-group'>
+                                        <input
+                                            type='number'
+                                            className='input'
+                                            name='oldPrice'
+                                            onChange={(e) => setOldPrice(e.target.value)}
+                                            value={oldPrice}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Count in Stock</h4>
+                                    <div className='form-group'>
+                                        <div className='form-group'>
+                                            <input
+                                                type='number'
+                                                className='input'
+                                                name='countInStock'
+                                                onChange={(e) => setCountInStock(e.target.value)}
+                                                value={countInStock}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div className='row'>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Discount</h4>
+                                    <div className='form-group'>
+                                        <input
+                                            type='number'
+                                            className='input'
+                                            name='discount'
+                                            onChange={(e) => setDiscount(e.target.value)}
+                                            value={discount}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Rating</h4>
+                                    <div className='form-group'>
+                                        <Rating
+                                            value={rating}
+                                            size='small'
+                                            precision={0.5}
+                                            name='rating'
+                                            onChange={(e) => setRating(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Is Featured</h4>
+                                    <div className='form-group'>
+                                        <input
+                                            type='checkbox'
+                                            className='input'
+                                            name='isFeatured'
+                                            checked={isFeatured}
+                                            onChange={(e) => setIsFeatured(e.target.checked)}
+                                        />
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
                     </div>
                 </div>
 
-                <div className='row mt-4'>
-                    <div className='col-md-12'>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? <CircularProgress size={24} /> : 'Add Product'}
-                        </Button>
+                <div className='card shadow border-0 flex-center p-3'>
+                    <div className='imagesUploadSec'>
+                        <div className='col-md-12 col_ specifications-container'>
+                            <h4>Specifications</h4>
+                            <table className="specification-table">
+                                <tbody>
+                                    {specifications.map((spec, index) => (
+                                        <tr key={index}>
+                                            <th>{spec.name}</th>
+                                            <td>{spec.value}</td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    className="edit-specification-btn"
+                                                    onClick={() => handleEditSpecification(spec.id, spec.name, spec.value)}
+                                                >
+                                                    <CiEdit />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="delete-specification-btn"
+                                                    onClick={() => handleDeleteSpecification(spec.id)}
+                                                >
+                                                    <FaDeleteLeft />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <button type="button" className="add-specification-btn" onClick={handleAddSpecification}>
+                                Add Specification
+                            </button>
+
+                        </div>
                     </div>
                 </div>
+
+                <div className='card shadow my-4 border-0 flex-center p-3'>
+                    <div className='imagesUploadSec'>
+
+                        <h5 className='mb-4 font-weight-bold'>Media And Published</h5>
+
+                        <div className='imgUploadBox d-flex align-items-center'>
+                            {previews.map((img, index) => (
+                                <div className='uploadBox' key={index}>
+                                    <span className="remove" onClick={() => removeImg(index)}>
+                                        <IoCloseSharp />
+                                    </span>
+                                    <div className='box'>
+                                        <img src={img} className="w-100" alt={`preview-${index}`} />
+                                    </div>
+                                </div>
+                            ))}
+
+                            <div className='uploadBox'>
+                                {uploading ?
+                                    <div className="progressBar text-center d-flex align-items-center justify-content-center flex-column">
+                                        <CircularProgress />
+                                        <span>Uploading...</span>
+                                    </div>
+                                    :
+                                    <>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            name="images"
+                                            onChange={onChangeFile}
+                                            className="uploadInput"
+                                        />
+                                        <div className='info'>
+                                            <FaCloudUploadAlt />
+                                            <h5>Image Upload</h5>
+                                        </div>
+                                    </>
+                                }
+                            </div>
+                        </div>
+
+                        <br />
+                        <Button type="submit" className="btn-blue btn-lg btn-big w-100"
+
+                        ><FaCloudUploadAlt /> &nbsp;
+                            {
+                                isLoading === true ?
+                                    <CircularProgress color="inherit" className="loader" /> : 'PUBLISH AND VIEW'
+                            }</Button>
+
+                    </div>
+                </div>
+
+
             </form>
 
             <Dialog open={openDialog} onClose={handleDialogClose}>
@@ -496,4 +586,4 @@ const AddProduct = () => {
 };
 
 export default AddProduct;
-// edited
+// editedddd

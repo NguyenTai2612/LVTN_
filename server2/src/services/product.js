@@ -27,6 +27,34 @@ const getProductsService = async () => {
     }
 };
 
+
+const getProductPageService = async (page = 1, limit = 3) => {
+    try {
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await db.Product.findAndCountAll({
+            offset,
+            limit,
+            attributes: {
+                exclude: ['createdAt', 'updatedAt'] // Điều chỉnh các trường cần thiết
+            },
+            logging: console.log
+        });
+
+        return {
+            err: 0,
+            msg: 'OK',
+            response: {
+                totalPages: Math.ceil(count / limit),
+                data: rows
+            }
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+
 // GET PRODUCT DETAILS
 const getProductDetailsService = async (productId) => {
     try {
@@ -115,4 +143,5 @@ module.exports = {
     addProductService,
     updateProductService,
     deleteProductService,
+    getProductPageService
 };

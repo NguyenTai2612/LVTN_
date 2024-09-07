@@ -29,19 +29,20 @@ export const apiCreateProductSpecification = (product_id, specData) => new Promi
 });
 
 
-export const apiUpdateProductSpecification = (specId, updatedData) => new Promise(async (resolve, reject) => {
+export const apiUpdateProductSpecification = async (specId, updatedData) => {
     try {
         const response = await axiosConfig({
             method: 'put',
             url: `/api/v1/productSpecification/${specId}/update`,
             data: updatedData,
         });
-        resolve(response);
+        console.log('Update Response:', response.data); // Log phản hồi từ API
+        return response.data; // Trả về dữ liệu phản hồi từ API
     } catch (error) {
-        reject(error);
+        console.error('Error updating product specification:', error.response || error.message || error);
+        throw error; // Thay đổi từ reject(error) thành throw error
     }
-});
-
+};
 export const apiDeleteProductSpecification = (specId) => new Promise(async (resolve, reject) => {
     try {
         const response = await axiosConfig({

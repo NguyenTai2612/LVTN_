@@ -1,6 +1,7 @@
 const productService = require('../services/product');
 const ProductImagesService = require('../services/productImage');
 const cloudinary = require('cloudinary').v2;
+const { Product, ProductImage } = require('../models'); 
 
 // Cloudinary configuration
 cloudinary.config({
@@ -20,6 +21,22 @@ const getProducts = async (req, res) => {
         });
     }
 };
+
+// src/controllers/product.js
+const getProductPage = async (req, res) => {
+    try {
+        // Lấy các giá trị từ query params
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 3; // Điều chỉnh limit nếu cần
+
+        const response = await productService.getProductPageService(page, limit);
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({ err: 1, msg: error.message });
+    }
+};
+
 
 const getProductDetails = async (req, res) => {
     const productId = parseInt(req.params.id, 10);
@@ -122,16 +139,36 @@ const updateProduct = async (req, res) => {
 };
 
 
-const deleteProduct = async (req, res) => {
-    const productId = parseInt(req.params.id, 10);
+const deleteProductAndImages = async (req, res) => {
+    const productId = req.params.id;
 
     try {
-        const response = await productService.deleteProductService(productId);
-        res.json(response);
+        // Xóa tất cả các hình ảnh liên quan đến sản phẩm
+        await ProductImage.destroy({
+            where: { product_id: productId }
+        });
+
+        // Xóa sản phẩm
+        const deletedProduct = await Product.destroy({
+            where: { id: productId }
+        });
+
+        if (deletedProduct) {
+            return res.status(200).json({
+                err: 0,
+                msg: 'Product and its images deleted successfully'
+            });
+        } else {
+            return res.status(404).json({
+                err: 1,
+                msg: 'Product not found'
+            });
+        }
     } catch (error) {
-        res.status(404).json({
+        return res.status(500).json({
             err: 1,
-            msg: error.message
+            msg: 'Error deleting product and images',
+            error: error.message
         });
     }
 };
@@ -142,5 +179,6 @@ module.exports = {
     getProductDetails,
     addProduct,
     updateProduct,
-    deleteProduct,
+    deleteProductAndImages,
+    getProductPage,
 };

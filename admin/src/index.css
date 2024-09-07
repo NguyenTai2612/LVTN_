@@ -1087,3 +1087,29 @@ input {
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.6);
 }
+
+.image-preview {
+  position: relative;
+  display: inline-block;
+  margin: 5px;
+  width: 100px; /* Điều chỉnh kích thước theo nhu cầu */
+  height: 100px; /* Điều chỉnh kích thước theo nhu cầu */
+  overflow: hidden; /* Đảm bảo ảnh không vượt ra ngoài vùng xem trước */
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  object-fit: cover; /* Đảm bảo ảnh không bị biến dạng */
+}
+
+.remove-img-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+

@@ -12,7 +12,7 @@ router.post('/', upload.single('image'), addCategory);
 router.put('/:categoryId', upload.single('image'), updateCategory);
 
 router.get('/', getAllCategories);
-router.get('/all', getCategories); // This should match the route defined in your Express app
+router.get('/all', getCategories); 
 router.get('/:categoryId', getCategoryById);
 
 // router.post('/', addCategory);

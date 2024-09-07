@@ -33,6 +33,8 @@ import Chip from '@mui/material/Chip';
 import {
     apiGetProducts,
     apiGetProductDetails,
+    deleteProductAndImages,
+    apiGetProductPage,
 } from "../../services/product";
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
@@ -58,49 +60,81 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const ProductList = () => {
-    const [catData, setCatData] = useState([]);
 
-    const [perPage, setPerPage] = useState(10);
     const [showBy, setShowBy] = useState("None");
     const [categoryBy, setCategoryBy] = useState('None');
 
     const [isAllChecked, setIsAllChecked] = useState(false);
-    const [products, setProducts] = useState([]);
+    const [products, setProducts] = useState({ data: [], totalPages: 0 });
+    const [currentPage, setCurrentPage] = useState(1);
     const [productDetails, setProductDetails] = useState({});
+
     const [open, setOpen] = useState(false)
 
     const context = useContext(MyContext)
 
-    const [categoryVal, setCategoryVal] = useState('');
-    const [subCategoryVal, setSubCategoryVal] = useState('');
-    const [isFeatured, setIsFeatured] = useState('None');
     const [page, setPage] = useState(1);
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await apiGetProducts();
-                if (response?.data.err === 0) {
-                    setProducts(response.data.response);
-                    // Fetch details for all products
-                    const detailsPromises = response.data.response.map((product) =>
-                        apiGetProductDetails(product.id)
-                    );
-                    const results = await Promise.all(detailsPromises);
-                    const details = {};
-                    results.forEach((result) => {
-                        if (result.data.err === 0) {
-                            details[result.data.response.id] = result.data.response;
-                        }
-                    });
-                    setProductDetails(details);
-                }
-            } catch (error) {
-                console.error("Failed to fetch products or product details", error);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handlePageChange = (event, page) => {
+        setCurrentPage(page);
+    };
+
+    const fetchProducts = async () => {
+        try {
+            const response = await apiGetProductPage(currentPage, 3);
+            if (response?.err === 0) {
+                setProducts({
+                    data: response.response.data,
+                    totalPages: response.response.totalPages
+                });
+
+                // Fetch details for all products
+                const detailsPromises = response.response.data.map((product) =>
+                    apiGetProductDetails(product.id)
+                );
+                const results = await Promise.all(detailsPromises);
+                const details = {};
+                results.forEach((result) => {
+                    if (result.data.err === 0) {
+                        details[result.data.response.id] = result.data.response;
+                    }
+                });
+                setProductDetails(details);
             }
-        };
+        } catch (error) {
+            console.error("Failed to fetch products or product details", error);
+        }
+    };
+
+
+
+
+    const handleDeleteProduct = async (productId) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const result = await deleteProductAndImages(productId);
+            if (result.err === 0) {
+                // setProducts(prevList => prevList.filter(product => product.id !== productId));
+                fetchProducts()
+                alert('Product deleted successfully');
+            } else {
+                alert('Error: ' + result.msg);
+            }
+        } catch (error) {
+            setError('An error occurred while deleting the product');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+
         fetchProducts();
-    }, []);
+    }, [currentPage]);
 
     const handleChange = (event, value) => {
         // context.setProgress(40)
@@ -233,11 +267,8 @@ const ProductList = () => {
                         </thead>
 
                         <tbody>
-                            {products?.length !== 0 && products?.map((item, index) => {
-                                // Lấy thông tin chi tiết từ productDetails
+                            {products.data.length > 0 && products.data.map((item, index) => {
                                 const details = productDetails[item.id] || {};
-
-                                // Lấy hình ảnh chính
                                 const primaryImage = details?.ProductImages?.[0]?.imageUrl || "";
 
                                 return (
@@ -279,7 +310,7 @@ const ProductList = () => {
                                                 </TooltipBox>
                                                 <TooltipBox title="Delete" placement="top">
                                                     <button
-                                                        onClick={() => deleteProduct(item.id)}
+                                                        onClick={() => handleDeleteProduct(item.id)}
                                                         className='delete-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300'>
                                                         <MdOutlineDeleteOutline />
                                                     </button>
@@ -289,6 +320,7 @@ const ProductList = () => {
                                     </tr>
                                 );
                             })}
+
                         </tbody>
 
 
@@ -296,6 +328,21 @@ const ProductList = () => {
 
                 </div>
 
+                <div className="table-footer flex items-center justify-between py-2 px-3 mb-2">
+                    {products.totalPages > 1 &&
+                        <div className="d-flex tableFooter flex items-center justify-end py-2 px-3 mb-2 ml-auto">
+                            <Pagination
+                                count={products.totalPages}
+                                color="primary"
+                                className="pagination"
+                                page={currentPage}
+                                onChange={handlePageChange}
+                                showFirstButton
+                                showLastButton
+                            />
+                        </div>
+                    }
+                </div>
 
             </div>
 
@@ -304,4 +351,4 @@ const ProductList = () => {
 }
 
 export default ProductList
-//
+// edited 123 //////
