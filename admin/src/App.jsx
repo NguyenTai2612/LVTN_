@@ -29,6 +29,8 @@ import reduxStore from "./redux";
 import BrandList from './pages/Brand/brandList.jsx'
 import AddBrand from './pages/Brand/addBrand.jsx'
 import EditBrand from './pages/Brand/editBrand.jsx'
+import UserList from './pages/User/userList.jsx'
+import EditUser from './pages/User/editUser.jsx'
 
 const { store, persistor } = reduxStore();
 
@@ -169,6 +171,9 @@ function App() {
                     <Route path='/brand' exact={true} element={<BrandList />} />
                     <Route path='/brand/add' exact={true} element={<AddBrand />} />
                     <Route path='/brand/edit/:id' exact={true} element={<EditBrand />} />
+
+                    <Route path='/user/list' exact={true} element={<UserList />} />
+                    <Route path='/user/edit/:id' exact={true} element={<EditUser />} />
 
                   </Routes>
                 </div>

@@ -15,6 +15,7 @@ import { TbCategoryPlus } from "react-icons/tb";
 import { LuClipboardCheck } from "react-icons/lu";
 import { MdOutlineBrandingWatermark } from "react-icons/md";
 import { MdOutlineCategory } from "react-icons/md";
+import { FaUserCheck } from "react-icons/fa";
 
 const Sidebar = () => {
 
@@ -26,15 +27,15 @@ const Sidebar = () => {
   useEffect(() => {
     const token = localStorage.getItem("token")
 
-    if(token!=="" && token!==null && token!==undefined){
+    if (token !== "" && token !== null && token !== undefined) {
       setIsLogin(true)
 
-    }else{
+    } else {
       history("/login")
     }
 
 
-  },[])
+  }, [])
   const history = useNavigate()
 
   const isOpenSubmenu = (index) => {
@@ -98,7 +99,7 @@ const Sidebar = () => {
           <li className={`${activeTab === 2 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
             <Button className={`w-100 ${activeTab === 2 ? 'active' : ''}`} onClick={() => isOpenSubmenu(2)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
-                 rounded-md'><MdOutlineCategory  /></span> &nbsp;
+                 rounded-md'><MdOutlineCategory /></span> &nbsp;
               Category
               <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
               justify-center ${activeTab === 2 && isToggleSubmenu ? 'rotate' : ''}`}>
@@ -149,14 +150,14 @@ const Sidebar = () => {
                 <Link to="/brand/add">
                   <Button className='w-100 '>Add Brand</Button>
                 </Link>
-                
+
               </div>
             </div>
           </li>
 
 
 
-          <li>
+          <li className={`${activeTab === 3 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
             <Link to="/orders">
               <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
                 <span className='icon w-[30px] h-[30px] flex items-center justify-center 
@@ -166,6 +167,22 @@ const Sidebar = () => {
                   <FaAngleRight /></span>
               </Button>
             </Link>
+          </li>
+
+
+          <li className={`${activeTab === 11 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
+            <Link to="/user/list">
+              <Button className={`w-100 ${activeTab === 11 ? 'active' : ''}`} onClick={() => isOpenSubmenu(11)}>
+                <span className='icon w-[30px] h-[30px] flex items-center justify-center 
+                   rounded-md'><FaUserCheck /></span> &nbsp;
+                User
+                <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
+                justify-center ${activeTab === 11 && isToggleSubmenu ? 'rotate' : ''}`}>
+                  <FaAngleRight /></span>
+              </Button>
+            </Link>
+
+
           </li>
 
           <li>
