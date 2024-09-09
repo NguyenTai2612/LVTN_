@@ -84,7 +84,7 @@ const ProductList = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await apiGetProductPage(currentPage, 3);
+            const response = await apiGetProductPage(currentPage, 5);
             if (response?.err === 0) {
                 setProducts({
                     data: response.response.data,

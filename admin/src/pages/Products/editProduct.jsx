@@ -267,49 +267,20 @@ const EditProduct = () => {
         if (id) {
             try {
                 const response = await apiGetProductSpecifications(id);
-                console.log('API response for specifications:', response); // Log API response
-                if (response.err === 0) {
-                    setSpecifications(response.response);
-                    console.log('Set specifications:', response.response); // Log after setting state
+                console.log('API response for specifications:', response);
+    
+                if (response.data.err === 0) {
+                    setSpecifications(response.data.response);  // Lưu dữ liệu vào state
+                    console.log('Set specifications:', response.data.response);
                 } else {
-                    console.error('Failed to fetch specifications:', response.message);
+                    console.error('Failed to fetch specifications:', response.data.message);
                 }
             } catch (error) {
                 console.error('Error fetching specifications:', error);
             }
         }
     };
-
-    // const handleSaveSpecification = async () => {
-    //     try {
-    //         let response;
-    //         const specData = { spec_key: newSpecName, spec_value: newSpecValue };
-    //         if (isEditing) {
-    //             response = await apiUpdateProductSpecification(editingSpecId, specData);
-    //             if (response.err === 0) {
-    //                 setSpecifications(prevSpecs =>
-    //                     prevSpecs.map(spec =>
-    //                         spec.id === editingSpecId ? { ...spec, spec_key: newSpecName, spec_value: newSpecValue } : spec
-    //                     )
-    //                 );
-    //             } else {
-    //                 throw new Error(response.message || 'Unknown error.');
-    //             }
-    //         } else {
-    //             response = await apiCreateProductSpecification(id, specData); // Truyền productId vào đây
-    //             if (response.err === 0) {
-    //                 setSpecifications(prevSpecs => [...prevSpecs, response]);
-    //                 fetchSpecifications();
-    //             } else {
-    //                 throw new Error(response.message || 'Unknown error.');
-    //             }
-    //         }
-    //         handleDialogClose();
-    //     } catch (error) {
-    //         console.error('Error saving specification:', error);
-    //         alert('Error saving specification: ' + (error.message || 'Unknown error.'));
-    //     }
-    // };
+    
 
 
     const handleSaveSpecification = async () => {

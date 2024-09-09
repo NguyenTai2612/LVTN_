@@ -1,8 +1,5 @@
-import HomeBanner from "../../Components/HomeBanner";
-import React, { useContext, useEffect, useState } from "react";
-import { fetchDataFromApi } from "../../utils/api.js";
-import ProductItem from "../../Components/ProductItem";
-import GuitarHeader from "../../Components/GuitarHeader";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@mui/material";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,239 +7,283 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import Tabs from "@mui/material/Tabs";
-import { MyContext } from "../../App.js";
 import Tab from "@mui/material/Tab";
 import HomeCat from "../../Components/HomeCat/index.js";
+import ProductItem from "../../Components/ProductItem";
+import GuitarHeader from "../../Components/GuitarHeader";
 import {
   apiGetProducts,
   apiGetProductDetails,
 } from "../../services/product.js";
 import { apiGetCategories } from "../../services/category.js";
-import { useDispatch, useSelector } from "react-redux";
-import { apiGetCurrent } from "../../services/user.js";
 import * as actions from "../../store/actions/index.js";
+import { MyContext } from "../../App.js";
+import { apiGetAllSubCategories } from "../../services/subCategory.js";
 
 const Home = () => {
-  const [catData, setCatData] = useState([]);
-  const [productsData, setProductsData] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [fluteData, setFluteData] = useState([]);
-  const [selectedCat, setSelectCat] = useState("AMPLIFIER");
-  const [filterData, setFilterData] = useState([]);
-  const [guitarProducts, setGuitarProducts] = useState([]);
-
-  const [value, setValue] = React.useState(0);
+  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [productDetails, setProductDetails] = useState({});
-  const [categories, setCategories] = useState([]);
-  const context = useContext(MyContext);
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-  const guitarLinks = [
-    { text: "Guitar Takamine", href: "#" },
-    { text: "Guitar Valote", href: "#" },
-    { text: "Guitar Yamaha", href: "#" },
-    { text: "Guitar Taylor", href: "#" },
-  ];
+  const [selectedCat, setSelectCat] = useState(1); // Default value is 1
+  const [guitarProducts, setGuitarProducts] = useState([]);
+  const [guitarProductsCat1, setGuitarProductsCat1] = useState([]); // New variable for category 1 products
+  const [guitarProductsCat2, setGuitarProductsCat2] = useState([]); // New variable for category 1 products
+  const [value, setValue] = useState(0);
+
+  const [guitarSubCats, setGuitarSubCats] = useState([]);
+  const [pianoSubCats, setPianoSubCats] = useState([]);
+  // const [filteredSubCats, setFilteredSubCats] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(1);
 
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state) => state.auth);
   const { currentData } = useSelector((state) => state.user);
 
   useEffect(() => {
-    setTimeout(() => {
-      isLoggedIn && dispatch(actions.getCurrent());
-    }, 1000);
-  }, [isLoggedIn]);
+    const fetchSubCategories = async () => {
+      try {
+        // Giả sử apiGetSubCategories() là hàm gọi API của bạn
+        const response = await apiGetAllSubCategories();
+
+        // Kiểm tra phản hồi
+        console.log("API Response:", response);
+
+        if (response.data?.err === 0 && Array.isArray(response.data.response)) {
+          // Lọc subcategories cho guitar
+          const guitarSubCats = response.data.response.filter(
+            (subCat) => subCat.category_id === 1
+          );
+          setGuitarSubCats(guitarSubCats);
+
+          // Lọc subcategories cho piano
+          const pianoSubCats = response.data.response.filter(
+            (subCat) => subCat.category_id === 2
+          );
+          setPianoSubCats(pianoSubCats);
+        } else {
+          console.warn("Invalid response:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching subcategories:", error);
+      }
+    };
+
+    fetchSubCategories();
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(actions.getCurrent());
+    }
+  }, [isLoggedIn, dispatch]);
 
   useEffect(() => {
     if (currentData) {
-      // Lưu thông tin người dùng vào localStorage
       localStorage.setItem("user", JSON.stringify(currentData));
     }
   }, [currentData]);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiGetCategories();
+        if (response?.err === 0) {
+          setCategories(response.response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     const fetchProducts = async () => {
-      const response = await apiGetProducts();
-      if (response?.data.err === 0) {
-        setProducts(response.data.response);
-        // Fetch details for all products
-        const detailsPromises = response.data.response.map((product) =>
-          apiGetProductDetails(product.id)
-        );
-        Promise.all(detailsPromises).then((results) => {
+      try {
+        const response = await apiGetProducts();
+        if (response?.data.err === 0) {
+          setProducts(response.data.response);
+          // Fetch details for all products
+          const detailsPromises = response.data.response.map((product) =>
+            apiGetProductDetails(product.id)
+          );
+          const detailsResults = await Promise.all(detailsPromises);
           const details = {};
-          results.forEach((result) => {
+          detailsResults.forEach((result) => {
             if (result.data.err === 0) {
               details[result.data.response.id] = result.data.response;
             }
           });
           setProductDetails(details);
-        });
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
       }
     };
     fetchProducts();
   }, []);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-
-    // Fetch products for the category "Đàn Guitar"
-    // fetchDataFromApi(`/api/products?catName=Đàn Guitar`).then((res) => {
-    //   setGuitarProducts(res.products);
-    // });
-  }, []);
+    if (categories.length > 0) {
+      setSelectCat(categories[0]?.id); // Ensure to set the default category based on the available categories
+    }
+  }, [categories]);
 
   useEffect(() => {
-    fetchDataFromApi(`/api/products?catName=${selectedCat}`).then((res) => {
-      setFilterData(res.products);
-    });
-  }, [selectedCat]);
+    if (selectedCat) {
+      const filteredGuitarProducts = products.filter(
+        (product) => product.category_id === selectedCat
+      );
+      setGuitarProducts(filteredGuitarProducts);
+    }
+  }, [selectedCat, products]);
 
-  const selectCat = (cat) => {
-    setSelectCat(cat);
+  useEffect(() => {
+    // Filter products with category_id = 1
+    const filteredGuitarProductsCat1 = products.filter(
+      (product) => product.category_id === 1
+    );
+    setGuitarProductsCat1(filteredGuitarProductsCat1);
+  }, [products]);
+
+  useEffect(() => {
+    // Filter products with category_id = 2
+    const filteredGuitarProductsCat2 = products.filter(
+      (product) => product.category_id === 2
+    );
+    setGuitarProductsCat2(filteredGuitarProductsCat2);
+  }, [products]);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    const selectedCategory = categories[newValue]?.id;
+    setSelectCat(selectedCategory);
   };
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-        try {
-            const response = await apiGetCategories();
-            if (response?.err === 0) {
-                setCategories(response.response.data); 
-            }
-        } catch (error) {
-            console.error("Error fetching categories:", error); 
-        }
-    };
-    fetchCategories();
-}, []);
-
-  
   return (
     <div>
-     <HomeCat catData={categories} />
+      <HomeCat catData={categories} />
 
       <section className="homeProducts">
         <div className="container">
-          <div className="row">
-            <div className="col-md-3">
-              <div className="banner">
-                <img
-                  src="https://nhaccutiendat.vn/upload/images/category_banner/poster_category/sale2.jpg"
-                  className="cursor w-100"
-                  style={{ marginTop: 0 }}
-                />
-                <img
-                  src="https://nhaccutiendat.vn/upload/images/category_banner/poster_category/dan_guitar2_danhmuc.jpg"
-                  className="cursor w-100 mt-4"
-                  style={{ marginTop: 0 }}
-                />
-
-                <div className="banner mt-4">
-                  <img
-                    src="https://nhaccutiendat.vn/upload/images/category_banner/poster_category/dan_organ_danhmuc.jpg"
-                    className="cursor w-100"
-                    style={{ marginTop: 28 }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-9 productRow">
-              <div className="guitar-header">
-                <div className="row">
-                  <div className="col-md-3 logo">SẢN PHẨM NỔI BẬT</div>
-                  <div className="col-md-9 links">
-                    <div className="ml-auto">
-                      <Tabs
-                        value={value}
-                        onChange={handleChange}
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        className="filterTabs"
-                        TabIndicatorProps={{
-                          style: { backgroundColor: "#FF6347" },
+          <div className="guitar-header1">
+            <div className="row">
+              <div className="col-md-3 logo">SẢN PHẨM NỔI BẬT</div>
+              <div className="col-md-9 links">
+                <div className="ml-auto">
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    className="filterTabs"
+                    TabIndicatorProps={{
+                      style: { backgroundColor: "#FF6347" },
+                    }}
+                  >
+                    {categories.length > 0 ? (
+                      categories.map((item, index) => (
+                        <Tab
+                          key={index}
+                          className="item"
+                          label={item.name}
+                          style={{
+                            color: "#333",
+                            fontWeight: "bold",
+                            textTransform: "uppercase",
+                            padding: "10px 20px",
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <Tab
+                        className="item"
+                        label="No Categories Available"
+                        style={{
+                          color: "#333",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                          padding: "10px 20px",
                         }}
-                      >
-                        {categories.length > 0 ? (
-                          categories.map((item, index) => (
-                            <Tab
-                              key={index}
-                              className="item"
-                              label={item.name}
-                              onClick={() => selectCat(item.name)}
-                              style={{
-                                color: "#333",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                                padding: "10px 20px",
-                              }}
-                            />
-                          ))
-                        ) : (
-                          <Tab
-                            className="item"
-                            label="No Categories Available"
-                            style={{
-                              color: "#333",
-                              fontWeight: "bold",
-                              textTransform: "uppercase",
-                              padding: "10px 20px",
-                            }}
-                          />
-                        )}
-                      </Tabs>
-                    </div>
-                  </div>
+                      />
+                    )}
+                  </Tabs>
                 </div>
               </div>
-
-              <div className="product_row w-100 mt-2 mb-5">
-                <Swiper
-                  slidesPerView={4}
-                  spaceBetween={0}
-                  navigation={true}
-                  slidesPerGroup={3}
-                  modules={[Navigation]}
-                  className="mySwiper"
-                >
-                  {products?.length !== 0 &&
-                    products?.map((item, index) => {
-                      return (
-                        <SwiperSlide key={index}>
-                          <ProductItem item={productDetails[item.id]} />
-                        </SwiperSlide>
-                      );
-                    })}
-                </Swiper>
-              </div>
-
-              <GuitarHeader
-                logoText="ĐÀN GUITAR"
-                links={guitarLinks}
-                viewAllText="Xem tất cả →"
-                viewAllHref="#"
-              />
-              <div className="product_row w-100 mt-2 mb-5">
-                <Swiper
-                  slidesPerView={4}
-                  spaceBetween={0}
-                  navigation={true}
-                  slidesPerGroup={3}
-                  modules={[Navigation]}
-                  className="mySwiper"
-                >
-                  {guitarProducts?.length !== 0 &&
-                    guitarProducts?.map((item, index) => (
-                      <SwiperSlide key={index}>
-                        <ProductItem item={productDetails[item.id]} />
-                      </SwiperSlide>
-                    ))}
-                </Swiper>
-              </div>
             </div>
+          </div>
+
+          <div className="product_row w-100 mt-2 mb-5">
+            <Swiper
+              slidesPerView={5}
+              spaceBetween={0}
+              navigation={true}
+              slidesPerGroup={3}
+              modules={[Navigation]}
+              className="mySwiper"
+            >
+              {guitarProducts.length > 0 &&
+                guitarProducts.map((item) => (
+                  <SwiperSlide key={item.id}>
+                    <ProductItem item={productDetails[item.id]} />
+                  </SwiperSlide>
+                ))}
+            </Swiper>
+          </div>
+
+          <GuitarHeader
+            logoText="ĐÀN GUITAR"
+            links={guitarSubCats.map((subCat) => ({
+              text: subCat.subCat,
+              href: `/listing/${subCat.id}`,
+            }))}
+            viewAllText="Xem tất cả →"
+            viewAllHref="#"
+          />
+          <div className="product_row w-100 mt-2 mb-5">
+            <Swiper
+              slidesPerView={5}
+              spaceBetween={0}
+              navigation={true}
+              slidesPerGroup={3}
+              modules={[Navigation]}
+              className="mySwiper"
+            >
+              {guitarProductsCat1.length > 0 &&
+                guitarProductsCat1.map((item) => (
+                  <SwiperSlide key={item.id}>
+                    <ProductItem item={productDetails[item.id]} />
+                  </SwiperSlide>
+                ))}
+            </Swiper>
+          </div>
+
+          <GuitarHeader
+            logoText="ĐÀN PIANO"
+            links={pianoSubCats.map((subCat) => ({
+              text: subCat.subCat,
+              href: `/listing/${subCat.id}`,
+            }))}
+            viewAllText="Xem tất cả →"
+            viewAllHref="#"
+          />
+
+          <div className="product_row w-100 mt-2 mb-5">
+            <Swiper
+              slidesPerView={5}
+              spaceBetween={0}
+              navigation={true}
+              slidesPerGroup={3}
+              modules={[Navigation]}
+              className="mySwiper"
+            >
+              {guitarProductsCat2.length > 0 &&
+                guitarProductsCat2.map((item) => (
+                  <SwiperSlide key={item.id}>
+                    <ProductItem item={productDetails[item.id]} />
+                  </SwiperSlide>
+                ))}
+            </Swiper>
           </div>
         </div>
       </section>

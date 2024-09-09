@@ -14,7 +14,7 @@ const ProductItem = (props) => {
 
   return (
     <>
-      <div className={`productItem`}>
+      <div className={`productItem ${props.itemView}`}>
         <div className="imgWrapper">
           <Link to={`/product/${item?.id}`}>
             <LazyLoadImage

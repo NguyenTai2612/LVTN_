@@ -27,7 +27,7 @@ const HomeCat = ({catData }) => {
               catData?.map((cat, index) => (
                 <SwiperSlide key={index}>
                   <Link
-                    to={`products/category/${cat?.id}`}
+                    to={`/listing/${cat?.id}`}
                     style={{ textDecoration: "none" }}
                   >
                     <div className="item_cat text-center cursor">

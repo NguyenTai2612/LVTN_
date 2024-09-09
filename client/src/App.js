@@ -23,12 +23,13 @@ import Orders from "./Pages/Orders";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import reduxStore from "./redux";
+import { getCartItems } from "./services/cart";
 
 const { store, persistor } = reduxStore();
 
 const MyContext = createContext();
 
-function App() {
+function App({ children }) {
   const [alertBox, setAlertBox] = React.useState({
     msg: "",
     error: false,
@@ -58,38 +59,20 @@ function App() {
   const [subCategoryData, setSubCategoryData] = useState([]);
   const [activeCat, setActiveCat] = useState("");
   const [cartData, setCartData] = useState([]);
-  const [user, setUser] = useState({
-    name: "",
-    email: "",
-    userId: "",
-  });
 
-  // useEffect(() => {
-  //   getCountry("https://provinces.open-api.vn/api/p/");
-  // }, []);
 
-  const getCountry = async (url) => {
-    const responsive = await axios.get(url).then((res) => {
-      setCountryList(res.data);
-      console.log(res.data);
-    });
-  };
+  useEffect(() => {
+    const fetchCartData = async () => {
+      const userId = JSON.parse(localStorage.getItem('user')).id;
+      if (userId) {
+        const items = await getCartItems(userId);
+        setCartData(items);
+      }
+    };
+    fetchCartData();
+  }, []);
 
-  // useEffect(() => {
-  //   fetchDataFromApi(`/api/category`).then((res) => {
-  //     setCategoryData(res.categoryList);
-  //     // setActiveCat(res.categoryList[0]?.name);
-  //   });
-
-  //   fetchDataFromApi(`/api/subCat`).then((res) => {
-  //     setSubCategoryData(res.subCategoryList);
-  //   });
-
-  //   fetchDataFromApi(`/api/cart`).then((res) => {
-  //     setCartData(res);
-  //   });
-  // }, []);
-
+  
   const getCartData = () => {
     fetchDataFromApi(`/api/cart`).then((res) => {
       setCartData(res);
@@ -105,30 +88,9 @@ function App() {
       );
   }, [isOpenProductModal]);
 
-  const addToCat = (data) => {
-    setAddingInCart(true);
-    postData(`/api/cart/add`, data).then((res) => {
-      if (res.status !== false) {
-        setAlertBox({
-          open: true,
-          error: false,
-          msg: "Item is added to the cart",
-        });
 
-        setTimeout(() => {
-          setAddingInCart(false);
-        }, 1000);
-        getCartData();
-      } else {
-        setAlertBox({
-          open: true,
-          error: true,
-          msg: res.msg,
-        });
-        setAddingInCart(false);
-      }
-    });
-  };
+
+  
 
   const values = {
     countryList,
@@ -148,7 +110,6 @@ function App() {
     setActiveCat,
     setAlertBox,
     alertBox,
-    addToCat,
     setAddingInCart,
     addingInCart,
     setCartData,
@@ -179,7 +140,7 @@ function App() {
 
             <Routes>
               <Route path="/" exact={true} element={<Home />} />
-              <Route path="/subCat/:id" exact={true} element={<Listing />} />
+              <Route path="/listing/:id" exact={true} element={<Listing />} />
               <Route
                 path="/products/category/:id"
                 exact={true}

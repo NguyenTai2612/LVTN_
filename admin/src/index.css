@@ -372,6 +372,16 @@ table td .info h6 {
   padding: 8px; /* Khoảng cách bên trong các ô */
 }
 
+tr:nth-child(odd) {
+  background-color: #ffffff; /* Màu nền cho các hàng chẵn */
+
+}
+
+tr:nth-child(even) {
+  background-color: #F2F2F2; /* Màu nền cho các hàng lẻ */
+
+}
+
 .table th {
   background-color: #f2f2f2; /* Màu nền của các tiêu đề cột */
   text-align: left;
@@ -391,9 +401,7 @@ td {
   border: 1px solid #ddd;
 }
 
-th {
-  background-color: #f2f2f2;
-}
+
 table {
   width: 100%;
   border-collapse: collapse;

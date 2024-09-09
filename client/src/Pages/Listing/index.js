@@ -4,76 +4,111 @@ import { IoIosMenu } from "react-icons/io";
 import { CgMenuGridR } from "react-icons/cg";
 import ProductItem from "../../Components/ProductItem";
 import Pagination from "@mui/material/Pagination";
-
 import { TfiLayoutGrid4Alt } from "react-icons/tfi";
 import { Button } from "@mui/material";
 import { FaAngleDown } from "react-icons/fa6";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useParams } from "react-router-dom";
-import { fetchDataFromApi } from "../../utils/api.js";
+import { BsChevronDoubleRight } from "react-icons/bs";
+import {
+  apiGetProductsBySubCat,
+  apiGetCategoryById,
+  apiGetSubCategoryById,
+  apiGetProductsByCat,
+  apiGetProductsByCatFilter, // Import API call for fetching products by category
+} from "../../services";
+
 const Listing = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [productView, setProductView] = useState("four");
   const [productData, setProductData] = useState([]);
+  const [categoryData, setCategoryData] = useState(null);
+  const [subCatData, setSubCatData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showSubCat, setShowSubCat] = useState(true); // New state to control the visibility of subCatData.subCat
   const openDropDown = Boolean(anchorEl);
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  const [products, setProducts] = useState([]);
+  const [subCategoryData, setSubCategoryData] = useState([]);
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const { id } = useParams();
+  const { id: subCatId } = useParams(); // Lấy subCatId từ URL
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
 
-    let url = window.location.href;
-    let apiEndPoint = "";
+        // Fetch products by subCategory ID
+        const productResponse = await apiGetProductsBySubCat(subCatId);
+        setProductData(productResponse.data.data);
 
-    if (url.includes("subCat")) {
-      apiEndPoint = `/api/products?subCat=${id}`;
+        // Fetch subCategory details
+        const subCatResponse = await apiGetSubCategoryById(subCatId);
+        setSubCatData(subCatResponse.response);
+
+        // Fetch category details
+        const categoryResponse = await apiGetCategoryById(
+          subCatResponse.response.category_id
+        );
+        setCategoryData(categoryResponse.response);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts(); // Gọi hàm fetchProducts khi subCatId thay đổi
+    window.scrollTo(0, 0); // Cuộn lên đầu trang khi trang load
+  }, [subCatId]);
+
+  const fetchProducts1 = async (subCatId, filters) => {
+    try {
+      const response = await apiGetProductsByCatFilter(subCatId, filters);
+      setProducts(response);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-    if (url.includes("category")) {
-      apiEndPoint = `/api/products?category=${id}`;
-    }
+  };
 
-    console.log(url);
+  const handleFilterData = (subCatId, filters) => {
+    fetchProducts1(subCatId, filters);
+  };
 
-    setIsLoading(true);
+  useEffect(() => {
+    // Fetch initial subCategoryData and other initial data
+    // setSubCategoryData(data);
+  }, []);
 
-    fetchDataFromApi(`${apiEndPoint}`).then((res) => {
-      console.log(res);
-      setProductData(res.products);
+  // New function to handle click on category
+  const handleCategoryClick = async (categoryId) => {
+    try {
+      setIsLoading(true);
+      // Fetch products by category ID
+      const productResponse = await apiGetProductsByCat(categoryId);
+      setProductData(productResponse.data.data);
+
+      // Hide subCatData
+      setShowSubCat(false);
       setIsLoading(false);
-    });
-  }, [id]);
-
-  const filterData = (subCatId) => {
-    fetchDataFromApi(`/api/products?subCatId=${subCatId}`).then((res) => {
-      setProductData(res.products);
-    });
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+      setIsLoading(false);
+    }
   };
 
-  const filterByPrice = (price, subCatId) => {
-    fetchDataFromApi(
-      `/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subCatId=${subCatId}`
-    ).then((res) => {
-      setProductData(res.products);
-    });
-  };
-
-  const filterByRating = (rating, subCatId) => {
-    fetchDataFromApi(
-      `/api/products?rating=${rating}&subCatId=${subCatId}`
-    ).then((res) => {
-      setProductData(res.products);
-    });
-  };
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -81,14 +116,33 @@ const Listing = () => {
         <div className="container">
           <div className="productListing d-flex">
             <SideBar
-              filterData={filterData}
-              filterByPrice={filterByPrice}
-              filterByRating={filterByRating}
+              filterData={handleFilterData} subCategoryData={subCategoryData}
             />
 
             <div className="content-right">
               <div className="showBy mt-2 mb-3 d-flex align-items-center">
-                <div className="d-flex align-items-center btnWrapper">
+                <div>
+                  <h5>
+                    <span class="category-container">
+                      <button
+                        class="category-button"
+                        onClick={() => handleCategoryClick(categoryData?.id)}
+                      >
+                        {categoryData ? categoryData.name : "Loading..."}
+                      </button>
+                      <BsChevronDoubleRight className="chevron-icon" />
+                      <button
+                        class="category-button"
+                        onClick={() => handleCategoryClick()}
+                      >
+                        {showSubCat &&
+                          (subCatData ? subCatData.subCat : "Loading...")}
+                      </button>
+                    </span>
+                  </h5>
+                </div>
+
+                <div className="d-flex align-items-center ml-auto btnWrapper">
                   <Button
                     className={productView === "one" && "act"}
                     onClick={() => setProductView("one")}
@@ -108,41 +162,12 @@ const Listing = () => {
                     <TfiLayoutGrid4Alt />
                   </Button>
                 </div>
-
-                <div className="ml-auto showByFilter">
-                  <Button onClick={handleClick}>
-                    Show 9 <FaAngleDown />
-                  </Button>
-                  <Menu
-                    className="w-100 showPerPageDropdown"
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={openDropDown}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      "aria-labelledby": "basic-button",
-                    }}
-                  >
-                    <MenuItem onClick={handleClose}>10</MenuItem>
-                    <MenuItem onClick={handleClose}>20</MenuItem>
-                    <MenuItem onClick={handleClose}>30</MenuItem>
-                    <MenuItem onClick={handleClose}>40</MenuItem>
-                    <MenuItem onClick={handleClose}>50</MenuItem>
-                    <MenuItem onClick={handleClose}>60</MenuItem>
-                  </Menu>
-                </div>
               </div>
 
               <div className="productListing">
-                {productData?.map((item, index) => {
-                  return (
-                    <ProductItem
-                      key={index}
-                      itemView={productView}
-                      item={item}
-                    />
-                  );
-                })}
+                {productData?.map((item, index) => (
+                  <ProductItem key={index} itemView={productView} item={item} />
+                ))}
               </div>
 
               <div className="d-flex align-items-center justify-content-center mt-5">

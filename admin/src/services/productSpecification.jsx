@@ -7,7 +7,7 @@ export const apiGetProductSpecifications = (productId) => new Promise(async (res
             method: 'get',
             url: `/api/v1/productSpecification/${productId}`,
         });
-        resolve(response.data);
+        resolve(response);
     } catch (error) {
         reject(error);
     }

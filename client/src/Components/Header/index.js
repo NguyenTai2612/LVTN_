@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FaPhone,
   FaMapMarkerAlt,
@@ -24,13 +24,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Tooltip from "@mui/material/Tooltip";
-import PersonAdd from "@mui/icons-material/PersonAdd";
-import Settings from "@mui/icons-material/Settings";
-import Logout from "@mui/icons-material/Logout";
-import Price from "../Price";
+
 import { useSelector, useDispatch } from "react-redux";
 import * as action from '../../store/actions'
 
@@ -39,6 +33,9 @@ const Header = () => {
   const context = useContext(MyContext);
   const open = Boolean(anchorEl);
   const history = useNavigate();
+  
+  const { cartData } = useContext(MyContext);
+  const cartCount = cartData.length;
 
   const dispatch = useDispatch()
   const { isLoggedIn } = useSelector(state=>state.auth)
@@ -51,21 +48,9 @@ const Header = () => {
     setAnchorEl(null);
   };
 
-  // const logout = () => {
-  //   setAnchorEl(null);
-  //   localStorage.clear();
-  //   context.setIsLogin(false);
-
-  //   context.setAlertBox({
-  //     open: true,
-  //     error: false,
-  //     msg: "Logout Successfully!",
-  //   });
-
-  //   setTimeout(() => {
-  //     history("/");
-  //   }, 2000);
-  // };
+  useEffect(() => {
+    // Bạn có thể thêm logic tùy chỉnh ở đây nếu cần
+  }, [cartData]);
 
   return (
     <header className="header">
@@ -204,7 +189,7 @@ const Header = () => {
                           />
                         </Link>
                         <span className="count text-white">
-                          {context.cartData?.length}
+                        {cartCount}
                         </span>
                         <span className=" text-black">
                           {/* {context.cartData?.length !== 0 && (

@@ -169,7 +169,7 @@ const ProductDetails = () => {
                 <div className='col-md-12'>
                     <div className='card shadow my-4 border-0 flex-center p-3'>
                         <div className="row">
-                            <div className="col-md-4">
+                            <div className="col-md-6">
                                 <div className='pt-3 pb-3 pl-4 pr-4'>
                                     <ProductZoom
                                         images={productData.ProductImages?.map((img) => img.imageUrl) || []}
@@ -177,7 +177,7 @@ const ProductDetails = () => {
                                 </div>
                             </div>
 
-                            <div className="col-md-8 d-flex">
+                            <div className="col-md-6 d-flex">
                                 <div className='pt-3 pb-3 pr-4'>
                                     <div className="product-info">
                                         <div className="product-title">{productData?.name}</div>
@@ -232,8 +232,13 @@ const ProductDetails = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                            </div>
+
+                            <div className='p-4 w-100'>
                                 <div className="details-table mt-4">
-                                    <h6 className="font-bold mb-3 ">Speciations</h6>
+                                    <h6 className="review-title">Speciations</h6>
+
                                     <table className='mt-8'>
                                         <tbody>
                                             {specifications.map((spec, index) => (
@@ -245,59 +250,57 @@ const ProductDetails = () => {
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
 
-                            <div className='p-4 w-100'>
                                 <h6 className="review-title">Product Description</h6>
                                 <p>{productData?.description}</p>
 
                                 <br />
                                 {
                                     <div className="tab-content">
-                                    <div className="row">
-                                      <div className="col-md-8">
-                                        <h6 className="review-title">Product Reviews</h6>
-                                        {reviewData
-                                          .slice(0)
-                                          .reverse()
-                                          .map((review, index) => (
-                                            <div className="review-card" key={index}>
-                                              <div className="review-header">
-                                                <div className="review-avatar-container">
-                                                  <Avatar img="https://mironcoder-hotash.netlify.app/images/avatar/01.webp" />
-                                                </div>
-                                                <div className="review-user-info">
-                                                  <h6 className="review-username">
-                                                    {review["User.name"] || "Unknown User"}
-                                                  </h6>
-                                                  <span className="review-date">
-                                                    {review?.createdAt
-                                                      ? new Date(
-                                                          review.createdAt
-                                                        ).toLocaleString()
-                                                      : "Date and time not available"}
-                                                  </span>
-                                                </div>
-                                                <div className="review-rating">
-                                                  <Rating
-                                                    name="read-only"
-                                                    value={review.rating}
-                                                    readOnly
-                                                    size="small"
-                                                    precision={0.5}
-                                                  />
-                                                </div>
-                                              </div>
-                                              <div className="review-content">
-                                                <p className="review-text">
-                                                  {review?.comment ||
-                                                    "This is a sample review text. The product was excellent, and I am very satisfied with my purchase!"}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          ))}
-                                        <br />
-                                        {/* <h5 className="write-review-title">Write a Review</h5>
+                                        <div className="row">
+                                            <div className="col-md-8">
+                                                <h6 className="review-title">Product Reviews</h6>
+                                                {reviewData
+                                                    .slice(0)
+                                                    .reverse()
+                                                    .map((review, index) => (
+                                                        <div className="review-card" key={index}>
+                                                            <div className="review-header">
+                                                                <div className="review-avatar-container">
+                                                                    <Avatar img="https://mironcoder-hotash.netlify.app/images/avatar/01.webp" />
+                                                                </div>
+                                                                <div className="review-user-info">
+                                                                    <h6 className="review-username">
+                                                                        {review["User.name"] || "Unknown User"}
+                                                                    </h6>
+                                                                    <span className="review-date">
+                                                                        {review?.createdAt
+                                                                            ? new Date(
+                                                                                review.createdAt
+                                                                            ).toLocaleString()
+                                                                            : "Date and time not available"}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="review-rating">
+                                                                    <Rating
+                                                                        name="read-only"
+                                                                        value={review.rating}
+                                                                        readOnly
+                                                                        size="small"
+                                                                        precision={0.5}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="review-content">
+                                                                <p className="review-text">
+                                                                    {review?.comment ||
+                                                                        "This is a sample review text. The product was excellent, and I am very satisfied with my purchase!"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                <br />
+                                                {/* <h5 className="write-review-title">Write a Review</h5>
                                         <form onSubmit={addReview}>
                                           <div className="form-group">
                                             <label>Your Rating</label>
@@ -333,9 +336,9 @@ const ProductDetails = () => {
                                             {isLoading ? "Submitting..." : "Submit Review"}
                                           </Button>
                                         </form> */}
-                                      </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                  </div>
 
 
 
