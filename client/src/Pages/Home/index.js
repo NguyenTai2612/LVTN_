@@ -40,6 +40,7 @@ const Home = () => {
   const { currentData } = useSelector((state) => state.user);
 
   useEffect(() => {
+     window.scrollTo(0, 0);
     const fetchSubCategories = async () => {
       try {
         // Giả sử apiGetSubCategories() là hàm gọi API của bạn
@@ -115,6 +116,7 @@ const Home = () => {
             }
           });
           setProductDetails(details);
+          console.log('details',details)
         }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -128,6 +130,11 @@ const Home = () => {
       setSelectCat(categories[0]?.id); // Ensure to set the default category based on the available categories
     }
   }, [categories]);
+
+  useEffect(() => {
+    console.log('Loading Products and Details:', products);
+    console.log('Product Details:', productDetails);
+  }, [products, productDetails]);
 
   useEffect(() => {
     if (selectedCat) {
@@ -159,6 +166,8 @@ const Home = () => {
     const selectedCategory = categories[newValue]?.id;
     setSelectCat(selectedCategory);
   };
+
+  
 
   return (
     <div>
@@ -235,7 +244,7 @@ const Home = () => {
             logoText="ĐÀN GUITAR"
             links={guitarSubCats.map((subCat) => ({
               text: subCat.subCat,
-              href: `/listing/${subCat.id}`,
+              href: `/listing/subcategory/${subCat.id}`,
             }))}
             viewAllText="Xem tất cả →"
             viewAllHref="#"
@@ -262,7 +271,7 @@ const Home = () => {
             logoText="ĐÀN PIANO"
             links={pianoSubCats.map((subCat) => ({
               text: subCat.subCat,
-              href: `/listing/${subCat.id}`,
+              href: `/listing/subcategory/${subCat.id}`,
             }))}
             viewAllText="Xem tất cả →"
             viewAllHref="#"

@@ -91,6 +91,39 @@ const deleteSubCategory = async (id) => {
     }
 };
 
+const getCategoryBySubCategoryId = async (subCatId) => {
+    try {
+        
+        const subCategory = await db.SubCategory.findOne({
+            where: { id: subCatId },
+            include: [{
+                model: db.Category, // Mối quan hệ giữa SubCategory và Category
+                attributes: ['id', 'name'] // Chỉ lấy id và name của Category
+            }]
+        });
+
+        if (!subCategory) {
+            return null;
+        }
+
+        return subCategory.Category; // Trả về thông tin Category
+    } catch (error) {
+        console.error("Error in getCategoryBySubCategoryId:", error);
+        throw error;
+    }
+};
+
+const getAllSubCatByCatIdService = async (categoryId) => {
+    try {
+      const subCategories = await SubCategory.findAll({
+        where: { category_id: categoryId }
+      });
+      return subCategories;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+  
 
 module.exports = {
     getSubCategoriesService,
@@ -98,5 +131,7 @@ module.exports = {
     updateSubCategory,
     deleteSubCategory,
     createSubCategory,
-    getAllSubCategories
+    getAllSubCategories,
+    getCategoryBySubCategoryId,
+    getAllSubCatByCatIdService
 };

@@ -9,20 +9,21 @@ import { Button } from "@mui/material";
 import { FaAngleDown } from "react-icons/fa6";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BsChevronDoubleRight } from "react-icons/bs";
 import {
   apiGetProductsBySubCat,
   apiGetCategoryById,
   apiGetSubCategoryById,
   apiGetProductsByCat,
-  apiGetProductsByCatFilter, // Import API call for fetching products by category
+  apiGetProductsByCatFilter,
+  getCategoryBySubCategoryId, // Import API call for fetching products by category
 } from "../../services";
+import { FaHome } from "react-icons/fa";
 
-const Listing = () => {
+const Listing = ({ type }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [productView, setProductView] = useState("four");
-  const [productData, setProductData] = useState([]);
   const [categoryData, setCategoryData] = useState(null);
   const [subCatData, setSubCatData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,26 +40,35 @@ const Listing = () => {
     setAnchorEl(null);
   };
 
-  const { id: subCatId } = useParams(); // Lấy subCatId từ URL
+  const { id } = useParams(); // Nhận cả id và type từ URL (type có thể là "category" hoặc "subcategory")
+  const [productData, setProductData] = useState([]);
+  const [parentCategory, setParentCategory] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
 
-        // Fetch products by subCategory ID
-        const productResponse = await apiGetProductsBySubCat(subCatId);
-        setProductData(productResponse.data.data);
+        if (type === "category") {
+          // Lấy thông tin danh mục
+          const categoryResponse = await apiGetCategoryById(id);
+          setCategoryData(categoryResponse.response);
+          setShowSubCat(false);
+        } else if (type === "subcategory") {
+          // Lấy thông tin subcategory
+          const subCategoryResponse = await apiGetSubCategoryById(id);
+          setSubCatData(subCategoryResponse.response);
 
-        // Fetch subCategory details
-        const subCatResponse = await apiGetSubCategoryById(subCatId);
-        setSubCatData(subCatResponse.response);
+          // Fetch parent category of the subcategory
+          const parentCategoryResponse = await getCategoryBySubCategoryId(id);
+          setParentCategory(parentCategoryResponse.response);
+          console.log(
+            "parentCategoryResponsep",
+            parentCategoryResponse.response
+          );
 
-        // Fetch category details
-        const categoryResponse = await apiGetCategoryById(
-          subCatResponse.response.category_id
-        );
-        setCategoryData(categoryResponse.response);
+          setShowSubCat(true);
+        }
 
         setIsLoading(false);
       } catch (error) {
@@ -67,77 +77,149 @@ const Listing = () => {
       }
     };
 
-    fetchProducts(); // Gọi hàm fetchProducts khi subCatId thay đổi
-    window.scrollTo(0, 0); // Cuộn lên đầu trang khi trang load
-  }, [subCatId]);
+    fetchData();
+  }, [id, type]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        let productResponse;
+
+        if (type === "category") {
+          productResponse = await apiGetProductsByCat(id);
+        } else if (type === "subcategory") {
+          productResponse = await apiGetProductsBySubCat(id);
+        }
+
+        setProductData(productResponse.data.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [id, type]);
 
   const fetchProducts1 = async (subCatId, filters) => {
     try {
-      const response = await apiGetProductsByCatFilter(subCatId, filters);
-      setProducts(response);
+      // Call apiGetProductsBySubCat to fetch products by subcategory
+      const response = await apiGetProductsBySubCat(subCatId);
+      console.log('fetchProducts1',response)
+      if (response && response.data && response.data.data) {
+        // Apply additional filters like price, brand, and rating
+        let filteredProducts = response.data.data;
+  
+        if (filters.priceRange) {
+          filteredProducts = filteredProducts.filter(
+            product =>
+              product.price >= filters.priceRange[0] &&
+              product.price <= filters.priceRange[1]
+          );
+        }
+  
+        if (filters.brands.length > 0) {
+          filteredProducts = filteredProducts.filter(product =>
+            filters.brands.includes(product.brand)
+          );
+        }
+  
+        if (filters.rating) {
+          filteredProducts = filteredProducts.filter(
+            product => Math.floor(product.rating) === filters.rating
+          );
+        }
+  
+        // Update state with the filtered products
+        setProducts(filteredProducts);
+      }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products by subcategory:", error);
     }
   };
 
-  const handleFilterData = (subCatId, filters) => {
-    fetchProducts1(subCatId, filters);
-  };
+  // Handle filter change from Sidebar
+const handleFilterData = (subCatId, filters) => {
+  fetchProducts1(subCatId, filters); // Fetch products by selected subcategory and apply filters
+};
 
-  useEffect(() => {
-    // Fetch initial subCategoryData and other initial data
-    // setSubCategoryData(data);
-  }, []);
+  const navigate = useNavigate();
 
-  // New function to handle click on category
-  const handleCategoryClick = async (categoryId) => {
-    try {
-      setIsLoading(true);
-      // Fetch products by category ID
-      const productResponse = await apiGetProductsByCat(categoryId);
-      setProductData(productResponse.data.data);
-
-      // Hide subCatData
-      setShowSubCat(false);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching products by category:", error);
-      setIsLoading(false);
-    }
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/product/category/${categoryId}`);
   };
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
+  const handleHomeClick = () => {
+    navigate("/"); // Đường dẫn tới trang Home
+  };
+
   return (
     <div>
       <section className="product_Listing_Page">
         <div className="container">
           <div className="productListing d-flex">
-            <SideBar
-              filterData={handleFilterData} subCategoryData={subCategoryData}
+          <SideBar
+              filterData={handleFilterData} // Pass filterData handler to Sidebar
+              categoryId={
+                type === "category" ? categoryData?.id : parentCategory?.id
+              }
             />
 
             <div className="content-right">
               <div className="showBy mt-2 mb-3 d-flex align-items-center">
                 <div>
                   <h5>
-                    <span class="category-container">
-                      <button
-                        class="category-button"
-                        onClick={() => handleCategoryClick(categoryData?.id)}
-                      >
-                        {categoryData ? categoryData.name : "Loading..."}
-                      </button>
-                      <BsChevronDoubleRight className="chevron-icon" />
-                      <button
-                        class="category-button"
-                        onClick={() => handleCategoryClick()}
-                      >
-                        {showSubCat &&
-                          (subCatData ? subCatData.subCat : "Loading...")}
-                      </button>
+                    <span className="category-container">
+                      {type === "category" && categoryData && (
+                        <>
+                          <button className="category-button" onClick={handleHomeClick}>
+                            <span className="home">
+                              {" "}
+                              <FaHome />
+                            </span>
+                            Home
+                          </button>
+
+                          <BsChevronDoubleRight className="chevron-icon" />
+                          <button
+                            className="category-button"
+                            onClick={() => handleCategoryClick(categoryData.id)}
+                          >
+                            {categoryData.name}
+                          </button>
+                        </>
+                      )}
+                      {type === "subcategory" && parentCategory && (
+                        <>
+                          <button className="category-button">
+                            <span className="home">
+                              {" "}
+                              <FaHome />
+                            </span>
+                            Home
+                          </button>
+
+                          <BsChevronDoubleRight className="chevron-icon" />
+                          <button
+                            className="category-button"
+                            onClick={() =>
+                              handleCategoryClick(parentCategory.id)
+                            }
+                          >
+                            {parentCategory.name}
+                          </button>
+                          <BsChevronDoubleRight className="chevron-icon" />
+                          <button className="category-button">
+                            {subCatData.subCat}
+                          </button>
+                        </>
+                      )}
                     </span>
                   </h5>
                 </div>
@@ -165,9 +247,19 @@ const Listing = () => {
               </div>
 
               <div className="productListing">
-                {productData?.map((item, index) => (
-                  <ProductItem key={index} itemView={productView} item={item} />
-                ))}
+                {isLoading ? (
+                  <p>Loading...</p>
+                ) : productData.length > 0 ? (
+                  productData.map((item, index) => (
+                    <ProductItem
+                      key={index}
+                      itemView={productView}
+                      item={item}
+                    />
+                  ))
+                ) : (
+                  <p>Không có sản phẩm nào.</p>
+                )}
               </div>
 
               <div className="d-flex align-items-center justify-content-center mt-5">

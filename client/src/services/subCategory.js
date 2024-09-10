@@ -40,6 +40,30 @@ export const apiGetSubCategoryById = (id) => new Promise(async (resolve, reject)
     }
 });
 
+export const getCategoryBySubCategoryId = (id) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'get',
+            url: `/api/v1/subCategory/${id}/category`,
+        });
+        resolve(response.data);
+    } catch (error) {
+        reject({ err: -1, msg: 'Failed to fetch subcategory' });
+    }
+});
+
+export const getAllSubCatByCatIdService = (id) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'get',
+            url: `/api/v1/subCategory/getAllSubCat-by-catId/${id}`,
+        });
+        resolve(response.data);
+    } catch (error) {
+        reject({ err: -1, msg: 'Failed to fetch subcategory' });
+    }
+});
+
 // Create a new subcategory
 export const apiCreateSubCategory = (data) => new Promise(async (resolve, reject) => {
     try {

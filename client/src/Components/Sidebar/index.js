@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -9,20 +7,42 @@ import Rating from "@mui/material/Rating";
 import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 import Price from "../Price";
+import { getAllSubCatByCatIdService } from "../../services";
+import { useNavigate } from "react-router-dom";
 
-const Sidebar = ({ filterData, subCategoryData }) => {
+const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   const [priceRange, setPriceRange] = useState([100000, 20000000]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
-  const { id } = useParams(); // subCatId
-
+  const [subCategoryData, setSubCategoryData] = useState([]); // State to store sub-categories
+  const [categoryIdState, setCategoryId] = useState(categoryId); // Ensure we have state for categoryId
+  
+  const navigate = useNavigate();
+  
+  // Fetch sub-categories when categoryId changes
   useEffect(() => {
-    filterData(id, {
+    const fetchSubCategories = async () => {
+      try {
+        const response = await getAllSubCatByCatIdService(categoryId);
+        setSubCategoryData(response.response);
+      } catch (error) {
+        console.error("Error fetching sub-categories:", error);
+      }
+    };
+
+    if (categoryId) {
+      fetchSubCategories();
+    }
+  }, [categoryId]);
+
+  // Call filterData when filters or categoryId change
+  useEffect(() => {
+    filterData(categoryId, {
       priceRange,
       brands: selectedBrands,
       rating: selectedRating,
     });
-  }, [priceRange, selectedBrands, selectedRating, id]);
+  }, [priceRange, selectedBrands, selectedRating, categoryId]);
 
   const handleBrandChange = (event) => {
     const brand = event.target.value;
@@ -37,14 +57,20 @@ const Sidebar = ({ filterData, subCategoryData }) => {
     setSelectedRating(rating);
   };
 
+  const handleCategoryChange = (catId) => {
+    setCategoryId(catId); // Use state setter correctly
+    navigate(`/listing/subcategory/${catId}`);
+  };
+
   return (
     <div className="sidebar">
       <div className="filterBox">
         <h6>Product Category</h6>
         <RadioGroup
-          aria-labelledby="demo-controlled-radio-buttons-group"
+          aria-labelledby="product-category-radio-group"
           name="controlled-radio-buttons-group"
-          value={id}
+          value={categoryIdState}
+          onChange={(event) => handleCategoryChange(event.target.value)}
         >
           {subCategoryData?.map((cat) => (
             <FormControlLabel
@@ -52,6 +78,7 @@ const Sidebar = ({ filterData, subCategoryData }) => {
               value={cat.id}
               control={<Radio />}
               label={cat.subCat}
+              onClick={() => handleCategoryChange(cat.id)}
             />
           ))}
         </RadioGroup>
@@ -66,7 +93,10 @@ const Sidebar = ({ filterData, subCategoryData }) => {
           max={20000000}
           step={5}
         />
-        <div className="d-flex pt-2 pb-2 priceRange" style={{ fontSize: "Smaller" }}>
+        <div
+          className="d-flex pt-2 pb-2 priceRange"
+          style={{ fontSize: "Smaller" }}
+        >
           <span>
             <strong className="text-dark">
               <Price amount={priceRange[0]} />
@@ -94,20 +124,22 @@ const Sidebar = ({ filterData, subCategoryData }) => {
       <div className="filterBox">
         <h6>Brands</h6>
         <div className="scroll">
-          {["Yamaha", "Casio", "Kawai", "Roland", "Suzuki", "Hãng khác"].map((brand) => (
-            <FormControlLabel
-              key={brand}
-              className="w-100"
-              control={
-                <Checkbox
-                  value={brand}
-                  checked={selectedBrands.includes(brand)}
-                  onChange={handleBrandChange}
-                />
-              }
-              label={brand}
-            />
-          ))}
+          {["Yamaha", "Casio", "Kawai", "Roland", "Suzuki", "Hãng khác"].map(
+            (brand) => (
+              <FormControlLabel
+                key={brand}
+                className="w-100"
+                control={
+                  <Checkbox
+                    value={brand}
+                    checked={selectedBrands.includes(brand)}
+                    onChange={handleBrandChange}
+                  />
+                }
+                label={brand}
+              />
+            )
+          )}
         </div>
       </div>
     </div>

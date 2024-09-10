@@ -33,6 +33,7 @@ const ProductDetails = () => {
   console.log("Product Quantity Before Add to Cart:", productQty);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchProductDetails = async () => {
       try {
         const response = await apiGetProductDetails(id);

@@ -82,4 +82,52 @@ const deleteSubCategory = async (req, res) => {
     }
 };
 
-module.exports = { getSubCategories,getAllSubCategories, getSubCategoryById, createSubCategory, updateSubCategory, deleteSubCategory };
+const getCatBySubCatId = async (req, res) => {
+    const { subCatId } = req.params;
+
+    try {
+        // Gọi service để lấy thông tin category theo subCategoryId
+        const category = await subCatService.getCategoryBySubCategoryId(subCatId);
+
+        if (!category) {
+            return res.status(404).json({ err: 1, msg: "Category not found" });
+        }
+
+        return res.status(200).json({
+            err: 0,
+            msg: "Success",
+            response: category
+        });
+    } catch (error) {
+        console.error("Error in getCatBySubCatId:", error);
+        return res.status(500).json({ err: 1, msg: "Internal Server Error" });
+    }
+};
+
+const getAllSubCatByCatId = async (req, res) => {
+    try {
+      const { categoryId } = req.params;
+      const subCategories = await subCatService.getAllSubCatByCatIdService(categoryId);
+      
+      if (subCategories) {
+        return res.status(200).json({
+          err: 0,
+          msg: 'Success',
+          response: subCategories
+        });
+      } else {
+        return res.status(404).json({
+          err: 1,
+          msg: 'No subcategories found for this category'
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        err: 1,
+        msg: 'Internal Server Error',
+        error: error.message
+      });
+    }
+  };
+
+module.exports = { getSubCategories, getAllSubCatByCatId, getCatBySubCatId, getAllSubCategories, getSubCategoryById, createSubCategory, updateSubCategory, deleteSubCategory };

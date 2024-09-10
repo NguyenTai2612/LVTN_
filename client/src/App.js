@@ -60,10 +60,9 @@ function App({ children }) {
   const [activeCat, setActiveCat] = useState("");
   const [cartData, setCartData] = useState([]);
 
-
   useEffect(() => {
     const fetchCartData = async () => {
-      const userId = JSON.parse(localStorage.getItem('user')).id;
+      const userId = JSON.parse(localStorage.getItem("user")).id;
       if (userId) {
         const items = await getCartItems(userId);
         setCartData(items);
@@ -72,7 +71,6 @@ function App({ children }) {
     fetchCartData();
   }, []);
 
-  
   const getCartData = () => {
     fetchDataFromApi(`/api/cart`).then((res) => {
       setCartData(res);
@@ -81,16 +79,10 @@ function App({ children }) {
 
   useEffect(() => {
     isOpenProductModal.open === true &&
-      fetchDataFromApi(`/api/products/${isOpenProductModal.id}`).then(
-        (res) => {
-          setProductData(res);
-        }
-      );
+      fetchDataFromApi(`/api/products/${isOpenProductModal.id}`).then((res) => {
+        setProductData(res);
+      });
   }, [isOpenProductModal]);
-
-
-
-  
 
   const values = {
     countryList,
@@ -140,11 +132,15 @@ function App({ children }) {
 
             <Routes>
               <Route path="/" exact={true} element={<Home />} />
-              <Route path="/listing/:id" exact={true} element={<Listing />} />
               <Route
-                path="/products/category/:id"
+                path="/product/category/:id"
                 exact={true}
-                element={<Listing />}
+                element={<Listing type="category" />} // Truyền giá trị type cho Listing
+              />
+              <Route
+                path="/listing/subcategory/:id"
+                exact={true}
+                element={<Listing type="subcategory" />} // Truyền giá trị type cho Listing
               />
               <Route
                 path="/product/:id"

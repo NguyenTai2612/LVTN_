@@ -10,7 +10,7 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 const ProductItem = (props) => {
   const { item } = props;
 
-  const primaryImage = item?.ProductImages?.[0]?.imageUrl || ""; 
+  const primaryImage = item?.ProductImages?.[0]?.imageUrl || "";
 
   return (
     <>
@@ -35,12 +35,14 @@ const ProductItem = (props) => {
         <div className="info">
           <h4>{item?.name?.substr(0, 200) + ""}</h4>
           <div className="d-flex align-items-center mt-2">
-            <span className="badge bg-success text-white d-block">In Stock</span>
+            <span className="badge bg-success text-white d-block">
+              In Stock
+            </span>
           </div>
           <Rating
             className="mt-2 mb-2"
             name="read-only"
-            value={item?.rating}
+            value={item?.rating || 0} // Đảm bảo giá trị không phải là undefined hoặc null
             readOnly
             size="small"
             precision={0.5}
