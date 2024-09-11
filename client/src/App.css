@@ -1767,13 +1767,14 @@ ul {
   width: 78%;
   flex: 0 0 78%;
   padding-left: 10px;
+  padding-top: 26px;
 }
 
 .product_Listing_Page .productListing .content-right .showBy {
   width: 100%;
   height: 50px;
   background: #d7d9e4;
-  padding: 15px 25px;
+  padding: 15px 7px 7px 10px;
 }
 
 .product_Listing_Page .productListing .content-right .showBy .btnWrapper button {

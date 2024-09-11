@@ -18,15 +18,14 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   const [categoryIdState, setCategoryId] = useState(categoryId); // Ensure we have state for categoryId
   
   const navigate = useNavigate();
-  
-  // Fetch sub-categories when categoryId changes
+
   useEffect(() => {
     const fetchSubCategories = async () => {
       try {
         const response = await getAllSubCatByCatIdService(categoryId);
         setSubCategoryData(response.response);
       } catch (error) {
-        console.error("Error fetching sub-categories:", error);
+        console.error("Lỗi khi lấy danh mục phụ:", error);
       }
     };
 
@@ -35,7 +34,6 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
     }
   }, [categoryId]);
 
-  // Call filterData when filters or categoryId change
   useEffect(() => {
     filterData(categoryId, {
       priceRange,
@@ -58,9 +56,9 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   };
 
   const handleCategoryChange = (catId) => {
-    setCategoryId(catId); // Use state setter correctly
     navigate(`/listing/subcategory/${catId}`);
   };
+  
 
   return (
     <div className="sidebar">

@@ -48,97 +48,88 @@ const Listing = ({ type }) => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-
+  
         if (type === "category") {
-          // Lấy thông tin danh mục
           const categoryResponse = await apiGetCategoryById(id);
           setCategoryData(categoryResponse.response);
           setShowSubCat(false);
+          const productResponse = await apiGetProductsByCat(id);
+          setProductData(productResponse.data.data);
         } else if (type === "subcategory") {
-          // Lấy thông tin subcategory
           const subCategoryResponse = await apiGetSubCategoryById(id);
           setSubCatData(subCategoryResponse.response);
-
-          // Fetch parent category of the subcategory
           const parentCategoryResponse = await getCategoryBySubCategoryId(id);
           setParentCategory(parentCategoryResponse.response);
-          console.log(
-            "parentCategoryResponsep",
-            parentCategoryResponse.response
-          );
-
           setShowSubCat(true);
+          const productResponse = await apiGetProductsBySubCat(id);
+          setProductData(productResponse.data.data);
         }
-
+  
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Lỗi khi lấy dữ liệu:", error);
         setIsLoading(false);
       }
     };
-
+  
     fetchData();
   }, [id, type]);
+  
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true);
-        let productResponse;
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       let productResponse;
 
-        if (type === "category") {
-          productResponse = await apiGetProductsByCat(id);
-        } else if (type === "subcategory") {
-          productResponse = await apiGetProductsBySubCat(id);
-        }
+  //       if (type === "category") {
+  //         productResponse = await apiGetProductsByCat(id);
+  //       } else if (type === "subcategory") {
+  //         productResponse = await apiGetProductsBySubCat(id);
+  //       }
 
-        setProductData(productResponse.data.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setIsLoading(false);
-      }
-    };
+  //       setProductData(productResponse.data.data);
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchProducts();
-  }, [id, type]);
+  //   fetchProducts();
+  // }, [id, type]);
 
   const fetchProducts1 = async (subCatId, filters) => {
     try {
-      // Call apiGetProductsBySubCat to fetch products by subcategory
       const response = await apiGetProductsBySubCat(subCatId);
-      console.log('fetchProducts1',response)
-      if (response && response.data && response.data.data) {
-        // Apply additional filters like price, brand, and rating
-        let filteredProducts = response.data.data;
+      let filteredProducts = response.data.data;
   
-        if (filters.priceRange) {
-          filteredProducts = filteredProducts.filter(
-            product =>
-              product.price >= filters.priceRange[0] &&
-              product.price <= filters.priceRange[1]
-          );
-        }
-  
-        if (filters.brands.length > 0) {
-          filteredProducts = filteredProducts.filter(product =>
-            filters.brands.includes(product.brand)
-          );
-        }
-  
-        if (filters.rating) {
-          filteredProducts = filteredProducts.filter(
-            product => Math.floor(product.rating) === filters.rating
-          );
-        }
-  
-        // Update state with the filtered products
-        setProducts(filteredProducts);
+      if (filters.priceRange) {
+        filteredProducts = filteredProducts.filter(
+          product =>
+            product.price >= filters.priceRange[0] &&
+            product.price <= filters.priceRange[1]
+        );
       }
+  
+      if (filters.brands.length > 0) {
+        filteredProducts = filteredProducts.filter(product =>
+          filters.brands.includes(product.brand)
+        );
+      }
+  
+      if (filters.rating) {
+        filteredProducts = filteredProducts.filter(
+          product => Math.floor(product.rating) === filters.rating
+        );
+      }
+  
+      setProducts(filteredProducts);
     } catch (error) {
-      console.error("Error fetching products by subcategory:", error);
+      console.error("Lỗi khi lấy sản phẩm theo danh mục phụ:", error);
     }
   };
+  
 
   // Handle filter change from Sidebar
 const handleFilterData = (subCatId, filters) => {
