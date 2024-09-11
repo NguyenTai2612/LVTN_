@@ -14,9 +14,11 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   const [priceRange, setPriceRange] = useState([100000, 20000000]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
-  const [subCategoryData, setSubCategoryData] = useState([]); // State to store sub-categories
-  const [categoryIdState, setCategoryId] = useState(categoryId); // Ensure we have state for categoryId
-  
+  const [subCategoryData, setSubCategoryData] = useState([]);
+  const [categoryIdState, setCategoryId] = useState(
+    localStorage.getItem("selectedCategoryId") || categoryId
+  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,12 +37,12 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   }, [categoryId]);
 
   useEffect(() => {
-    filterData(categoryId, {
+    filterData(categoryIdState, {
       priceRange,
       brands: selectedBrands,
       rating: selectedRating,
     });
-  }, [priceRange, selectedBrands, selectedRating, categoryId]);
+  }, [priceRange, selectedBrands, selectedRating, categoryIdState]);
 
   const handleBrandChange = (event) => {
     const brand = event.target.value;
@@ -56,9 +58,10 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   };
 
   const handleCategoryChange = (catId) => {
+    setCategoryId(catId);
+    localStorage.setItem("selectedCategoryId", catId); // Save selected category to localStorage
     navigate(`/listing/subcategory/${catId}`);
   };
-  
 
   return (
     <div className="sidebar">
@@ -76,7 +79,6 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
               value={cat.id}
               control={<Radio />}
               label={cat.subCat}
-              onClick={() => handleCategoryChange(cat.id)}
             />
           ))}
         </RadioGroup>
