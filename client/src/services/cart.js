@@ -58,3 +58,15 @@ export const deleteCartItem = (cartId) => new Promise(async (resolve, reject) =>
         reject(new Error('Error deleting cart item: ' + error.message));
     }
 });
+
+export const deleteAllCartByUserId = (userId) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'delete',
+            url: `/api/v1/cart/user/${userId}`
+        });
+        resolve(response.data); // Trả về dữ liệu phản hồi thành công
+    } catch (error) {
+        reject(new Error('Error deleting all cart items: ' + error.message)); // Xử lý lỗi nếu gặp sự cố
+    }
+});

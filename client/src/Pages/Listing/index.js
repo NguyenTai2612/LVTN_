@@ -9,8 +9,8 @@ import { Button } from "@mui/material";
 import { FaAngleDown } from "react-icons/fa6";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { useNavigate, useParams } from "react-router-dom";
-import { BsChevronDoubleRight } from "react-icons/bs";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { IoChevronForwardOutline } from "react-icons/io5";
 import {
   apiGetProductsBySubCat,
   apiGetCategoryById,
@@ -48,7 +48,7 @@ const Listing = ({ type }) => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-  
+
         if (type === "category") {
           const categoryResponse = await apiGetCategoryById(id);
           setCategoryData(categoryResponse.response);
@@ -64,17 +64,16 @@ const Listing = ({ type }) => {
           const productResponse = await apiGetProductsBySubCat(id);
           setProductData(productResponse.data.data);
         }
-  
+
         setIsLoading(false);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
         setIsLoading(false);
       }
     };
-  
+
     fetchData();
   }, [id, type]);
-  
 
   // useEffect(() => {
   //   const fetchProducts = async () => {
@@ -103,38 +102,37 @@ const Listing = ({ type }) => {
     try {
       const response = await apiGetProductsBySubCat(subCatId);
       let filteredProducts = response.data.data;
-  
+
       if (filters.priceRange) {
         filteredProducts = filteredProducts.filter(
-          product =>
+          (product) =>
             product.price >= filters.priceRange[0] &&
             product.price <= filters.priceRange[1]
         );
       }
-  
+
       if (filters.brands.length > 0) {
-        filteredProducts = filteredProducts.filter(product =>
+        filteredProducts = filteredProducts.filter((product) =>
           filters.brands.includes(product.brand)
         );
       }
-  
+
       if (filters.rating) {
         filteredProducts = filteredProducts.filter(
-          product => Math.floor(product.rating) === filters.rating
+          (product) => Math.floor(product.rating) === filters.rating
         );
       }
-  
+
       setProducts(filteredProducts);
     } catch (error) {
       console.error("Lỗi khi lấy sản phẩm theo danh mục phụ:", error);
     }
   };
-  
 
   // Handle filter change from Sidebar
-const handleFilterData = (subCatId, filters) => {
-  fetchProducts1(subCatId, filters); // Fetch products by selected subcategory and apply filters
-};
+  const handleFilterData = (subCatId, filters) => {
+    fetchProducts1(subCatId, filters); // Fetch products by selected subcategory and apply filters
+  };
 
   const navigate = useNavigate();
 
@@ -154,8 +152,100 @@ const handleFilterData = (subCatId, filters) => {
     <div>
       <section className="product_Listing_Page">
         <div className="container">
+          <nav className="woocommerce-breadcrumb" aria-label="Breadcrumb">
+            <ul className="breadcrumb-list">
+              <li>
+                <a href="/">Trang chủ</a>
+              </li>
+              <li>
+                <span className="breadcrumb-separator">›</span>
+              </li>
+              {type === "category" && categoryData && (
+                <>
+                 
+                  <li>
+                    <button
+                      className="category-button"
+                      onClick={() => handleCategoryClick(categoryData.id)}
+                    >
+                      {categoryData.name}
+                    </button>
+                  </li>
+                </>
+              )}
+              {type === "subcategory" && parentCategory && (
+                <>
+                  
+                  <li>
+                    <span
+                      className="category-button"
+                      onClick={() => handleCategoryClick(parentCategory.id)}
+                    >
+                      {parentCategory.name}
+                    </span>
+                  </li>
+                  <li>
+                    <span className="breadcrumb-separator">›</span>
+                  </li>
+                  <li>
+                    <span className="category-button">
+                      {subCatData.subCat}
+                    </span>
+                  </li>
+                </>
+              )}
+            </ul>
+            <div class="custom-divider"></div>
+
+          </nav>
+          
+
+          <div class="card mb-3">
+            <div class="card-body">
+              <header class="woocommerce-products-header">
+                <div class="title-woo">
+                  <div class="title-inner">
+                    <h1 class="woocommerce-products-header__title page-title m-0 p-0 text-transform-uppercase font-weight-bold">
+                      {type === "category" && categoryData?.name}
+                      {type === "subcategory" && subCatData?.subCat}
+                    </h1>
+
+                    <div class="show-and-sort">
+                      <div class="woocommerce-notices-wrapper"></div>
+                      <form class="woocommerce-ordering" method="get">
+                        <select
+                          name="orderby"
+                          class="orderby form-select"
+                          aria-label="Đơn hàng của cửa hàng"
+                        >
+                          <option value="popularity">
+                            Thứ tự theo mức độ phổ biến
+                          </option>
+                          <option value="rating">
+                            Thứ tự theo điểm đánh giá
+                          </option>
+                          <option value="date">Mới nhất</option>
+                          <option value="price" selected="selected">
+                            Thứ tự theo giá: thấp đến cao
+                          </option>
+                          <option value="price-desc">
+                            Thứ tự theo giá: cao xuống thấp
+                          </option>
+                        </select>
+                        {/* <input type="hidden" name="paged" value="1"> */}
+                      </form>
+                    </div>
+                  </div>
+                  <p class="woocommerce-result-count">
+                    Hiển thị 1–20 của 164 kết quả
+                  </p>
+                </div>
+              </header>
+            </div>
+          </div>
+          
           <div className="productListing d-flex">
-          <SideBar
+            <SideBar
               filterData={handleFilterData} // Pass filterData handler to Sidebar
               categoryId={
                 type === "category" ? categoryData?.id : parentCategory?.id
@@ -163,79 +253,7 @@ const handleFilterData = (subCatId, filters) => {
             />
 
             <div className="content-right">
-              <div className="showBy mt-2 mb-3 d-flex align-items-center">
-                <div>
-                  <h5>
-                    <span className="category-container">
-                      {type === "category" && categoryData && (
-                        <>
-                          <button className="category-button" onClick={handleHomeClick}>
-                            <span className="home">
-                              {" "}
-                              <FaHome />
-                            </span>
-                            Home
-                          </button>
-
-                          <BsChevronDoubleRight className="chevron-icon" />
-                          <button
-                            className="category-button"
-                            onClick={() => handleCategoryClick(categoryData.id)}
-                          >
-                            {categoryData.name}
-                          </button>
-                        </>
-                      )}
-                      {type === "subcategory" && parentCategory && (
-                        <>
-                          <button className="category-button">
-                            <span className="home">
-                              {" "}
-                              <FaHome />
-                            </span>
-                            Home
-                          </button>
-
-                          <BsChevronDoubleRight className="chevron-icon" />
-                          <button
-                            className="category-button"
-                            onClick={() =>
-                              handleCategoryClick(parentCategory.id)
-                            }
-                          >
-                            {parentCategory.name}
-                          </button>
-                          <BsChevronDoubleRight className="chevron-icon" />
-                          <button className="category-button">
-                            {subCatData.subCat}
-                          </button>
-                        </>
-                      )}
-                    </span>
-                  </h5>
-                </div>
-
-                <div className="d-flex align-items-center ml-auto btnWrapper">
-                  <Button
-                    className={productView === "one" && "act"}
-                    onClick={() => setProductView("one")}
-                  >
-                    <IoIosMenu />
-                  </Button>
-                  <Button
-                    className={productView === "three" && "act"}
-                    onClick={() => setProductView("three")}
-                  >
-                    <CgMenuGridR />
-                  </Button>
-                  <Button
-                    className={productView === "four" && "act"}
-                    onClick={() => setProductView("four")}
-                  >
-                    <TfiLayoutGrid4Alt />
-                  </Button>
-                </div>
-              </div>
+             
 
               <div className="productListing">
                 {isLoading ? (

@@ -14,4 +14,6 @@ router.put('/:cartId', cartController.updateCartItem);
 // Xóa sản phẩm khỏi giỏ hàng
 router.delete('/:cartId', cartController.deleteCartItem);
 
+router.delete('/user/:userId', cartController.deleteAllCartByUserId);
+
 module.exports = router;

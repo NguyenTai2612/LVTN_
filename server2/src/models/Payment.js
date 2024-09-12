@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     order_id: DataTypes.INTEGER,
     paymentMethod: DataTypes.STRING,
     paymentStatus: DataTypes.STRING,
-    amount: DataTypes.DECIMAL(10, 2),
+    amount: DataTypes.DECIMAL(12, 3),
     paymentDate: DataTypes.DATE
   }, {
     sequelize,

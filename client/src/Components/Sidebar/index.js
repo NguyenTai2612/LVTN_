@@ -66,7 +66,8 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   return (
     <div className="sidebar">
       <div className="filterBox">
-        <h6>Product Category</h6>
+        <h6>Danh mục phụ</h6>
+        <hr className="divider" />
         <RadioGroup
           aria-labelledby="product-category-radio-group"
           name="controlled-radio-buttons-group"

@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     user_id: DataTypes.INTEGER,
     product_id: DataTypes.INTEGER,
     quantity: DataTypes.INTEGER,
-    price: DataTypes.DECIMAL(10, 2),
-    subTotal: DataTypes.DECIMAL(10, 2)
+    price: DataTypes.DECIMAL(12, 3),
+    subTotal: DataTypes.DECIMAL(12, 3)
   }, {
     sequelize,
     modelName: 'Cart',

@@ -50,9 +50,28 @@ const deleteCartItem = async (req, res) => {
   }
 };
 
+const deleteAllCartByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Call service to delete all cart items
+    const result = await cartService.deleteAllCartByUserId(userId);
+    
+    if (result) {
+      return res.status(200).json({ message: 'Đã xóa tất cả sản phẩm trong giỏ hàng.' });
+    } else {
+      return res.status(404).json({ message: 'Không tìm thấy giỏ hàng của người dùng này.' });
+    }
+  } catch (error) {
+    console.error('Error deleting cart items:', error);
+    return res.status(500).json({ message: 'Lỗi khi xóa giỏ hàng.' });
+  }
+}
+
 module.exports = {
   addToCart,
   getCartByUserId,
   updateCartItem,
   deleteCartItem,
+  deleteAllCartByUserId,
 };

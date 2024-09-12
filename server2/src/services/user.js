@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+// const bcrypt = require("bcryptjs");
 const db = require("../models");
 const { User, Cart, Review } = require("../models");
 // GET CURRENT
@@ -9,8 +9,8 @@ const getOne = (id) =>
         where: { id },
         raw: true,
         attributes: {
-          exclude: ["password"],
-        },
+            exclude: ['password']
+        }
       });
       resolve({
         err: response ? 0 : 1,
@@ -94,40 +94,40 @@ const deleteUser = async (userId) => {
 // };
 
 const verifyPassword = async (userId, currentPassword) => {
-  try {
-      // Tìm người dùng theo ID
-      const user = await User.findByPk(userId);
-      if (!user) {
-          throw new Error('User not found');
-      }
+  // try {
+     
+  //     const user = await User.findByPk(userId);
+  //     if (!user) {
+  //         throw new Error('User not found');
+  //     }
 
-      // So sánh mật khẩu hiện tại với mật khẩu trong cơ sở dữ liệu
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      return isMatch;
-  } catch (error) {
-      console.error('Error verifying password in service:', error);
-      throw error;
-  }
+      
+  //     const isMatch = await bcrypt.compare(currentPassword, user.password);
+  //     return isMatch;
+  // } catch (error) {
+  //     console.error('Error verifying password in service:', error);
+  //     throw error;
+  // }
 };
 
 const updatePassword = async (userId, newPassword) => {
-  try {
-      // Tìm người dùng theo ID
-      const user = await User.findByPk(userId);
-      if (!user) {
-          throw new Error('User not found');
-      }
+  // try {
+  //     // Tìm người dùng theo ID
+  //     const user = await User.findByPk(userId);
+  //     if (!user) {
+  //         throw new Error('User not found');
+  //     }
 
-      // Mã hóa mật khẩu mới
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+  //     // Mã hóa mật khẩu mới
+  //     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      // Cập nhật mật khẩu của người dùng
-      user.password = hashedPassword;
-      await user.save();
-  } catch (error) {
-      console.error('Error updating password in service:', error);
-      throw error;
-  }
+  //     // Cập nhật mật khẩu của người dùng
+  //     user.password = hashedPassword;
+  //     await user.save();
+  // } catch (error) {
+  //     console.error('Error updating password in service:', error);
+  //     throw error;
+  // }
 };
 
 module.exports = {

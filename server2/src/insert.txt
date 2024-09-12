@@ -44,13 +44,25 @@ VALUES
 
 
 ALTER TABLE Products
-MODIFY price DECIMAL(12, 3);
+MODIFY price INT;
 
 ALTER TABLE Products
-MODIFY oldPrice DECIMAL(12, 3);
+MODIFY oldPrice INT;
 
-ALTER TABLE Cart
-MODIFY price DECIMAL(12, 3);
+ALTER TABLE Carts
+MODIFY price INT;
 
-ALTER TABLE Cart
-MODIFY subTotal DECIMAL(12, 3);
+ALTER TABLE Carts
+MODIFY subTotal INT;
+
+ALTER TABLE Orders
+MODIFY total INT;
+
+ALTER TABLE Orders
+MODIFY subTotal INT;
+
+ALTER TABLE OrderItems
+MODIFY price INT;
+
+ALTER TABLE Payments
+MODIFY amount INT;

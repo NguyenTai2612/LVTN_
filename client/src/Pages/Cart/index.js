@@ -1,19 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import QuantityBox from "../../Components/QuantityBox";
 import { FaTrashCan } from "react-icons/fa6";
 import Button from "@mui/material/Button";
 import { FaCartArrowDown } from "react-icons/fa";
 import { MyContext } from "../../App";
-import {
-  deleteCartItem,
-  updateCartItem,
-  getCartItems,
-} from "../../services/cart";
+import { deleteCartItem, updateCartItem, getCartItems } from "../../services/cart";
 import Price from "../../Components/Price/index.js";
 import { IoBagCheckOutline } from "react-icons/io5";
-import PayButton from "../Checkout/PayButton.js";
 import { apiGetProductDetails } from "../../services/product.js";
 
 const Cart = () => {
@@ -22,6 +17,7 @@ const Cart = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [productDetails, setProductDetails] = useState({});
   const [quantityUpdates, setQuantityUpdates] = useState({});
+  const navigate = useNavigate(); // Hook để điều hướng
 
   // Fetch cart items
   const fetchCartItems = async () => {
@@ -120,17 +116,69 @@ const Cart = () => {
       .toFixed(2); // Convert to 2 decimal places
   };
 
+  // Handle checkout process
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const userId = JSON.parse(localStorage.getItem("user")).id;
+      if (!userId) {
+        console.error("Không tìm thấy người dùng.");
+        return;
+      }
+
+      const outOfStockItems = [];
+      for (const item of cartData) {
+        const response = await apiGetProductDetails(item.product_id);
+        const product = response.data.response;
+
+        if (product.countInStock < item.quantity) {
+          outOfStockItems.push(product.name);
+        }
+      }
+
+      if (outOfStockItems.length > 0) {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: `Sản phẩm "${outOfStockItems.join(", ")}" đã hết hàng.`,
+        });
+        return
+      } else {
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: "Chuyển đến trang thanh toán.",
+        });
+        navigate('/checkout'); // Sử dụng navigate để chuyển hướng
+      }
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra tình trạng hàng hoặc chuyển hướng:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="cartPage">
-      <section className="section">
+      <section className="container">
         <div className="container pt-3">
+          <nav className="woocommerce-breadcrumb" aria-label="Breadcrumb">
+            <ul className="breadcrumb-list">
+              <li>
+                <a href="/">Trang chủ</a>
+              </li>
+              <li className="breadcrumb-current">Giỏ hàng</li>
+            </ul>
+            <div className="custom-divider"></div>
+          </nav>
           <div className="order-info">
-            <span className="order-info-text">
-              <FaCartArrowDown className="mb-1" /> Order Information
+            <span className="">
+              <FaCartArrowDown className="mb-1" />
+              Thông Tin Giỏ Hàng
             </span>
           </div>
           <p>
-            Items in cart: <b className="text-red">{cartData.length}</b>
+            Sản phẩm trong giỏ: <b className="text-red">{cartData.length}</b>
           </p>
           <div className="row">
             <div className="col-md-8">
@@ -138,11 +186,11 @@ const Cart = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th width="40%">Product</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Subtotal</th>
-                      <th>Remove</th>
+                      <th width="40%">Sản phẩm</th>
+                      <th>Giá</th>
+                      <th>Số lượng</th>
+                      <th>Thành tiền</th>
+                      <th>Xóa</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -218,39 +266,28 @@ const Cart = () => {
                 color="primary"
                 onClick={handleUpdateQuantities}
               >
-                Update Quantities
+                Cập nhật số lượng
               </Button>
             </div>
             <div className="col-md-4">
               <div className="card border p-3 cartDetails">
-                <h4>Cart Summary</h4>
-
-                <div className="d-flex align-items-center mb-3">
-                  <span>Subtotal</span>
-                  <span className="ml-auto font-weight-medium">
-                    {cartData.length !== 0 && (
-                      <Price amount={calculateTotal()} />
-                    )}
-                  </span>
-                </div>
-
-                <div className="d-flex align-items-center mb-3">
-                  <span>Shipping</span>
-                  <span className="ml-auto">
-                    <b>Free</b>
-                  </span>
-                </div>
-
-                <div className="d-flex align-items-center mb-3">
-                  <span>Total</span>
+                <h4>Tổng giỏ hàng</h4>
+                <div
+                  className="d-flex align-items-center mb-3"
+                  style={{ padding: "11px 32px 0px 20px" }}
+                >
+                  <span>Tổng đơn:</span>
                   <span className="ml-auto text-red font-weight-bold">
-                    {cartData.length !== 0 && (
-                      <Price amount={calculateTotal()} />
-                    )}
+                    {cartData.length !== 0 && <Price amount={calculateTotal()} />}
                   </span>
                 </div>
                 <br />
-                <PayButton cartItems={cartData} />
+                <Button
+                  className="btn-blue bg-red btn-lg btn-big w-100"
+                  onClick={handleCheckout}
+                >
+                  <IoBagCheckOutline /> &nbsp; Tiến Hành Thanh toán
+                </Button>
               </div>
             </div>
           </div>

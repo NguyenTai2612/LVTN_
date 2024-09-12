@@ -26,19 +26,19 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 
 import { useSelector, useDispatch } from "react-redux";
-import * as action from '../../store/actions'
+import * as action from "../../store/actions";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const context = useContext(MyContext);
   const open = Boolean(anchorEl);
   const history = useNavigate();
-  
+
   const { cartData } = useContext(MyContext);
   const cartCount = cartData.length;
 
-  const dispatch = useDispatch()
-  const { isLoggedIn } = useSelector(state=>state.auth)
+  const dispatch = useDispatch();
+  const { isLoggedIn } = useSelector((state) => state.auth);
   const { currentData } = useSelector((state) => state.user);
 
   const handleClick = (event) => {
@@ -47,6 +47,7 @@ const Header = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const navigation = useNavigate()
 
   useEffect(() => {
     // Bạn có thể thêm logic tùy chỉnh ở đây nếu cần
@@ -112,9 +113,16 @@ const Header = () => {
                 <div className="contact-item">
                   <div className="part3">
                     {isLoggedIn !== true ? (
-                      <Link to={"/signIn"}>
-                        <Button className="btn-white btn-round">Log In</Button>
-                      </Link>
+                      <Button
+                        className="btn-white btn-round"
+                        onClick={()=>{navigation("/signIn")}}
+                        style={{
+                          width: "100px", // Adjust the width to your desired size
+                          padding: "10px 20px", // Optional: adjust padding
+                        }}
+                      >
+                        Đăng nhập
+                      </Button>
                     ) : (
                       <>
                         <Button
@@ -153,7 +161,7 @@ const Header = () => {
                             <ListItemIcon>
                               <FaUser style={{ fontSize: "20" }} />
                             </ListItemIcon>
-                            {currentData.name}
+                            Thông tin cá nhân
                           </MenuItem>
 
                           <Divider />
@@ -162,7 +170,7 @@ const Header = () => {
                               <ListItemIcon>
                                 <FaFileCircleCheck style={{ fontSize: "20" }} />
                               </ListItemIcon>
-                              Orders
+                              Đơn hàng
                             </MenuItem>
                           </Link>
                           {/* <MenuItem onClick={handleClose}>
@@ -175,7 +183,7 @@ const Header = () => {
                             <ListItemIcon>
                               <MdLogout style={{ fontSize: "20" }} />
                             </ListItemIcon>
-                            Logout
+                            Thoát
                           </MenuItem>
                         </Menu>
                       </>
@@ -183,14 +191,12 @@ const Header = () => {
 
                     <div className="cartTab">
                       <div className="position-relative">
-                        <Link to="/cart">
+                        <a href="/cart">
                           <HiOutlineShoppingCart
                             style={{ fontSize: "30", cursor: "pointer" }}
                           />
-                        </Link>
-                        <span className="count text-white">
-                        {cartCount}
-                        </span>
+                        </a>
+                        <span className="count text-white">{cartCount}</span>
                         <span className=" text-black">
                           {/* {context.cartData?.length !== 0 && (
                             <Price

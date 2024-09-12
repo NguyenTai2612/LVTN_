@@ -1,5 +1,5 @@
-'use strict';
-const { Cart } = require('../models');
+"use strict";
+const { Cart, Product } = require("../models");
 
 const addToCart = async (cartData) => {
   try {
@@ -12,7 +12,20 @@ const addToCart = async (cartData) => {
 
 const getCartByUserId = async (userId) => {
   try {
-    const cartItems = await Cart.findAll({ where: { user_id: userId } });
+    const cartItems = await Cart.findAll({
+      where: { user_id: userId },
+      include: {
+        model: Product,
+        attributes: [
+          "id",
+          "name",
+          "price",
+          "oldPrice",
+          "description",
+          "countInStock",
+        ], // Thêm các thuộc tính bạn muốn lấy từ Product
+      },
+    });
     return cartItems;
   } catch (error) {
     throw new Error(`Error retrieving cart: ${error.message}`);
@@ -24,7 +37,7 @@ const updateCartItem = async (updateData) => {
     const cartItem = await Cart.findByPk(updateData.id);
 
     if (!cartItem) {
-      throw new Error('Cart item not found');
+      throw new Error("Cart item not found");
     }
 
     // Recalculate subTotal
@@ -34,7 +47,7 @@ const updateCartItem = async (updateData) => {
     const [updated] = await Cart.update(
       {
         quantity: updateData.quantity,
-        subTotal: newSubTotal
+        subTotal: newSubTotal,
       },
       { where: { id: updateData.id } }
     );
@@ -43,28 +56,51 @@ const updateCartItem = async (updateData) => {
       return await Cart.findByPk(updateData.id);
     }
 
-    throw new Error('Error updating cart item');
+    throw new Error("Error updating cart item");
   } catch (error) {
     throw new Error(`Error updating cart item: ${error.message}`);
   }
 };
 
-
 const deleteCartItem = async (id) => {
   try {
     const deleted = await Cart.destroy({ where: { id } });
     if (deleted) {
-      return { message: 'Cart item deleted successfully' };
+      return { message: "Cart item deleted successfully" };
     }
-    throw new Error('Cart item not found');
+    throw new Error("Cart item not found");
   } catch (error) {
     throw new Error(`Error deleting cart item: ${error.message}`);
   }
 };
+
+
+const deleteAllCartByUserId = async (userId) => {
+  try {
+    const result = await Cart.destroy({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    // Kiểm tra xem có xóa được giỏ hàng nào không
+    if (result === 0) {
+      return { message: "Không tìm thấy giỏ hàng của người dùng này.", success: false };
+    }
+
+    return { message: "Đã xóa tất cả sản phẩm trong giỏ hàng.", success: true };
+  } catch (error) {
+    throw new Error('Lỗi khi xóa giỏ hàng.');
+  }
+};
+
+module.exports = { deleteAllCartByUserId };
+
 
 module.exports = {
   addToCart,
   getCartByUserId,
   updateCartItem,
   deleteCartItem,
+  deleteAllCartByUserId,
 };

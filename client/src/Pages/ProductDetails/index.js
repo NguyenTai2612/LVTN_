@@ -6,7 +6,7 @@ import QuantityBox from "../../Components/QuantityBox";
 import Button from "@mui/material/Button";
 import { FaCartPlus } from "react-icons/fa";
 import RelatedProduct from "./RelatedProducts";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Price from "../../Components/Price";
 import { MyContext } from "../../App";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -38,6 +38,7 @@ const ProductDetails = () => {
       try {
         const response = await apiGetProductDetails(id);
         setProductData(response.data.response);
+        console.log("setProductData", response.data.response);
 
         // Fetch product specifications
         const specResponse = await apiGetProductSpecifications(id);
@@ -88,9 +89,15 @@ const ProductDetails = () => {
     try {
       await addToCart(cartItem);
       context.setAddingInCart(true);
+      context.setAlertBox({
+        open: true,
+        error: false,
+        msg: "Thêm vào giỏ thành công.", 
+      });
+      
       setTimeout(() => {
         context.setAddingInCart(false);
-      }, 2000);
+      }, 100);
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -168,6 +175,33 @@ const ProductDetails = () => {
     <div>
       <section className="productDetails section">
         <div className="container">
+          <nav class="woocommerce-breadcrumb" aria-label="Breadcrumb">
+            <ul class="breadcrumb-list">
+              <li>
+                <a href="/">Trang chủ</a>
+              </li>
+              <li>
+                <span class="breadcrumb-separator">›</span>
+              </li>
+              <li>
+                <Link to={`/product/category/${productData?.Category?.id}`}>
+                  {productData?.Category?.name || "Danh mục"}
+                </Link>
+              </li>
+              <li>
+                <span class="breadcrumb-separator">›</span>
+              </li>
+              <li>
+                <Link to={`/listing/subcategory/${productData?.SubCategory?.id}`}>
+                  {productData?.SubCategory?.subCat || "Danh mục con"}
+                </Link>
+              </li>
+              <li class="breadcrumb-current">{productData?.name}</li>
+            </ul>
+            <div class="custom-divider"></div>
+
+          </nav>
+
           <div className="row">
             <div className="col-md-4">
               <ProductZoom
@@ -238,7 +272,9 @@ const ProductDetails = () => {
                     {context.addingInCart === true
                       ? "adding..."
                       : "Thêm vào giỏ hàng"}
+                      
                   </Button>
+                  
                 </div>
 
                 <div className="details-table mt-4">

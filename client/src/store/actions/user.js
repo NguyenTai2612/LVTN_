@@ -24,4 +24,3 @@ export const getCurrent = () => async (dispatch) => {
     });
   }
 };
-

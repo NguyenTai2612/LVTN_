@@ -164,7 +164,7 @@ a {
 .part3 {
   display: flex;
   align-items: center;
-  gap: 15px; /* Khoảng cách giữa Sign In và Giỏ hàng */
+  gap: 35px; /* Khoảng cách giữa Sign In và Giỏ hàng */
 }
 
 
