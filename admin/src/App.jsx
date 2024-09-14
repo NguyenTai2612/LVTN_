@@ -21,7 +21,7 @@ import EditSubCategory from './pages/Category/editSubCat.jsx'
 import ProductDetails from './pages/Products/productDetails.jsx'
 import SignUp from './pages/SignUp/index.jsx'
 import Login from './pages/Login/Login.jsx'
-import Orders from './pages/Orders/index.jsx'
+import Orders from './pages/Orders/orderList.jsx'
 
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
@@ -167,6 +167,7 @@ function App() {
                     <Route path='/login' exact={true} element={<Login />} />
                     <Route path='/signUp' exact={true} element={<SignUp />} />
                     <Route path='/orders' exact={true} element={<Orders />} />
+                    {/* <Route path='/payments' exact={true} element={<Orders />} /> */}
 
                     <Route path='/brand' exact={true} element={<BrandList />} />
                     <Route path='/brand/add' exact={true} element={<AddBrand />} />

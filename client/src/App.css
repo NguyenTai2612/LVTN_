@@ -82,7 +82,10 @@ body {
 
 .logoWrapper img {
   width: 100%;
+  mix-blend-mode: lighten;
+
 }
+
 
 .headerWrapper .header .part2 .countryDrop {
   width: 170px;
@@ -2938,4 +2941,118 @@ input[type="radio"]:checked {
 }
 
 
+/* CSS cho các trạng thái đơn hàng */
+
+.status-pending {
+  background-color: #fff8e1; /* Vàng nhạt */
+  color: #8a6d3b; /* Nâu đậm */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+
+.status-confirmed {
+  background-color: #cce5ff; /* Màu nền xanh nhạt cho trạng thái đã xác nhận */
+  color: #004085; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-processing {
+  background-color: #ffeeba; /* Màu nền vàng nhạt cho trạng thái đang chuẩn bị */
+  color: #856404; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-shipped {
+  background-color: #d1ecf1; /* Màu nền xanh nhạt cho trạng thái đã gửi */
+  color: #0c5460; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-out-for-delivery {
+  background-color: #d4edda; /* Màu nền xanh lá nhạt cho trạng thái đang giao */
+  color: #155724; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-delivered {
+  background-color: #e2e3e5; /* Màu nền xám nhạt cho trạng thái đã giao */
+  color: #6c757d; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-cancelled {
+  background-color: #f8d7da; /* Màu nền đỏ nhạt cho trạng thái đã hủy */
+  color: #721c24; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-failed {
+  background-color: #f5c6cb; /* Màu nền đỏ nhạt cho trạng thái không giao được */
+  color: #721c24; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+
+.table td .actions button {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.table td .actions button svg {
+  opacity: 0.7;
+  transition: all .3s;
+}
+
+.table td .actions button:hover svg {
+  opacity: 1;
+}
+
+.table td .actions button:hover {
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+.edit-button {
+  background-color: darkgreen;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: green ;
+}
+
+
+.modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 600px !important; /* Độ rộng tùy chỉnh của modal */
+  background-color: white;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+  max-height: 80vh; /* Để tránh modal quá cao */
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
 

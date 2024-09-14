@@ -11,7 +11,7 @@ router.post('/order-items', OrderController.addOrderItems);
 // API để lưu thông tin thanh toán
 router.post('/payments', OrderController.createPayment);
 
-// Route lấy tất cả các đơn hàng của người dùng
+// API lấy tất cả các đơn hàng của người dùng
 router.get('/user/:userId', OrderController.getOrdersByUserId);
 
 // API để lấy chi tiết đơn hàng
@@ -27,12 +27,12 @@ router.delete('/:orderId', OrderController.deleteOrder);
 router.get('/:orderId/payments', OrderController.getOrderPayments);
 
 // API để cập nhật thông tin đơn hàng
-router.put('/:orderId', OrderController.updateOrder);
+router.put('/:orderId', OrderController.updateOrderAddress);
 
 // API để xem tất cả các sản phẩm trong một đơn hàng
 router.get('/:orderId/items', OrderController.getOrderItems);
 
-// Route để lấy tất cả đơn hàng
+// API để lấy tất cả đơn hàng
 router.get('/', OrderController.getAllOrders);
 
 

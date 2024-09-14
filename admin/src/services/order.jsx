@@ -5,7 +5,7 @@ export const apiCreateOrder = (orderData) => new Promise(async (resolve, reject)
     try {
         const response = await axiosConfig({
             method: 'post',
-            url: `/api/v1/order/`, 
+            url: `/api/v1/order/`,
             data: orderData,
         });
         resolve(response);
@@ -50,7 +50,7 @@ export const apiGetOrdersByUserId = (userId) => new Promise(async (resolve, reje
     try {
         const response = await axiosConfig({
             method: 'get',
-            url: `/api/v1/order/user/${userId}`, 
+            url: `/api/v1/order/user/${userId}`,
         });
         resolve(response);
     } catch (error) {
@@ -112,18 +112,28 @@ export const apiGetOrderPayments = (orderId) => new Promise(async (resolve, reje
 });
 
 // API để cập nhật thông tin đơn hàng
-export const apiUpdateOrder = (orderId, orderData) => new Promise(async (resolve, reject) => {
-    try {
-        const response = await axiosConfig({
-            method: 'put',
-            url: `/api/v1/order/${orderId}`,
-            data: orderData,
-        });
-        resolve(response.data);
-    } catch (error) {
-        reject(new Error('Error updating order: ' + error.message));
-    }
-});
+
+export const apiUpdateOrderAddress = (orderId, orderData) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await axiosConfig({
+                method: 'put',
+                url: `/api/v1/order/${orderId}`,
+                data: orderData,
+                timeout: 5000, // Optional timeout of 5 seconds
+            });
+            resolve(response.data);
+        } catch (error) {
+            console.error("API Error:", error); // Log detailed error
+            if (error.response && error.response.data && error.response.data.message) {
+                reject(new Error(`Error: ${error.response.data.message}`));
+            } else {
+                reject(new Error(`Error updating order: ${error.message}`));
+            }
+        }
+    });
+
+
 
 // API để xem tất cả các sản phẩm trong một đơn hàng
 export const apiGetOrderItems = (orderId) => new Promise(async (resolve, reject) => {

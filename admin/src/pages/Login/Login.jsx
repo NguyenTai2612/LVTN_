@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { MyContext } from '../../App';
-import Logo from '../../../src/assets/logo.png';
+import Logo from '../../../src/assets/logo2.png';
 import { FaUser, FaLock, FaHome } from 'react-icons/fa';
 import './Login.css';
 import { Link } from 'react-router-dom';

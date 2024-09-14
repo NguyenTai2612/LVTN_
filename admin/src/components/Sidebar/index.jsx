@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Logo from '../../assets/logo.png'
+import Logo from '../../../src/assets/logo2.png';
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button';
 import { MdOutlineDashboard } from "react-icons/md";
@@ -50,12 +50,12 @@ const Sidebar = () => {
   return (
     <div className='sidebar fixed top-0 left-0 z-[100] w-[17%]'>
       <Link to={'/'}>
-        <div className='logoWrapper py-3 px-4'>
+        <div className='logoWrapper' style={{ mixBlendMode: 'lighten' }}>
           <img src={Logo} className='w-100' />
         </div>
       </Link>
 
-      <div className='sidebarTabs px-2 mt-4'>
+      <div className='sidebarTabs px-2'>
         <ul className='flex gap-3 flex-col'>
           <li>
             <Link to="/">
@@ -155,20 +155,31 @@ const Sidebar = () => {
             </div>
           </li>
 
-
-
           <li className={`${activeTab === 3 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
-            <Link to="/orders">
-              <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
-                <span className='icon w-[30px] h-[30px] flex items-center justify-center 
-                rounded-md'><LuClipboardCheck /></span> &nbsp;
+            <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
+              <span className='icon w-[30px] h-[30px] flex items-center justify-center 
+                 rounded-md'><LuClipboardCheck /></span> &nbsp;
                 Order
-                <span className='arrow ml-auto w-[25px] h-[25px] flex items-center justify-center'>
-                  <FaAngleRight /></span>
-              </Button>
-            </Link>
-          </li>
+              <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
+              justify-center ${activeTab === 3 && isToggleSubmenu ? 'rotate' : ''}`}>
+                <FaAngleRight /></span>
+            </Button>
 
+            <div className={`submenuWrapper ${activeTab === 3 && isToggleSubmenu
+              ? "colapse"
+              : "colapsed"
+              }`}
+            >
+              <div className='submenu'>
+                <Link to="/orders">
+                  <Button className='w-100 '>Orders List</Button>
+                </Link>
+                {/* <Link to="/payments">
+                  <Button className='w-100 '>Payments List</Button>
+                </Link> */}
+              </div>
+            </div>
+          </li>
 
           <li className={`${activeTab === 11 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
             <Link to="/user/list">

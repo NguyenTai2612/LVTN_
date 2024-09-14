@@ -57,3 +57,36 @@ export const apiGetOrdersByUserId = (userId) => new Promise(async (resolve, reje
         reject(error);
     }
 });
+
+export const apiUpdateOrderStatus = (orderId, status) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await axiosConfig({
+            method: 'put',
+            url: `/api/v1/order/${orderId}/status`,
+            data: { status },
+        });
+        resolve(response.data);
+    } catch (error) {
+        reject(new Error('Error updating order status: ' + error.message));
+    }
+});
+
+export const apiUpdateOrderAddress = (orderId, orderData) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await axiosConfig({
+                method: 'put',
+                url: `/api/v1/order/${orderId}`,
+                data: orderData,
+                timeout: 5000, // Optional timeout of 5 seconds
+            });
+            resolve(response.data);
+        } catch (error) {
+            console.error("API Error:", error); // Log detailed error
+            if (error.response && error.response.data && error.response.data.message) {
+                reject(new Error(`Error: ${error.response.data.message}`));
+            } else {
+                reject(new Error(`Error updating order: ${error.message}`));
+            }
+        }
+    });

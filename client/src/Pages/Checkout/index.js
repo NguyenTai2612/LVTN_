@@ -140,8 +140,8 @@ const Checkout = () => {
                 ward: ward ? ward.name : "",
                 address: formFields.address,
             },
-            deliver_status: "Processing",
-            payment_status: "Unpaid",
+            deliver_status: "Chờ xử lý",
+            // payment_status: "Chờ thanh toán",
             date: new Date(),
         };
 
@@ -166,7 +166,7 @@ const Checkout = () => {
         const paymentData = {
             order_id: orderId,
             paymentMethod,
-            paymentStatus: "Unpaid",
+            paymentStatus: "Chờ thanh toán",
             amount: orderData.total,
             paymentDate: new Date(),
         };

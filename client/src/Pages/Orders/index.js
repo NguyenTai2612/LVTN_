@@ -1,13 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Pagination } from "@mui/material";
+import { MenuItem, Pagination, Select, Tooltip } from "@mui/material";
 import { MyContext } from "../../App";
 import Price from "../../Components/Price";
 import Dialog from "@mui/material/Dialog";
 import { MdClose } from "react-icons/md";
 import Button from "@mui/material/Button";
-import { apiGetOrdersByUserId } from "../../services/order"; // Import service
+import {
+  apiGetOrdersByUserId,
+  apiUpdateOrderAddress,
+  apiUpdateOrderStatus,
+} from "../../services/order"; // Import service
 import { FaCartArrowDown } from "react-icons/fa";
-import Decimal from 'decimal.js';
+import Decimal from "decimal.js";
+import TooltipBox from "@mui/material/Tooltip";
+import { FaEdit } from "react-icons/fa";
+import EditAddressModal from "./EditAddressModal";
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
@@ -18,6 +26,53 @@ const Orders = () => {
   const itemsPerPage = 10; // Number of orders per page
   const userName = JSON.parse(localStorage.getItem("user")).name;
   const userPhone = JSON.parse(localStorage.getItem("user")).phone;
+
+  const [isOpenStatusModal, setIsOpenStatusModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null); // Lưu trữ thông tin đơn hàng được chọn
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false); // Kiểm soát modal
+  const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
+
+  const orderStatuses = [
+    "Đã hủy", // Cancelled
+  ];
+
+  const showStatusModal = (order) => {
+    setSelectedOrderId(order.id);
+    setSelectedStatus(order.deliver_status);
+    setIsOpenStatusModal(true); // Mở modal
+  };
+
+  const handleStatusChange = (event) => {
+    setSelectedStatus(event.target.value); // Lấy trạng thái mới
+  };
+
+  const handleCancelOrder = (orderId) => {
+    setSelectedOrderId(orderId); // Lưu lại orderId của đơn hàng cần hủy
+    setIsOpenCancelModal(true); // Mở modal xác nhận
+  };
+
+  const confirmCancelOrder = async () => {
+    try {
+      await apiUpdateOrderStatus(selectedOrderId, "Đã hủy"); // Gọi API hủy đơn hàng
+      setIsOpenCancelModal(false); // Đóng modal sau khi hủy
+      fetchOrders(); // Cập nhật lại danh sách đơn hàng sau khi hủy
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+    }
+  };
+  
+
+  const confirmStatusChange = async () => {
+    try {
+      await apiUpdateOrderStatus(selectedOrderId, selectedStatus);
+      setIsOpenStatusModal(false); // Đóng modal sau khi cập nhật trạng thái
+      fetchOrders(); // Refresh danh sách đơn hàng
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchOrders();
@@ -38,6 +93,11 @@ const Orders = () => {
     setPage(value);
   };
 
+  // Đóng modal
+  const handleCloseModal = () => {
+    setIsEditAddressOpen(false);
+  };
+
   const showProducts = (orderId) => {
     const order = orders.find((order) => order.id === orderId);
     if (order) {
@@ -50,6 +110,28 @@ const Orders = () => {
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
+
+  // Mở modal và lưu lại thông tin đơn hàng được chọn
+  const handleEditAddressClick = (order) => {
+    const parsedAddress = JSON.parse(order.shipping); // Parse the shipping JSON
+    setSelectedOrder({ ...order, shipping: parsedAddress }); // Store parsed shipping address in state
+    setIsEditAddressOpen(true);
+  };
+
+  // Xử lý lưu địa chỉ sau khi chỉnh sửa
+  const handleSaveAddress = async (updatedAddress) => {
+    if (selectedOrder) {
+      console.log("Selected Order:", selectedOrder); // Kiểm tra đơn hàng được chọn
+      console.log("Updated Address:", updatedAddress); // Kiểm tra địa chỉ cập nhật
+      try {
+        await apiUpdateOrderAddress(selectedOrder.id, updatedAddress);
+        setIsEditAddressOpen(false);
+        fetchOrders(); // Cập nhật lại danh sách đơn hàng sau khi lưu
+      } catch (error) {
+        console.error("Error updating order address:", error);
+      }
+    }
+  };
 
   return (
     <>
@@ -91,6 +173,8 @@ const Orders = () => {
                     {/* <th>Payment Method</th> */}
                     <th>Trạng thái đơn hàng</th>
                     <th>Ngày đặt</th>
+                    <th>Cập nhật địa chỉ</th>
+                    <th>Hủy đơn</th>
                   </tr>
                 </thead>
 
@@ -122,20 +206,50 @@ const Orders = () => {
                         <td>
                           <Price amount={order.total} />
                         </td>
-                        <td>{order.payment_status}</td>
+                        <td>
+                          {order.Payments && order.Payments.length > 0
+                            ? order.Payments[0].paymentStatus
+                            : "N/A"}
+                        </td>
                         {/* <td>{order.payment_status}</td> */}
                         <td>
-                          {order.deliver_status === "Pending" ? (
-                            <span className="badge badge-danger">
-                              {order.deliver_status}
-                            </span>
-                          ) : (
-                            <span className="badge badge-success">
-                              {order.deliver_status}
-                            </span>
-                          )}
+                          <span
+                            className={`badge ${getStatusClass(
+                              order.deliver_status
+                            )}`}
+                          >
+                            {order.deliver_status}
+                          </span>
                         </td>
-                        <td>{new Date(order.date).toLocaleDateString()}</td>
+                        <td>
+                          {new Date(order.createdAt).toLocaleDateString()}{" "}
+                          {new Date(order.createdAt).toLocaleTimeString()}
+                        </td>
+
+                        <td>
+                          <Tooltip title="Edit Address" placement="top">
+                            <Button
+                              startIcon={<FaEdit />}
+                              variant="contained"
+                              color="primary"
+                              onClick={() => handleEditAddressClick(order)}
+                            >
+                              Thay đổi
+                            </Button>
+                          </Tooltip>
+                        </td>
+
+                        {/* Cột Hủy đơn */}
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            disabled={order.deliver_status === "Đã hủy"}
+                            onClick={() => handleCancelOrder(order.id)}
+                          >
+                            Hủy đơn
+                          </Button>
+                        </td>
                       </tr>
                     ))
                   ) : (
@@ -187,51 +301,138 @@ const Orders = () => {
             </thead>
 
             <tbody>
-            {products.length > 0 ? (
-  products.map((item, index) => {
-    const price = new Decimal(item.price);
-    const quantity = new Decimal(item.quantity);
-    const subTotal = price.times(quantity); // Decimal calculation
+              {products.length > 0 ? (
+                products.map((item, index) => {
+                  const price = new Decimal(item.price);
+                  const quantity = new Decimal(item.quantity);
+                  const subTotal = price.times(quantity); // Decimal calculation
 
-    return (
-      <tr key={index}>
-        <td style={{ whiteSpace: "inherit" }}>
-          <span>{item.Product?.name}</span>
-        </td>
-        <td>
-          <div className="img">
-            {item.Product?.ProductImages?.[0]?.imageUrl ? (
-              <img
-                src={item.Product?.ProductImages[0].imageUrl}
-                alt={item.Product?.name}
-              />
-            ) : (
-              <span>No Image Available</span>
-            )}
-          </div>
-        </td>
-        <td>{item.Product?.Brand?.name}</td>
-        <td>
-          <Price amount={item.price} />
-        </td>
-        <td>{item.quantity}</td>
-        <td>
-          <Price amount={subTotal.toFixed(2)} /> {/* Format to 2 decimal places */}
-        </td>
-      </tr>
-    );
-  })
-) : (
-  <tr>
-    <td colSpan="6">No products found</td>
-  </tr>
-)}
+                  return (
+                    <tr key={index}>
+                      <td style={{ whiteSpace: "inherit" }}>
+                        <span>{item.Product?.name}</span>
+                      </td>
+                      <td>
+                        <div className="img">
+                          {item.Product?.ProductImages?.[0]?.imageUrl ? (
+                            <img
+                              src={item.Product?.ProductImages[0].imageUrl}
+                              alt={item.Product?.name}
+                            />
+                          ) : (
+                            <span>No Image Available</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>{item.Product?.Brand?.name}</td>
+                      <td>
+                        <Price amount={item.price} />
+                      </td>
+                      <td>{item.quantity}</td>
+                      <td>
+                        <Price amount={subTotal.toFixed(2)} />{" "}
+                        {/* Format to 2 decimal places */}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6">No products found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </Dialog>
+
+      {/* Modal thay đổi trạng thái */}
+      <Dialog
+        open={isOpenStatusModal}
+        onClose={() => setIsOpenStatusModal(false)}
+      >
+        <div className="modal-content">
+          <h2>Change Order Status</h2>
+          <Select
+            value={selectedStatus}
+            onChange={handleStatusChange}
+            fullWidth
+          >
+            {orderStatuses.map((status, index) => (
+              <MenuItem key={index} value={status}>
+                {status}
+              </MenuItem>
+            ))}
+          </Select>
+          <div className="modal-actions">
+            <Button onClick={confirmStatusChange}>Xác nhận</Button>
+            <Button onClick={() => setIsOpenStatusModal(false)}>Hủy</Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Modal xác nhận hủy đơn hàng */}
+<Dialog open={isOpenCancelModal} onClose={() => setIsOpenCancelModal(false)}>
+  <div className="modal-content">
+    <h2>Xác nhận hủy đơn hàng</h2>
+    <p>Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
+    <div className="modal-actions">
+      <Button
+        onClick={() => {
+          confirmCancelOrder(); // Hàm xác nhận hủy đơn
+        }}
+        color="primary"
+        variant="contained"
+      >
+        Xác nhận
+      </Button>
+      <Button
+        onClick={() => setIsOpenCancelModal(false)} // Đóng modal nếu không muốn hủy
+        color="secondary"
+        variant="outlined"
+      >
+        Hủy
+      </Button>
+    </div>
+  </div>
+</Dialog>
+
+
+      {/* Modal chỉnh sửa địa chỉ */}
+      {selectedOrder && (
+        <EditAddressModal
+          open={isEditAddressOpen}
+          handleClose={handleCloseModal}
+          currentAddress={selectedOrder.shipping} // Pass parsed address
+          handleSave={handleSaveAddress}
+        />
+      )}
     </>
   );
 };
 
+const getStatusClass = (status) => {
+  switch (status) {
+    case "Chờ xử lý":
+      return "status-pending";
+    case "Đã xác nhận":
+      return "status-confirmed";
+    case "Đang chuẩn bị":
+      return "status-processing";
+    case "Đã gửi":
+      return "status-shipped";
+    case "Đang giao":
+      return "status-out-for-delivery";
+    case "Đã giao":
+      return "status-delivered";
+    case "Đã hủy":
+      return "status-cancelled";
+    case "Không giao được":
+      return "status-failed";
+    default:
+      return "";
+  }
+};
+
 export default Orders;
+//edit

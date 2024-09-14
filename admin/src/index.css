@@ -40,19 +40,19 @@ button .loader{width: 25px !important; height: 25px !important;}
 body{background: #fff; font-family: 'Open Sans', sans-serif;}
 
 .main .sidebarWrapper{height: 100vh;}
-.main .sidebarWrapper .sidebar{height: 100vh; background: #fff; border-right: 1px solid rgba(0, 0, 0, 0.2);}
+.main .sidebarWrapper .sidebar{height: 100vh; background: #333333; border-right: 1px solid rgba(0, 0, 0, 0.2);}
 
-.main .sidebarWrapper .sidebar .sidebarTabs ul{width: 100%; margin-bottom: 0px;}
+.main .sidebarWrapper .sidebar .sidebarTabs ul{width: 104%; margin-bottom: 0px;}
 .main .sidebarWrapper .sidebar .sidebarTabs ul li{list-style: none; width: 100%;}
 
 .main .sidebarWrapper .sidebar .sidebarTabs button{justify-content: flex-start !important; 
-color: #5e5d72; text-transform: capitalize; font-size: 14px; font-weight: 600; padding: 3px 
+color: #fff; text-transform: capitalize; font-size: 14px; font-weight: 600; padding: 3px 
 10px !important; position: relative;}
 .main .sidebarWrapper .sidebar .sidebarTabs button svg{font-size: 20px;}
 .main .sidebarWrapper .sidebar .sidebarTabs button .arrow{transition:all 0.3s}
 .main .sidebarWrapper .sidebar .sidebarTabs button .arrow svg{font-size: 12px;}
 
-.main .sidebarWrapper .sidebar .sidebarTabs button:hover{background: #cfcece !important;}
+.main .sidebarWrapper .sidebar .sidebarTabs button:hover{background: #cfcece !important; color: #000 !important;}
 .main .sidebarWrapper .sidebar .sidebarTabs button::before{content: ''; width: 5px;
 height: 0%; position: absolute; top: 50%; left: -8px; background: #3872fa; border-top-right-radius:5px;
 border-bottom-right-radius:5px; transition: all 0.3s; opacity: 0;}
@@ -106,7 +106,7 @@ opacity: 1;}
   background: none;
   border: none;
   font-size: 14px;
-  color: #333;
+  color: #fff;
   text-align: left;
   display: block;
   width: 100%;
@@ -184,7 +184,7 @@ opacity: 1;}
 }
 
 
-.main .sidebarWrapper .sidebar .sidebarTabs ul{max-height: 90vh; overflow: scroll; overflow-x: hidden; padding-bottom: 50px;}
+.main .sidebarWrapper .sidebar .sidebarTabs ul{max-height: 90vh;  padding-bottom: 50px;}
 
 /* dashboard  */
 .dashboardBoxWrapper {
@@ -343,6 +343,8 @@ table td .info h6 {
     font-size: 12px;
     width: 100%;   
 }
+
+
 
 .table td .actions button {
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -832,7 +834,6 @@ button.add-specification-btn {
   font-size: revert-layer;
 }
 .text-purple{color: #53348c !important;}
-.text-blue{color: #1c10be !important;}
 
 .product-info {
   display: flex;
@@ -1030,7 +1031,7 @@ button.add-specification-btn {
 }
 
 .icon {
-  color: #0c56e0;
+  color: #fff;
   font-size: 1.2rem;
   margin-right: 10px;
 }
@@ -1120,4 +1121,101 @@ input {
   color: white;
   cursor: pointer;
 }
+
+/* CSS cho các trạng thái đơn hàng */
+
+.status-pending {
+  background-color: #fff8e1; /* Vàng nhạt */
+  color: #8a6d3b; /* Nâu đậm */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+
+.status-confirmed {
+  background-color: #cce5ff; /* Màu nền xanh nhạt cho trạng thái đã xác nhận */
+  color: #004085; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-processing {
+  background-color: #ffeeba; /* Màu nền vàng nhạt cho trạng thái đang chuẩn bị */
+  color: #856404; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-shipped {
+  background-color: #d1ecf1; /* Màu nền xanh nhạt cho trạng thái đã gửi */
+  color: #0c5460; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-out-for-delivery {
+  background-color: #d4edda; /* Màu nền xanh lá nhạt cho trạng thái đang giao */
+  color: #155724; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-delivered {
+  background-color: #e2e3e5; /* Màu nền xám nhạt cho trạng thái đã giao */
+  color: #6c757d; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-cancelled {
+  background-color: #f8d7da; /* Màu nền đỏ nhạt cho trạng thái đã hủy */
+  color: #721c24; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.status-failed {
+  background-color: #f5c6cb; /* Màu nền đỏ nhạt cho trạng thái không giao được */
+  color: #721c24; /* Màu chữ tối hơn để dễ đọc */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+
+
+.text-blue{
+  color: #1E90FF !important;
+}
+
+.modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 600px; /* Độ rộng tùy chỉnh của modal */
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-height: 80vh; /* Để tránh modal quá cao */
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+
+
 

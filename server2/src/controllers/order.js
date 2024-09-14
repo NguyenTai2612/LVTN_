@@ -125,17 +125,19 @@ const OrderController = {
     }
   },
 
-  async updateOrder(req, res) {
+  async updateOrderAddress(req, res) {
     try {
-      const updatedOrder = await OrderService.updateOrder(
-        req.params.orderId,
-        req.body
-      );
-      res.status(200).json(updatedOrder);
+        console.log("Order ID:", req.params.orderId);  // Log orderId
+        console.log("Order Data:", req.body);  // Log incoming address data
+
+        const updatedOrder = await OrderService.updateOrderAddress(req.params.orderId, req.body);
+
+        res.status(200).json({ message: "Order address updated successfully", updatedOrder });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
-  },
+}
+,
 
   // Controller để lấy thông tin sản phẩm trong một đơn hàng
   async getOrderItems(req, res) {
