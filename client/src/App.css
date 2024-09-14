@@ -3056,3 +3056,183 @@ input[type="radio"]:checked {
   margin-top: 20px;
 }
 
+.modal-content {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  width: 400px;
+  text-align: center;
+}
+
+.modal-content h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-actions .confirm-btn {
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+}
+
+.modal-actions .confirm-btn:hover {
+  background-color: #d32f2f;
+}
+
+.modal-actions .cancel-btn {
+  background-color: #c7c7c7;
+  color: #333;
+  border: none;
+}
+
+.modal-actions .cancel-btn:hover {
+  background-color: #a5a5a5;
+}
+
+
+/* Container for the action buttons */
+.actions1 {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+  align-items: center;
+}
+
+/* Common style for all buttons */
+.edit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #007bff; /* Button color */
+  color: #ffffff; /* Icon color */
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Button hover effect */
+.edit-button:hover {
+  background-color: #0056b3; /* Darker color on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+}
+
+/* Button active effect */
+.edit-button:active {
+  background-color: #004080; /* Even darker color on click */
+  box-shadow: none; /* Remove shadow on click */
+}
+
+/* Tooltip styles */
+.MuiTooltip-tooltip {
+  font-size: 12px; /* Smaller font size for tooltips */
+}
+
+/* Additional tooltip styles if needed */
+.MuiTooltip-tooltipPlacementTop {
+  margin: 0 0 8px 0; /* Margin for tooltip placement */
+}
+
+
+/* Modal container */
+.modal-content {
+  padding: 20px;
+  max-width: 400px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Modal header */
+.modal-content h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Modal body */
+.modal-body {
+  margin-bottom: 20px;
+}
+
+/* Label styling */
+.modal-body label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Input styling */
+.modal-body input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+/* Button container */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Button styling */
+.modal-actions button {
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Save button styling */
+.modal-actions .confirm-btn {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.modal-actions .confirm-btn:hover {
+  background-color: #45a049;
+}
+
+/* Cancel button styling */
+.modal-actions .cancel-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.modal-actions .cancel-btn:hover {
+  background-color: #d32f2f;
+}

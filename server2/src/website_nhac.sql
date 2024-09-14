@@ -112,7 +112,6 @@ CREATE TABLE `orderitems` (
 CREATE TABLE `orders` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `customer_id` varchar(255) DEFAULT NULL,
   `subTotal` decimal(10,2) DEFAULT NULL,
   `total` decimal(10,2) DEFAULT NULL,
   `shipping` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`shipping`)),

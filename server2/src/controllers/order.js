@@ -1,5 +1,5 @@
 const OrderService = require("../services/order");
-const { OrderItem } = require("../models");
+const { OrderItem, Order } = require("../models");
 
 const OrderController = {
   // API để tạo đơn hàng
@@ -92,6 +92,25 @@ const OrderController = {
       res.status(500).json({ error: error.message });
     }
   },
+  async getOrderContactById(req, res) {
+    const { id } = req.params; // Get the order ID from request parameters
+
+  try {
+    const order = await Order.findOne({
+      where: { id }, // Find the order by ID
+      attributes: ['name', 'phone'], // Only select the name and phone attributes
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    return res.json(order); // Return the name and phone in the response
+  } catch (error) {
+    console.error('Error fetching order contact:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+  },
 
   async updateOrderStatus(req, res) {
     try {
@@ -127,18 +146,50 @@ const OrderController = {
 
   async updateOrderAddress(req, res) {
     try {
-        console.log("Order ID:", req.params.orderId);  // Log orderId
-        console.log("Order Data:", req.body);  // Log incoming address data
+      console.log("Order ID:", req.params.orderId); // Log orderId
+      console.log("Order Data:", req.body); // Log incoming address data
 
-        const updatedOrder = await OrderService.updateOrderAddress(req.params.orderId, req.body);
+      const updatedOrder = await OrderService.updateOrderAddress(
+        req.params.orderId,
+        req.body
+      );
 
-        res.status(200).json({ message: "Order address updated successfully", updatedOrder });
+      res
+        .status(200)
+        .json({ message: "Order address updated successfully", updatedOrder });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
-}
-,
+  },
+  //edit
 
+  // OrderController.js
+
+  async updateOrderContact(req, res) {
+    try {
+      const { orderId } = req.params;
+      const { name, phone } = req.body;
+
+      if (!name || !phone) {
+        return res.status(400).json({ error: "Name and phone are required." });
+      }
+
+      console.log("Order ID:", orderId);
+      console.log("Contact Data:", { name, phone });
+
+      // Gọi service để cập nhật tên và số điện thoại
+      const updatedOrder = await OrderService.updateOrderContact(orderId, {
+        name,
+        phone,
+      });
+
+      res
+        .status(200)
+        .json({ message: "Order contact updated successfully", updatedOrder });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
   // Controller để lấy thông tin sản phẩm trong một đơn hàng
   async getOrderItems(req, res) {
     try {
@@ -148,8 +199,6 @@ const OrderController = {
       res.status(500).json({ error: error.message });
     }
   },
-
- 
 };
 
 module.exports = OrderController;

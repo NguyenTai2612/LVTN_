@@ -102,7 +102,7 @@ const SignUp = () => {
           })
 
           setTimeout(() => {
-            history("/login")
+            // history("/login")
           }, 2000)
         } else {
           setIsLoading(false)
@@ -172,7 +172,7 @@ const SignUp = () => {
             <p className="my-5 text-white">
               Already have account ?{" "}
               <Link
-                to={"/login"}
+                // to={"/login"}
                 className="text-green-500 hover:text-green-800 hover:underline"
               >
                 Login

@@ -20,7 +20,6 @@ import SubCatList from './pages/Category/subCategoryList.jsx'
 import EditSubCategory from './pages/Category/editSubCat.jsx'
 import ProductDetails from './pages/Products/productDetails.jsx'
 import SignUp from './pages/SignUp/index.jsx'
-import Login from './pages/Login/Login.jsx'
 import Orders from './pages/Orders/orderList.jsx'
 
 import { PersistGate } from "redux-persist/integration/react";
@@ -31,6 +30,7 @@ import AddBrand from './pages/Brand/addBrand.jsx'
 import EditBrand from './pages/Brand/editBrand.jsx'
 import UserList from './pages/User/userList.jsx'
 import EditUser from './pages/User/editUser.jsx'
+import OrderDetails from './pages/Orders/OrderDetails.jsx'
 
 const { store, persistor } = reduxStore();
 
@@ -56,30 +56,7 @@ function App() {
     open: false
   });
 
-  // useEffect(() => {
-  //   setProgress(20)
-  //   fetchCategory()
-  //   fetchSubCategory()
-  // }, [])
 
-
-  // const fetchCategory = () => {
-  //   fetchDataFromApi('/api/category').then((res) => {
-  //     setCatData(res)
-
-  //     setProgress(100)
-  //   })
-  // }
-
-  // const fetchSubCategory = () => {
-  //   fetchDataFromApi('/api/subCat').then((res) => {
-  //     setSubCatData(res)
-
-
-  //     setProgress(100)
-  //   })
-  // }
-  
 
 
 
@@ -164,10 +141,10 @@ function App() {
                     <Route path='/subCategory' exact={true} element={<SubCatList />} />
                     <Route path='/subCategory/add' exact={true} element={<SubCatAdd />} />
                     <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
-                    <Route path='/login' exact={true} element={<Login />} />
                     <Route path='/signUp' exact={true} element={<SignUp />} />
                     <Route path='/orders' exact={true} element={<Orders />} />
                     {/* <Route path='/payments' exact={true} element={<Orders />} /> */}
+                    <Route path="/order-details/:id" element={<OrderDetails />} />
 
                     <Route path='/brand' exact={true} element={<BrandList />} />
                     <Route path='/brand/add' exact={true} element={<AddBrand />} />

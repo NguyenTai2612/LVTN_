@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import {
   apiGetOrdersByUserId,
   apiUpdateOrderAddress,
+  apiUpdateOrderContact,
   apiUpdateOrderStatus,
 } from "../../services/order"; // Import service
 import { FaCartArrowDown } from "react-icons/fa";
@@ -15,6 +16,7 @@ import Decimal from "decimal.js";
 import TooltipBox from "@mui/material/Tooltip";
 import { FaEdit } from "react-icons/fa";
 import EditAddressModal from "./EditAddressModal";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -26,6 +28,9 @@ const Orders = () => {
   const itemsPerPage = 10; // Number of orders per page
   const userName = JSON.parse(localStorage.getItem("user")).name;
   const userPhone = JSON.parse(localStorage.getItem("user")).phone;
+
+  const [contactDetails, setContactDetails] = useState({ name: "", phone: "" });
+  const [isEditContactOpen, setIsEditContactOpen] = useState(false); // New state for the modal
 
   const [isOpenStatusModal, setIsOpenStatusModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null); // Lưu trữ thông tin đơn hàng được chọn
@@ -47,6 +52,25 @@ const Orders = () => {
     setSelectedStatus(event.target.value); // Lấy trạng thái mới
   };
 
+  const handleEditContactClick = (order) => {
+    setContactDetails({ name: order.name, phone: order.phone });
+    setSelectedOrder(order); // Ensure selectedOrder is set
+    setIsEditContactOpen(true);
+  };
+  const confirmContactChange = async () => {
+    if (!selectedOrder) {
+      console.error("No order selected");
+      return;
+    }
+
+    try {
+      await apiUpdateOrderContact(selectedOrder.id, contactDetails);
+      setIsEditContactOpen(false); // Close the modal
+      fetchOrders(); // Refresh orders list after update
+    } catch (error) {
+      console.error("Error updating contact details:", error);
+    }
+  };
   const handleCancelOrder = (orderId) => {
     setSelectedOrderId(orderId); // Lưu lại orderId của đơn hàng cần hủy
     setIsOpenCancelModal(true); // Mở modal xác nhận
@@ -61,7 +85,6 @@ const Orders = () => {
       console.error("Error cancelling order:", error);
     }
   };
-  
 
   const confirmStatusChange = async () => {
     try {
@@ -166,6 +189,7 @@ const Orders = () => {
                     <th>Id</th>
                     <th>Sẩn phẩm</th>
                     {/* <th>Name</th> */}
+                    <th>Tên</th>
                     <th>Số điện thoại</th>
                     <th>Địa chỉ nhận hàng</th>
                     <th>Tổng tiền</th>
@@ -173,7 +197,7 @@ const Orders = () => {
                     {/* <th>Payment Method</th> */}
                     <th>Trạng thái đơn hàng</th>
                     <th>Ngày đặt</th>
-                    <th>Cập nhật địa chỉ</th>
+                    <th>Cập nhật thông tin</th>
                     <th>Hủy đơn</th>
                   </tr>
                 </thead>
@@ -196,7 +220,8 @@ const Orders = () => {
                           </span>
                         </td>
                         {/* <td>{userName}</td> */}
-                        <td>{userPhone}</td>
+                        <td>{order.name}</td>
+                        <td>{order.phone}</td>
                         <td>
                           {JSON.parse(order.shipping)?.address},{" "}
                           {JSON.parse(order.shipping)?.ward},{" "}
@@ -227,16 +252,27 @@ const Orders = () => {
                         </td>
 
                         <td>
-                          <Tooltip title="Edit Address" placement="top">
-                            <Button
-                              startIcon={<FaEdit />}
-                              variant="contained"
-                              color="primary"
-                              onClick={() => handleEditAddressClick(order)}
+                          <div className="actions1 flex items-center gap-2">
+                            <TooltipBox
+                              title="Edit Name & Phone"
+                              placement="top"
                             >
-                              Thay đổi
-                            </Button>
-                          </Tooltip>
+                              <button
+                                className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
+                                onClick={() => handleEditContactClick(order)} // New handler function
+                              >
+                                <FaEdit />
+                              </button>
+                            </TooltipBox>
+                            <TooltipBox title="Edit Address" placement="top">
+                              <button
+                                className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
+                                onClick={() => handleEditAddressClick(order)}
+                              >
+                                <FaMapMarkerAlt />
+                              </button>
+                            </TooltipBox>
+                          </div>
                         </td>
 
                         {/* Cột Hủy đơn */}
@@ -346,57 +382,79 @@ const Orders = () => {
         </div>
       </Dialog>
 
-      {/* Modal thay đổi trạng thái */}
+      {/* Modal xác nhận hủy đơn hàng */}
       <Dialog
-        open={isOpenStatusModal}
-        onClose={() => setIsOpenStatusModal(false)}
+        open={isOpenCancelModal}
+        onClose={() => setIsOpenCancelModal(false)}
       >
         <div className="modal-content">
-          <h2>Change Order Status</h2>
-          <Select
-            value={selectedStatus}
-            onChange={handleStatusChange}
-            fullWidth
-          >
-            {orderStatuses.map((status, index) => (
-              <MenuItem key={index} value={status}>
-                {status}
-              </MenuItem>
-            ))}
-          </Select>
+          <h2>Xác nhận hủy đơn hàng</h2>
+          <p>Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
           <div className="modal-actions">
-            <Button onClick={confirmStatusChange}>Xác nhận</Button>
-            <Button onClick={() => setIsOpenStatusModal(false)}>Hủy</Button>
+            <Button
+              onClick={() => {
+                confirmCancelOrder(); // Hàm xác nhận hủy đơn
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Xác nhận
+            </Button>
+            <Button
+              onClick={() => setIsOpenCancelModal(false)} // Đóng modal nếu không muốn hủy
+              color="secondary"
+              variant="outlined"
+            >
+              Hủy
+            </Button>
           </div>
         </div>
       </Dialog>
 
-      {/* Modal xác nhận hủy đơn hàng */}
-<Dialog open={isOpenCancelModal} onClose={() => setIsOpenCancelModal(false)}>
-  <div className="modal-content">
-    <h2>Xác nhận hủy đơn hàng</h2>
-    <p>Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
-    <div className="modal-actions">
-      <Button
-        onClick={() => {
-          confirmCancelOrder(); // Hàm xác nhận hủy đơn
-        }}
-        color="primary"
-        variant="contained"
+      <Dialog
+        open={isEditContactOpen}
+        onClose={() => setIsEditContactOpen(false)}
       >
-        Xác nhận
-      </Button>
-      <Button
-        onClick={() => setIsOpenCancelModal(false)} // Đóng modal nếu không muốn hủy
-        color="secondary"
-        variant="outlined"
-      >
-        Hủy
-      </Button>
-    </div>
-  </div>
-</Dialog>
-
+        <div className="modal-content">
+          <h2>Edit Name & Phone</h2>
+          <div className="modal-body">
+            <label>
+              Name:
+              <input
+                type="text"
+                value={contactDetails.name}
+                onChange={(e) =>
+                  setContactDetails({ ...contactDetails, name: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              Phone:
+              <input
+                type="text"
+                value={contactDetails.phone}
+                onChange={(e) =>
+                  setContactDetails({
+                    ...contactDetails,
+                    phone: e.target.value,
+                  })
+                }
+              />
+            </label>
+          </div>
+          <div className="modal-actions">
+            <Button className="confirm-btn" onClick={confirmContactChange}>
+              Save
+            </Button>
+            <Button
+              className="cancel-btn"
+              onClick={() => setIsEditContactOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Dialog>
 
       {/* Modal chỉnh sửa địa chỉ */}
       {selectedOrder && (

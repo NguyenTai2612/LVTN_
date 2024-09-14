@@ -29,11 +29,14 @@ router.get('/:orderId/payments', OrderController.getOrderPayments);
 // API để cập nhật thông tin đơn hàng
 router.put('/:orderId', OrderController.updateOrderAddress);
 
+router.put('/:orderId/contact', OrderController.updateOrderContact);
+
 // API để xem tất cả các sản phẩm trong một đơn hàng
 router.get('/:orderId/items', OrderController.getOrderItems);
 
 // API để lấy tất cả đơn hàng
 router.get('/', OrderController.getAllOrders);
 
+router.get('/contact/:id', OrderController.getOrderContactById);
 
 module.exports = router;

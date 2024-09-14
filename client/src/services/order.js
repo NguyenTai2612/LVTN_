@@ -58,6 +58,26 @@ export const apiGetOrdersByUserId = (userId) => new Promise(async (resolve, reje
     }
 });
 
+export const apiUpdateOrderContact = (orderId, contactData) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await axiosConfig({
+                method: 'put',
+                url: `/api/v1/order/${orderId}/contact`, // Đảm bảo URL đúng với route của bạn
+                data: contactData,
+                timeout: 5000, // Optional timeout of 5 seconds
+            });
+            resolve(response.data);
+        } catch (error) {
+            console.error("API Error:", error); // Log detailed error
+            if (error.response && error.response.data && error.response.data.error) {
+                reject(new Error(`Error: ${error.response.data.error}`));
+            } else {
+                reject(new Error(`Error updating contact: ${error.message}`));
+            }
+        }
+    });
+
 export const apiUpdateOrderStatus = (orderId, status) => new Promise(async (resolve, reject) => {
     try {
         const response = await axiosConfig({

@@ -35,7 +35,7 @@ const Header = () => {
 
     const handleLogout = () => {
         dispatch(actions.logout()); // Call logout action
-        navigate('/login'); // Redirect to login page
+        // navigate('/login'); 
     };
 
     return (

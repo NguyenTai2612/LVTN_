@@ -119,81 +119,80 @@ const Checkout = () => {
 
   const checkout = async () => {
     if (formFields.fullname === "" || formFields.phoneNumber === "") {
-        context.setAlertBox({
-            open: true,
-            error: true,
-            msg: "Vui lòng điền đầy đủ thông tin.",
-        });
-        return;
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Vui lòng điền đầy đủ thông tin.",
+      });
+      return;
     }
 
-    try {     
-        // Chuẩn bị dữ liệu đơn hàng
-        const orderData = {
-            user_id: JSON.parse(localStorage.getItem("user")).id,
-            customer_id: formFields.fullname,
-            subTotal: cartData.reduce((total, item) => total + item.subTotal, 0),
-            total: cartData.reduce((total, item) => total + item.subTotal, 0),
-            shipping: {
-                city: city ? city.name : "",
-                district: district ? district.name : "",
-                ward: ward ? ward.name : "",
-                address: formFields.address,
-            },
-            deliver_status: "Chờ xử lý",
-            // payment_status: "Chờ thanh toán",
-            date: new Date(),
-        };
+    try {
+      // Chuẩn bị dữ liệu đơn hàng
+      const orderData = {
+        user_id: JSON.parse(localStorage.getItem("user")).id,
+        subTotal: cartData.reduce((total, item) => total + item.subTotal, 0),
+        total: cartData.reduce((total, item) => total + item.subTotal, 0),
+        shipping: {
+          city: city ? city.name : "",
+          district: district ? district.name : "",
+          ward: ward ? ward.name : "",
+          address: formFields.address,
+        },
+        name: formFields.fullname,  // Thêm thông tin name
+        phone: formFields.phoneNumber,  // Thêm thông tin phone
+        deliver_status: "Chờ xử lý",
+        // payment_status: "Chờ thanh toán",
+        date: new Date(),
+      };
 
-        // Tạo đơn hàng
-        const orderResponse = await apiCreateOrder(orderData);
-        const orderId = orderResponse.data.id;
+      // Tạo đơn hàng
+      const orderResponse = await apiCreateOrder(orderData);
+      const orderId = orderResponse.data.id;
 
-        // Thêm sản phẩm vào đơn hàng
-        const items = cartData.map((item) => ({
-            product_id: item.Product.id,
-            quantity: item.quantity,
-            price: item.subTotal,
-        }));
+      // Thêm sản phẩm vào đơn hàng
+      const items = cartData.map((item) => ({
+        product_id: item.Product.id,
+        quantity: item.quantity,
+        price: item.subTotal,
+      }));
 
-        await apiAddOrderItems(orderId, items);
+      await apiAddOrderItems(orderId, items);
 
-        // Xóa toàn bộ giỏ hàng của user
-        const userId = JSON.parse(localStorage.getItem("user")).id;
-        await deleteAllCartByUserId(userId);
+      // Xóa toàn bộ giỏ hàng của user
+      const userId = JSON.parse(localStorage.getItem("user")).id;
+      await deleteAllCartByUserId(userId);
 
-        // Lưu thông tin thanh toán
-        const paymentData = {
-            order_id: orderId,
-            paymentMethod,
-            paymentStatus: "Chờ thanh toán",
-            amount: orderData.total,
-            paymentDate: new Date(),
-        };
-        await apiSavePaymentInfo(paymentData);
+      // Lưu thông tin thanh toán
+      const paymentData = {
+        order_id: orderId,
+        paymentMethod,
+        paymentStatus: "Chờ thanh toán",
+        amount: orderData.total,
+        paymentDate: new Date(),
+      };
+      await apiSavePaymentInfo(paymentData);
 
-        // Thông báo thành công
-        context.setAlertBox({
-            open: true,
-            error: false,
-            msg: "Đặt hàng thành công.",
-        });
-        navigate("/orders");
+      // Thông báo thành công
+      context.setAlertBox({
+        open: true,
+        error: false,
+        msg: "Đặt hàng thành công.",
+      });
+      navigate("/orders");
     } catch (error) {
-        // Xử lý lỗi và thông báo cho người dùng
-        context.setAlertBox({
-            open: true,
-            error: true,
-            msg: error.message || "Lỗi khi đặt hàng.",
-        });
-        console.error("Lỗi khi đặt hàng:", error);
+      // Xử lý lỗi và thông báo cho người dùng
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: error.message || "Lỗi khi đặt hàng.",
+      });
+      console.error("Lỗi khi đặt hàng:", error);
     }
 
     // Đóng modal xác nhận
     handleCloseModal();
-};
-
-  
+  };
 
   return (
     <section>
@@ -229,6 +228,7 @@ const Checkout = () => {
                             size="small"
                             className="w-100"
                             name="fullname"
+                            value={formFields.fullname}
                             onChange={onChangeInput}
                           />
                         </div>
@@ -242,6 +242,7 @@ const Checkout = () => {
                             size="small"
                             className="w-100"
                             name="phoneNumber"
+                            value={formFields.phoneNumber}
                             onChange={onChangeInput}
                           />
                         </div>
@@ -443,6 +444,12 @@ const Checkout = () => {
                 </Typography>
                 <Typography id="modal-description" sx={{ mt: 2 }}>
                   Bạn có chắc chắn muốn đặt hàng không?
+                </Typography>
+                <Typography sx={{ mt: 2 }}>
+                  <strong>Họ tên:</strong> {formFields.fullname}
+                </Typography>
+                <Typography sx={{ mt: 1 }}>
+                  <strong>Số điện thoại:</strong> {formFields.phoneNumber}
                 </Typography>
                 <div className="modal-actions" style={{ marginTop: 20 }}>
                   <Button

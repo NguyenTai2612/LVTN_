@@ -15,7 +15,10 @@ module.exports = {
           key: 'id'
         }
       },
-      customer_id: {
+      name: {
+        type: Sequelize.STRING
+      },
+      phone: {
         type: Sequelize.STRING
       },
       subTotal: {

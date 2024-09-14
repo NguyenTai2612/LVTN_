@@ -127,7 +127,6 @@ const Checkout = () => {
 
     const orderData = {
       user_id: JSON.parse(localStorage.getItem("user")).id,
-      customer_id: formFields.fullname,
       subTotal: cartData.reduce((total, item) => total + item.subTotal, 0),
       total: cartData.reduce((total, item) => total + item.subTotal, 0),
       shipping: {

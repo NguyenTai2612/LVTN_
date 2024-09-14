@@ -18,6 +18,8 @@ const OrderService = {
       deliver_status,
       payment_status,
       date,
+      name, // Thêm name
+      phone, // Thêm phone
     } = orderData;
 
     // Tạo đơn hàng
@@ -29,10 +31,11 @@ const OrderService = {
       deliver_status,
       payment_status,
       date,
+      name, // Lưu name vào cơ sở dữ liệu
+      phone, // Lưu phone vào cơ sở dữ liệu
     });
     return newOrder;
   },
-
   // Dịch vụ thêm sản phẩm vào đơn hàng
   async addOrderItems(orderItems) {
     for (const item of orderItems) {
@@ -94,9 +97,42 @@ const OrderService = {
   },
 
   async getOrderById(orderId) {
-    return await Order.findByPk(orderId);
-  },
+    try {
+      const order = await Order.findByPk(orderId, {
+        include: [
+          {
+            model: OrderItem,
+            include: [
+              {
+                model: Product,
+                include: [
+                  {
+                    model: Brand, // Include brand information
+                    attributes: ["name", "image"], // Include brand name and image
+                  },
+                  {
+                    model: ProductImage, // Include product images
+                    attributes: ["imageUrl"], // Include image URL
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: Payment, // Include payment information
+          },
+        ],
+      });
 
+      if (!order) {
+        throw new Error("Order not found");
+      }
+
+      return order;
+    } catch (error) {
+      throw new Error("Error fetching order: " + error.message);
+    }
+  },
   async updateOrderStatus(orderId, status) {
     if (typeof status !== "string") {
       throw new Error("deliver_status phải là chuỗi");
@@ -142,25 +178,49 @@ const OrderService = {
   async updateOrderAddress(orderId, orderData) {
     // Đầu tiên, kiểm tra xem đơn hàng có tồn tại không
     const order = await Order.findByPk(orderId);
-  
+
     if (!order) {
-      throw new Error('Order not found.');
+      throw new Error("Order not found.");
     }
-  
+
     // Cập nhật trường shipping
     const [updatedRowCount] = await Order.update(
-      { shipping: orderData }, 
+      { shipping: orderData },
       { where: { id: orderId } }
     );
-  
+
     if (updatedRowCount === 0) {
-      throw new Error('Order address not updated.');
+      throw new Error("Order address not updated.");
     }
-  
+
     // Trả về đơn hàng đã được cập nhật
     return await Order.findByPk(orderId);
   },
+  //edit
 
+  // OrderService.js
+
+  async updateOrderContact(orderId, contactData) {
+    // Tìm đơn hàng theo ID
+    const order = await Order.findByPk(orderId);
+
+    if (!order) {
+      throw new Error("Order not found.");
+    }
+
+    // Cập nhật tên và số điện thoại
+    const [updatedRowCount] = await Order.update(
+      { name: contactData.name, phone: contactData.phone },
+      { where: { id: orderId } }
+    );
+
+    if (updatedRowCount === 0) {
+      throw new Error("Order contact not updated.");
+    }
+
+    // Trả về đơn hàng đã được cập nhật
+    return await Order.findByPk(orderId);
+  },
   async getOrderItems(orderId) {
     try {
       // Sử dụng include để lấy thông tin chi tiết của sản phẩm và thương hiệu

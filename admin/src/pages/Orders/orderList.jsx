@@ -15,7 +15,8 @@ import Dialog from "@mui/material/Dialog";
 import { MdClose } from "react-icons/md";
 import { MenuItem, Select } from "@mui/material";
 import EditAddressModal from "./EditAddressModal";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
+import { FaListCheck } from "react-icons/fa6";
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   const backgroundColor =
@@ -149,7 +150,12 @@ const Orders = () => {
   // Mở modal và lưu lại thông tin đơn hàng được chọn
   const handleEditAddressClick = (order) => {
     const parsedAddress = JSON.parse(order.shipping); // Parse the shipping JSON
-    setSelectedOrder({ ...order, shipping: parsedAddress }); // Store parsed shipping address in state
+    setSelectedOrder({
+      ...order,
+      shipping: parsedAddress, // Include the parsed address
+      name: order.name,
+      phone: order.phone
+    }); // Store parsed shipping address and other details in state
     setIsEditAddressOpen(true);
   };
 
@@ -200,16 +206,17 @@ const Orders = () => {
             <thead className="thead-dark">
               <tr>
                 <th>Order Id</th>
-                <th>Products</th>
+                {/* <th>Products</th> */}
                 <th>User Id</th>
                 <th>Total Amount</th>
-                <th>Shipping Address</th>
+                {/* <th>Shipping Address</th> */}
                 <th>Order Status</th>
                 <th>Payment Method</th> {/* Cột tiêu đề mới */}
                 <th>Payment Status</th> {/* Cột tiêu đề mới */}
-                <th>Date</th>
+                {/* <th>Date</th> */}
+                {/* <th>Edit Address</th> */}
+                <th>Order Details</th>
                 <th>Actions</th>
-                <th>Edit Address</th>
               </tr>
             </thead>
             <tbody>
@@ -217,19 +224,19 @@ const Orders = () => {
                 orders.map((order) => (
                   <tr key={order.id}>
                     <td>{order.id}</td>
-                    <td>
+                    {/* <td>
                       <span
                         className="text-blue cursor"
                         onClick={() => showProducts(order.id)} // Mở modal xem sản phẩm
                       >
                         Click here to view
                       </span>
-                    </td>
+                    </td> */}
                     <td>{order.user_id}</td>
                     <td>
                       <Price amount={order.total} />
                     </td>
-                    <td>{parseShippingAddress(order.shipping)}</td>
+                    {/* <td>{parseShippingAddress(order.shipping)}</td> */}
                     <td>
                       <span className={`badge ${getStatusClass(order.deliver_status)}`}>
                         {order.deliver_status}
@@ -237,19 +244,36 @@ const Orders = () => {
                     </td>
                     <td>{order.Payments && order.Payments.length > 0 ? order.Payments[0].paymentMethod : 'N/A'}</td>
                     <td>{order.Payments && order.Payments.length > 0 ? order.Payments[0].paymentStatus : 'N/A'}</td>
-                    <td>
+                    {/* <td>
                       {new Date(order.date).toLocaleDateString()} {new Date(order.date).toLocaleTimeString()}
+                    </td> */}
+
+                    <td>
+                      <Link to={`/order-details/${order.id}`}>
+                        <div className="actions flex items-center gap-2">
+
+                          <TooltipBox title="View Detais" placement="top">
+                            <button
+                              className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
+                              onClick={() => handleEditAddressClick(order)}
+                            >
+                              <FaEye />
+                            </button>
+                          </TooltipBox>
+
+                        </div>
+                      </Link>
                     </td>
 
                     <td>
                       <div className="actions flex items-center gap-2">
 
-                        <TooltipBox title="Edit" placement="top">
+                        <TooltipBox title="Update Status" placement="top">
                           <button
                             className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
                             onClick={() => showStatusModal(order)}
                           >
-                            <FiEdit3 />
+                            <FaListCheck />
                           </button>
                         </TooltipBox>
 
@@ -260,11 +284,10 @@ const Orders = () => {
                           ><MdOutlineDeleteOutline /></button>
                         </TooltipBox>
 
-
                       </div>
                     </td>
 
-                    <td>
+                    {/* <td>
                       <div className="actions flex items-center gap-2">
 
                         <TooltipBox title="Edit Address" placement="top">
@@ -272,12 +295,16 @@ const Orders = () => {
                             className="edit-button flex items-center justify-center w-[30px] h-[30px] rounded-md duration-300"
                             onClick={() => handleEditAddressClick(order)}
                           >
-                            <FaMapMarkerAlt  />
+                            <FaMapMarkerAlt />
                           </button>
                         </TooltipBox>
-                     
-                      </div>                   
-                    </td>
+
+                      </div>
+                    </td> */}
+
+
+
+
 
                   </tr>
                 ))}
@@ -406,4 +433,4 @@ const getStatusClass = (status) => {
 
 
 export default Orders;
-//edit ok
+//edit okkkkkkkkkkkkkkkkkkkkkkk

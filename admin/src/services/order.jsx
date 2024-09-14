@@ -65,7 +65,7 @@ export const apiGetOrderById = (orderId) => new Promise(async (resolve, reject) 
             method: 'get',
             url: `/api/v1/order/${orderId}`,
         });
-        resolve(response.data);
+        resolve(response);
     } catch (error) {
         reject(new Error('Error fetching order details: ' + error.message));
     }
@@ -84,6 +84,8 @@ export const apiUpdateOrderStatus = (orderId, status) => new Promise(async (reso
         reject(new Error('Error updating order status: ' + error.message));
     }
 });
+
+
 
 // API để xóa đơn hàng
 export const apiDeleteOrder = (orderId) => new Promise(async (resolve, reject) => {
@@ -133,6 +135,26 @@ export const apiUpdateOrderAddress = (orderId, orderData) =>
         }
     });
 
+export const apiUpdateOrderContact = (orderId, contactData) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await axiosConfig({
+                method: 'put',
+                url: `/api/v1/order/${orderId}/contact`, // Đảm bảo URL đúng với route của bạn
+                data: contactData,
+                timeout: 5000, // Optional timeout of 5 seconds
+            });
+            resolve(response.data);
+        } catch (error) {
+            console.error("API Error:", error); // Log detailed error
+            if (error.response && error.response.data && error.response.data.error) {
+                reject(new Error(`Error: ${error.response.data.error}`));
+            } else {
+                reject(new Error(`Error updating contact: ${error.message}`));
+            }
+        }
+    });
+
 
 
 // API để xem tất cả các sản phẩm trong một đơn hàng
@@ -147,6 +169,8 @@ export const apiGetOrderItems = (orderId) => new Promise(async (resolve, reject)
         reject(new Error('Error fetching order items: ' + error.message));
     }
 });
+
+
 
 // API để lấy tất cả đơn hàng
 export const apiGetAllOrders = () => new Promise(async (resolve, reject) => {
