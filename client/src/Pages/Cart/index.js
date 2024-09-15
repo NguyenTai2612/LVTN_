@@ -126,6 +126,16 @@ const Cart = () => {
         return;
       }
 
+      // Check if the cart is empty
+      if (cartData.length === 0) {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Giỏ hàng của bạn đang trống.",
+        });
+        return;
+      }
+
       const outOfStockItems = [];
       for (const item of cartData) {
         const response = await apiGetProductDetails(item.product_id);

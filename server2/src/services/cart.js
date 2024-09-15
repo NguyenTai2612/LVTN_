@@ -1,5 +1,5 @@
 "use strict";
-const { Cart, Product } = require("../models");
+const { Cart, Product, ProductImage } = require("../models");
 
 const addToCart = async (cartData) => {
   try {
@@ -14,23 +14,32 @@ const getCartByUserId = async (userId) => {
   try {
     const cartItems = await Cart.findAll({
       where: { user_id: userId },
-      include: {
-        model: Product,
-        attributes: [
-          "id",
-          "name",
-          "price",
-          "oldPrice",
-          "description",
-          "countInStock",
-        ], // Thêm các thuộc tính bạn muốn lấy từ Product
-      },
+      include: [
+        {
+          model: Product,
+          attributes: [
+            "id",
+            "name",
+            "price",
+            "oldPrice",
+            "description",
+            "countInStock",
+          ],
+          include: [
+            {
+              model: ProductImage,  // Assuming Product has many ProductImages
+              attributes: ["imageUrl"],  
+            },
+          ],
+        },
+      ],
     });
     return cartItems;
   } catch (error) {
     throw new Error(`Error retrieving cart: ${error.message}`);
   }
 };
+
 
 const updateCartItem = async (updateData) => {
   try {

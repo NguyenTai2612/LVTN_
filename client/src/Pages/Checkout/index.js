@@ -27,7 +27,7 @@ const Checkout = () => {
   const [districtList, setDistrictList] = useState([]);
   const [wardList, setWardList] = useState([]);
   const [cartData, setCartData] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [openModal, setOpenModal] = useState(false);
   console.log("cartData", cartData);
 
@@ -118,68 +118,121 @@ const Checkout = () => {
   const handleCloseModal = () => setOpenModal(false);
 
   const checkout = async () => {
-    if (formFields.fullname === "" || formFields.phoneNumber === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Vui lòng điền đầy đủ thông tin.",
-      });
-      return;
-    }
-
     try {
+      const userId = JSON.parse(localStorage.getItem("user")).id;
+
+      // Kiểm tra thông tin đầy đủ
+      if (
+        formFields.fullname === "" ||
+        formFields.phoneNumber === "" ||
+        !city ||
+        !district ||
+        !ward
+      ) {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Vui lòng điền đầy đủ thông tin.",
+        });
+        return;
+      }
+
       // Chuẩn bị dữ liệu đơn hàng
+      const subTotal = cartData.reduce(
+        (total, item) => total + item.Product.price * item.quantity,
+        0
+      );
+      localStorage.setItem("amount", subTotal);
       const orderData = {
-        user_id: JSON.parse(localStorage.getItem("user")).id,
-        subTotal: cartData.reduce((total, item) => total + item.subTotal, 0),
-        total: cartData.reduce((total, item) => total + item.subTotal, 0),
+        user_id: userId,
+        subTotal: subTotal,
+        total: subTotal,
         shipping: {
           city: city ? city.name : "",
           district: district ? district.name : "",
           ward: ward ? ward.name : "",
           address: formFields.address,
         },
-        name: formFields.fullname,  // Thêm thông tin name
-        phone: formFields.phoneNumber,  // Thêm thông tin phone
+        name: formFields.fullname,
+        phone: formFields.phoneNumber,
         deliver_status: "Chờ xử lý",
-        // payment_status: "Chờ thanh toán",
         date: new Date(),
       };
 
-      // Tạo đơn hàng
-      const orderResponse = await apiCreateOrder(orderData);
-      const orderId = orderResponse.data.id;
+      if (paymentMethod === "BANK") {
+        // Lưu thông tin đơn hàng
+        const orderResponse = await apiCreateOrder(orderData);
+        const orderId = orderResponse.data.id;
+        // Lưu orderId vào localStorage
+        localStorage.setItem("orderId", orderId);
 
-      // Thêm sản phẩm vào đơn hàng
-      const items = cartData.map((item) => ({
-        product_id: item.Product.id,
-        quantity: item.quantity,
-        price: item.subTotal,
-      }));
+        // Thêm sản phẩm vào đơn hàng
+        const items = cartData.map((item) => ({
+          product_id: item.Product.id,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+        await apiAddOrderItems(orderId, items);
 
-      await apiAddOrderItems(orderId, items);
+       
 
-      // Xóa toàn bộ giỏ hàng của user
-      const userId = JSON.parse(localStorage.getItem("user")).id;
-      await deleteAllCartByUserId(userId);
+        // Tạo phiên thanh toán của Stripe
+        const res = await axios.post(
+          `http://localhost:5000/api/v1/stripe/create-checkout-session`,
+          {
+            cartData,
+            orderId: orderId,
+          }
+        );
 
-      // Lưu thông tin thanh toán
-      const paymentData = {
-        order_id: orderId,
-        paymentMethod,
-        paymentStatus: "Chờ thanh toán",
-        amount: orderData.total,
-        paymentDate: new Date(),
-      };
-      await apiSavePaymentInfo(paymentData);
+        if (res.data.url) {
+          // Chuyển hướng đến URL Stripe checkout
+          window.location.href = res.data.url;
+        }
+      } else {
+        // Thực hiện xử lý cho các phương thức thanh toán khác
+        if (formFields.fullname === "" || formFields.phoneNumber === "") {
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "Vui lòng điền đầy đủ thông tin.",
+          });
+          return;
+        }
 
-      // Thông báo thành công
-      context.setAlertBox({
-        open: true,
-        error: false,
-        msg: "Đặt hàng thành công.",
-      });
-      navigate("/orders");
+        // Tạo đơn hàng
+        const orderResponse = await apiCreateOrder(orderData);
+        const orderId = orderResponse.data.id;
+
+        // Thêm sản phẩm vào đơn hàng
+        const items = cartData.map((item) => ({
+          product_id: item.Product.id,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+        await apiAddOrderItems(orderId, items);
+
+        // Xóa toàn bộ giỏ hàng của user
+        await deleteAllCartByUserId(userId);
+
+        // Lưu thông tin thanh toán
+        const paymentData = {
+          order_id: orderId,
+          paymentMethod,
+          paymentStatus: "Chờ thanh toán",
+          amount: orderData.total,
+          paymentDate: new Date(),
+        };
+        await apiSavePaymentInfo(paymentData);
+
+        // Thông báo thành công
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: "Đặt hàng thành công.",
+        });
+        navigate("/orders");
+      }
     } catch (error) {
       // Xử lý lỗi và thông báo cho người dùng
       context.setAlertBox({
@@ -188,11 +241,13 @@ const Checkout = () => {
         msg: error.message || "Lỗi khi đặt hàng.",
       });
       console.error("Lỗi khi đặt hàng:", error);
+    } finally {
+      // Đóng modal xác nhận
+      handleCloseModal();
     }
-
-    // Đóng modal xác nhận
-    handleCloseModal();
   };
+
+  //edit
 
   return (
     <section>
@@ -356,7 +411,7 @@ const Checkout = () => {
                               <MenuItem value="COD">
                                 Thanh toán khi nhận hàng
                               </MenuItem>
-                              <MenuItem value="bank">
+                              <MenuItem value="BANK">
                                 Chuyển khoản ngân hàng
                               </MenuItem>
                             </Select>

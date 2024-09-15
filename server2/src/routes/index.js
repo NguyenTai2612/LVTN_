@@ -9,6 +9,7 @@ const userRouter = require('./user.js');
 const cartRouter = require('./cart.js');
 const subCategoryRouter = require('./subCategory.js'); 
 const orderRouter = require('./order.js'); 
+const stripeRouter = require('./stripe.js'); 
 
 const initRoutes = (app) => {
     app.use('/api/v1/auth', authRouter)
@@ -22,6 +23,7 @@ const initRoutes = (app) => {
     app.use('/api/v1/cart', cartRouter);
     app.use('/api/v1/subCategory', subCategoryRouter);
     app.use('/api/v1/order', orderRouter);
+    app.use('/api/v1/stripe', stripeRouter);
 
     
     return app.use('/', (req, res) => {

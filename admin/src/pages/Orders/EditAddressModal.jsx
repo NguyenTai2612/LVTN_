@@ -125,7 +125,7 @@ const EditAddressModal = ({ open, handleClose, currentAddress, handleSave }) => 
     <Modal open={open} onClose={handleClose}>
       <div className="modal-container">
         <div className="modal-content">
-          <h3>Update Information</h3>
+          <h2>Update Information</h2>
           <div className="row mt-3">
             <div className="col-md-6">
               <FormControl fullWidth size="small">

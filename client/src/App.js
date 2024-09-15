@@ -17,7 +17,7 @@ import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Checkout from "./Pages/Checkout";
-import Success from "./Pages/Checkout/Success";
+import SuccessPage from "./Pages/Checkout/SuccessPage"
 import Orders from "./Pages/Orders";
 
 import { PersistGate } from "redux-persist/integration/react";
@@ -148,15 +148,12 @@ function App({ children }) {
                 element={<ProductDetails />}
               />
               <Route path="/cart" exact={true} element={<Cart />} />
-              <Route
-                path="/checkout-success"
-                exact={true}
-                element={<Success />}
-              />
+             
               <Route path="/signIn" exact={true} element={<SignIn />} />
               <Route path="/signUp" exact={true} element={<SignUp />} />
               <Route path="/checkout" exact={true} element={<Checkout />} />
               <Route path="/orders" exact={true} element={<Orders />} />
+              <Route path="/success" exact={true} element={<SuccessPage />} />
             </Routes>
             {isHeaderFooterShow && <Footer />}
 
