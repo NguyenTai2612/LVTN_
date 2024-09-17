@@ -10,7 +10,7 @@ import { Link, useParams } from "react-router-dom";
 import Price from "../../Components/Price";
 import { MyContext } from "../../App";
 import CircularProgress from "@mui/material/CircularProgress";
-import { apiGetProductDetails } from "../../services/product";
+import { apiGetProductDetails, incrementProductViews } from "../../services/product";
 import { apiGetProductSpecifications } from "../../services/productSpecification";
 import { apiGetReviews, apiAddReview } from "../../services/review";
 import { addToCart } from "../../services/cart";
@@ -39,6 +39,8 @@ const ProductDetails = () => {
         const response = await apiGetProductDetails(id);
         setProductData(response.data.response);
         console.log("setProductData", response.data.response);
+        
+        await incrementProductViews(id);
 
         // Fetch product specifications
         const specResponse = await apiGetProductSpecifications(id);
@@ -48,6 +50,7 @@ const ProductDetails = () => {
         const reviewResponse = await apiGetReviews(id);
         // console.log(reviewResponse.data.response);
         setReviewData(reviewResponse.data.response);
+
       } catch (error) {
         console.error("Error fetching product details:", error);
       }

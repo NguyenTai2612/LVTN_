@@ -17,7 +17,7 @@ const SuccessPage = () => {
           // Cập nhật thông tin thanh toán
           const paymentData = {
             order_id: orderId,
-            paymentMethod: "BANK",
+            paymentMethod: "Chuyển khoản ngân hàng",
             paymentStatus: "Đã thanh toán",
             amount: amount, // Bạn có thể cần điều chỉnh số tiền nếu cần
             paymentDate: new Date(),

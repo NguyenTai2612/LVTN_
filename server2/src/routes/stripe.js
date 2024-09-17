@@ -24,7 +24,7 @@ router.post("/create-checkout-session", async (req, res) => {
             id: item.product_id,
           },
         },
-        unit_amount: item.subTotal,
+        unit_amount: item.price,
       },
       quantity: item.quantity || 1,
     };

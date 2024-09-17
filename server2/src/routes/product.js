@@ -27,4 +27,7 @@ router.get('/:subCatId/by-subCat', productController.getProductsBySubCat);
 
 router.get('/:categoryId/filter', productController.getProductsByCategoryFilter);
 
+// API để cập nhật số lượt xem sản phẩm
+router.put('/:id/views', productController.incrementProductViews);
+
 module.exports = router;

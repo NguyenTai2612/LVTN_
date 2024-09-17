@@ -186,17 +186,17 @@ const Orders = () => {
               <table className="table table-striped">
                 <thead className="thead-dark">
                   <tr>
-                    <th>Id</th>
+                    <th>Mã</th>
                     <th>Sẩn phẩm</th>
                     {/* <th>Name</th> */}
-                    <th>Tên</th>
+                    <th>Tên KH</th>
                     <th>Số điện thoại</th>
                     <th>Địa chỉ nhận hàng</th>
                     <th>Tổng tiền</th>
                     <th>Thanh toán</th>
                     {/* <th>Payment Method</th> */}
                     <th>Trạng thái đơn hàng</th>
-                    <th>Ngày đặt</th>
+                    <th>Ngày tạo</th>
                     <th>Cập nhật thông tin</th>
                     <th>Hủy đơn</th>
                   </tr>
@@ -216,7 +216,7 @@ const Orders = () => {
                             className="text-blue font-weight-bold cursor"
                             onClick={() => showProducts(order.id)}
                           >
-                            Click here to view
+                            Xem chi tiết
                           </span>
                         </td>
                         {/* <td>{userName}</td> */}
@@ -327,12 +327,12 @@ const Orders = () => {
           <table className="table table-striped">
             <thead className="thead-dark">
               <tr>
-                <th>Product Name</th>
-                <th>Image</th>
-                <th>Brand</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>SubTotal</th>
+                <th>Tên sản phẩm</th>
+                <th>Ảnh</th>
+                <th>Thương hiệu</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Tổng tiền</th>
               </tr>
             </thead>
 
@@ -416,10 +416,10 @@ const Orders = () => {
         onClose={() => setIsEditContactOpen(false)}
       >
         <div className="modal-content">
-          <h2>Edit Name & Phone</h2>
+          <h2>Cập nhật tên & số điện thoại</h2>
           <div className="modal-body">
             <label>
-              Name:
+              Tên:
               <input
                 type="text"
                 value={contactDetails.name}
@@ -429,7 +429,7 @@ const Orders = () => {
               />
             </label>
             <label>
-              Phone:
+            Số điện thoại:
               <input
                 type="text"
                 value={contactDetails.phone}

@@ -57,14 +57,38 @@ const Sidebar = () => {
 
       <div className='sidebarTabs px-2'>
         <ul className='flex gap-3 flex-col'>
-          <li>
-            <Link to="/">
-              <Button className={`w-100 ${activeTab === 0 ? 'active' : ''}`} onClick={() => isOpenSubmenu(0)}>
-                <span className='icon w-[25px] h-[30px] flex items-center justify-center 
+         
+
+          <li className={`${activeTab === 0 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
+            <Button className={`w-100 ${activeTab === 0 ? 'active' : ''}`} onClick={() => isOpenSubmenu(0)}>
+              <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                  rounded-md'><MdOutlineDashboard /></span> &nbsp;
-                Dashboard
-              </Button>
-            </Link>
+              Dashboard
+              <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
+              justify-center ${activeTab === 0 && isToggleSubmenu ? 'rotate' : ''}`}>
+                <FaAngleRight /></span>
+            </Button>
+
+            <div className={`submenuWrapper ${activeTab === 0 && isToggleSubmenu
+              ? "colapse"
+              : "colapsed"
+              }`}
+            >
+              <div className='submenu'>
+              <Link to="/overview">
+                  <Button className='w-100 '>Overview</Button>
+                </Link>
+                <Link to="/product_statistics">
+                  <Button className='w-100 '>Product Statistics</Button>
+                </Link>
+                <Link to="/revenue">
+                  <Button className='w-100 '>Revenue Statistics</Button>
+                </Link>
+                {/* <Link to="/product/upload">
+                  <Button className='w-100 '>Category statistics</Button>
+                </Link> */}
+              </div>
+            </div>
           </li>
 
           <li className={`${activeTab === 1 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
@@ -172,11 +196,23 @@ const Sidebar = () => {
             >
               <div className='submenu'>
                 <Link to="/orders">
-                  <Button className='w-100 '>Orders List</Button>
+                  <Button className='w-100 '>View All Orders</Button>
                 </Link>
-                {/* <Link to="/payments">
-                  <Button className='w-100 '>Payments List</Button>
-                </Link> */}
+                <Link to="/pending">
+                  <Button className='w-100 '>Pending</Button>
+                </Link>
+                <Link to="/confirmed">
+                  <Button className='w-100 '>Confirmed</Button>
+                </Link>
+                <Link to="/shipping">
+                  <Button className='w-100 '>Shipping</Button>
+                </Link>
+                <Link to="/completed">
+                  <Button className='w-100 '>Completed</Button>
+                </Link>
+                <Link to="/cancelled">
+                  <Button className='w-100 '>Cancelled</Button>
+                </Link>
               </div>
             </div>
           </li>

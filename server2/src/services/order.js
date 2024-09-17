@@ -255,45 +255,47 @@ const OrderService = {
   },
 
   // Phương thức để lấy tất cả đơn hàng từ cơ sở dữ liệu
-  async getAllOrders() {
+  async getAllOrders(where) {
     try {
       const orders = await Order.findAll({
+        where: where, // Áp dụng điều kiện tìm kiếm
         include: [
           {
-            model: OrderItem, // Bao gồm các OrderItem của Order
+            model: OrderItem,
             include: [
               {
-                model: Product, // Bao gồm Product liên quan đến mỗi OrderItem
-                attributes: ["name", "price"], // Lấy tên và giá của sản phẩm
+                model: Product,
+                attributes: ["name", "price"],
                 include: [
                   {
-                    model: Brand, // Bao gồm Brand của Product
-                    attributes: ["name", "image"], // Lấy tên và hình ảnh thương hiệu
+                    model: Brand,
+                    attributes: ["name", "image"],
                   },
                   {
-                    model: ProductImage, // Bao gồm hình ảnh của sản phẩm
-                    attributes: ["imageUrl"], // Lấy đường dẫn hình ảnh của sản phẩm
+                    model: ProductImage,
+                    attributes: ["imageUrl"],
                   },
                 ],
               },
             ],
           },
           {
-            model: Payment, // Bao gồm Payment liên quan đến Order
+            model: Payment,
           },
         ],
         attributes: {
-          exclude: ["createdAt", "updatedAt"], // Loại bỏ các trường không cần thiết
+          exclude: ["createdAt", "updatedAt"],
         },
       });
-
-      console.log("Fetched Orders with Items:", orders); // Log để kiểm tra
+  
+      console.log("Fetched Orders with Items:", orders);
       return orders;
     } catch (error) {
-      console.error("Error fetching orders:", error); // Log lỗi nếu có
+      console.error("Error fetching orders:", error);
       throw new Error("Error fetching orders: " + error.message);
     }
-  },
+  }
+  ,
 };
 
 module.exports = OrderService;

@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react'
 import { createContext, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
-import Dashboard from './pages/Dashboard'
+import Dashboard from './pages/Dashboard/ProductStatistics.jsx'
 import Header from './components/Header'
 import ProductList from './pages/Products/productList'
 import CategoryAdd from './pages/Category/addCategory.jsx'
@@ -21,6 +21,11 @@ import EditSubCategory from './pages/Category/editSubCat.jsx'
 import ProductDetails from './pages/Products/productDetails.jsx'
 import SignUp from './pages/SignUp/index.jsx'
 import Orders from './pages/Orders/orderList.jsx'
+import Pending from './pages/Orders/Pending.jsx'
+import Confirmed from './pages/Orders/Confirmed.jsx'
+import Shipping from './pages/Orders/Shipping.jsx'
+import Completed from './pages/Orders/Completed.jsx'
+import Cancelled from './pages/Orders/Cancelled.jsx'
 
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
@@ -31,6 +36,9 @@ import EditBrand from './pages/Brand/editBrand.jsx'
 import UserList from './pages/User/userList.jsx'
 import EditUser from './pages/User/editUser.jsx'
 import OrderDetails from './pages/Orders/OrderDetails.jsx'
+import ProductStatistics from './pages/Dashboard/ProductStatistics.jsx'
+import Revenue from './pages/Dashboard/Revenue.jsx'
+import Overview from './pages/Dashboard/Overview.jsx'
 
 const { store, persistor } = reduxStore();
 
@@ -130,7 +138,10 @@ function App() {
                     </>
                   }
                   <Routes>
-                    <Route path='/' exact={true} element={<Dashboard />} />
+                    <Route path='/overview' exact={true} element={<Overview />} />
+                    <Route path='/product_statistics' exact={true} element={<ProductStatistics />} />
+                    <Route path='/revenue' exact={true} element={<Revenue />} />
+                    
                     <Route path='/product/list' exact={true} element={<ProductList />} />
                     <Route path='/product/upload' exact={true} element={<ProductUpload />} />
                     <Route path='/product/detail/:id' exact={true} element={<ProductDetails />} />
@@ -143,7 +154,11 @@ function App() {
                     <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
                     <Route path='/signUp' exact={true} element={<SignUp />} />
                     <Route path='/orders' exact={true} element={<Orders />} />
-                    {/* <Route path='/payments' exact={true} element={<Orders />} /> */}
+                    <Route path='/pending' exact={true} element={<Pending />} />
+                    <Route path='/confirmed' exact={true} element={<Confirmed />} />
+                    <Route path='/shipping' exact={true} element={<Shipping />} />
+                    <Route path='/completed' exact={true} element={<Completed />} />
+                    <Route path='/cancelled' exact={true} element={<Cancelled />} />
                     <Route path="/order-details/:id" element={<OrderDetails />} />
 
                     <Route path='/brand' exact={true} element={<BrandList />} />

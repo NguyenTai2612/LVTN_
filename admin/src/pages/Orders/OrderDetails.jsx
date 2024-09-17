@@ -44,8 +44,9 @@ import EditAddressModal from "./EditAddressModal";
 import Price from "../../components/Price";
 import { useParams } from "react-router-dom";
 import { FaListCheck } from "react-icons/fa6";
-
+import { Stepper, Step, StepLabel } from '@mui/material';
 const OrdersDetails = () => {
+    const steps = ["Chờ xử lý", "Đã xác nhận", "Đang giao hàng", "Đã giao", "Đã hủy"];
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [isOpenModal, setIsOpenModal] = useState(false);
@@ -67,11 +68,9 @@ const OrdersDetails = () => {
     const orderStatuses = [
         "Chờ xử lý",           // Pending
         "Đã xác nhận",         // Confirmed
-        "Đang chuẩn bị",       // Processing
         "Đang giao hàng",           // Out for delivery
-        "Đã giao",             // Delivered
         "Đã hủy",              // Cancelled
-        "Không giao được"     // Failed delivery
+        "Đã giao",             // Delivered
     ];
 
     const showStatusModal = (order) => {
@@ -80,9 +79,10 @@ const OrdersDetails = () => {
         setIsOpenStatusModal(true); // Mở modal
     };
 
-    const handleStatusChange = (event) => {
-        setSelectedStatus(event.target.value); // Lấy trạng thái mới
+    const handleStatusChange = (stepIndex) => {
+        setSelectedStatus(steps[stepIndex]);
     };
+
 
     const handleCancelOrder = (orderId) => {
         setSelectedOrderId(orderId); // Lưu lại orderId của đơn hàng cần hủy
@@ -213,7 +213,7 @@ const OrdersDetails = () => {
         <>
             <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
                 <div className="flex items-center justify-between">
-                    <h1 className="font-weight-bold text-white">Orders Details</h1>
+                    <h1 className="font-weight-bold text-white">Chi tiết đơn hàng</h1>
                     <div className="ml-auto flex align-items-center gap-3">
                         <Breadcrumbs aria-label="breadcrumb">
                             <StyledBreadcrumb
@@ -236,18 +236,18 @@ const OrdersDetails = () => {
                     <table className="table table-striped">
                         <thead className="thead-dark">
                             <tr>
-                                <th>Id</th>
-                                <th>Product</th>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th>Amount</th>
-                                <th>Order Status</th>
-                                <th>Payment Method</th>
-                                <th>Payment Status</th>
-                                <th>Date</th>
-                                <th>Update Info</th>
-                                <th>Actions</th>
+                                <th>Mã đơn</th>
+                                <th>Sản phẩm</th>
+                                <th>Tên KH</th>
+                                <th>Số Điện Thoại</th>
+                                <th>Địa Chỉ</th>
+                                <th>Tổng Tiền</th>
+                                <th>Trạng Thái</th>
+                                <th>Phương thức thanh toán</th>
+                                <th>Thanh toán</th>
+                                <th>Ngày tạo</th>
+                                <th>Cập nhật thông tin KH</th>
+                                <th>Cập nhật</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -264,7 +264,7 @@ const OrdersDetails = () => {
                                                 className="text-blue font-weight-bold cursor"
                                                 onClick={() => showProducts(order.id)}
                                             >
-                                                Click here to view
+                                                Xem chi tiết
                                             </span>
                                         </td>
                                         <td>{order.name}</td>
@@ -387,12 +387,12 @@ const OrdersDetails = () => {
                     <table className="table table-striped">
                         <thead className="thead-dark">
                             <tr>
-                                <th>Product Name</th>
-                                <th>Image</th>
-                                <th>Brand</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>SubTotal</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Ảnh</th>
+                                <th>Thương hiệu</th>
+                                <th>Giá</th>
+                                <th>Số lượng</th>
+                                <th>Tổng tiền</th>
                             </tr>
                         </thead>
 
@@ -443,23 +443,19 @@ const OrdersDetails = () => {
             </Dialog>
 
             {/* Modal thay đổi trạng thái */}
-            <Dialog
-                open={isOpenStatusModal}
-                onClose={() => setIsOpenStatusModal(false)}
-            >
+            <Dialog open={isOpenStatusModal} onClose={() => setIsOpenStatusModal(false)}>
                 <div className="modal-content">
-                    <h2>Change Order Status</h2>
-                    <Select
-                        value={selectedStatus}
-                        onChange={handleStatusChange}
-                        fullWidth
-                    >
-                        {orderStatuses.map((status, index) => (
-                            <MenuItem key={index} value={status}>
-                                {status}
-                            </MenuItem>
+                    <h2>Cập nhật trạng thái</h2>
+
+                    {/* Stepper hiển thị các bước */}
+                    <Stepper activeStep={steps.indexOf(selectedStatus)} alternativeLabel>
+                        {steps.map((label, index) => (
+                            <Step key={index} onClick={() => handleStatusChange(index)}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
                         ))}
-                    </Select>
+                    </Stepper>
+
                     <div className="modal-actions">
                         <Button onClick={confirmStatusChange}>Xác nhận</Button>
                         <Button onClick={() => setIsOpenStatusModal(false)}>Hủy</Button>
@@ -469,10 +465,10 @@ const OrdersDetails = () => {
 
             <Dialog open={isEditContactOpen} onClose={() => setIsEditContactOpen(false)}>
                 <div className="modal-content">
-                    <h2>Edit Name & Phone</h2>
+                    <h2>Cập nhật tên & số điện thoại</h2>
                     <div className="modal-body">
                         <label>
-                            Name:
+                            Tên:
                             <input
                                 type="text"
                                 value={contactDetails.name}
@@ -482,7 +478,7 @@ const OrdersDetails = () => {
                             />
                         </label>
                         <label>
-                            Phone:
+                            Số điện thoại:
                             <input
                                 type="text"
                                 value={contactDetails.phone}
@@ -515,12 +511,12 @@ const getStatusClass = (status) => {
             return 'status-shipped';
         case 'Đang giao hàng':
             return 'status-out-for-delivery';
-        case 'Đã giao':
-            return 'status-delivered';
         case 'Đã hủy':
             return 'status-cancelled';
         case 'Không giao được':
             return 'status-failed';
+        case 'Đã giao':
+            return 'status-delivered';
         default:
             return '';
     }

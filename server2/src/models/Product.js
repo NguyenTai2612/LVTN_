@@ -28,7 +28,11 @@ module.exports = (sequelize, DataTypes) => {
     countInStock: DataTypes.INTEGER,
     rating: DataTypes.DECIMAL(3, 2),
     isFeatured: DataTypes.BOOLEAN,
-    discount: DataTypes.DECIMAL(5, 2)
+    discount: DataTypes.DECIMAL(5, 2),
+    views: { 
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    } 
   }, {
     sequelize,
     modelName: 'Product',

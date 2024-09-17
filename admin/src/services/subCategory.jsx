@@ -1,6 +1,5 @@
 import axiosConfig from '../axiosConfig';
 
-// Get all subcategories
 
 
 export const apiGetSubCategories = (page = 1, limit = 3) => new Promise(async (resolve, reject) => {

@@ -159,7 +159,7 @@ const Checkout = () => {
         date: new Date(),
       };
 
-      if (paymentMethod === "BANK") {
+      if (paymentMethod === "Chuyển khoản ngân hàng") {
         // Lưu thông tin đơn hàng
         const orderResponse = await apiCreateOrder(orderData);
         const orderId = orderResponse.data.id;
@@ -219,8 +219,8 @@ const Checkout = () => {
         const paymentData = {
           order_id: orderId,
           paymentMethod,
-          paymentStatus: "Chờ thanh toán",
-          amount: orderData.total,
+          paymentStatus: "Chưa thanh toán",
+          amount: 0,
           paymentDate: new Date(),
         };
         await apiSavePaymentInfo(paymentData);
@@ -408,10 +408,10 @@ const Checkout = () => {
                               label="Phương thức thanh toán"
                               onChange={handlePaymentChange}
                             >
-                              <MenuItem value="COD">
+                              <MenuItem value="Thanh toán khi nhận hàng">
                                 Thanh toán khi nhận hàng
                               </MenuItem>
-                              <MenuItem value="BANK">
+                              <MenuItem value="Chuyển khoản ngân hàng">
                                 Chuyển khoản ngân hàng
                               </MenuItem>
                             </Select>

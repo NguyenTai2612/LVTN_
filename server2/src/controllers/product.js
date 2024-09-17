@@ -2,7 +2,7 @@ const productService = require("../services/product");
 const ProductImagesService = require("../services/productImage");
 const cloudinary = require("cloudinary").v2;
 const { Product, ProductImage, Category } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 // Cloudinary configuration
 cloudinary.config({
@@ -211,21 +211,23 @@ const deleteProductAndImages = async (req, res) => {
 };
 
 const getProductsByCategory = async (req, res) => {
-    try {
-        const { categoryId } = req.params;
-        
-        // Gọi service để lấy sản phẩm theo categoryId
-        const products = await productService.getProductsByCategory(categoryId);
-        
-        if (!products.length) {
-          return res.status(404).json({ message: 'No products found for this category.' });
-        }
-    
-        res.json({ data: products });
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        res.status(500).json({ message: 'Server error' });
-      }
+  try {
+    const { categoryId } = req.params;
+
+    // Gọi service để lấy sản phẩm theo categoryId
+    const products = await productService.getProductsByCategory(categoryId);
+
+    if (!products.length) {
+      return res
+        .status(404)
+        .json({ message: "No products found for this category." });
+    }
+
+    res.json({ data: products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 const getProductsByCategoryFilter = async (req, res) => {
@@ -238,7 +240,9 @@ const getProductsByCategoryFilter = async (req, res) => {
 
     const whereClause = {
       category_id: categoryId,
-      ...(minPrice && maxPrice ? { price: { [Op.between]: [minPrice, maxPrice] } } : {}),
+      ...(minPrice && maxPrice
+        ? { price: { [Op.between]: [minPrice, maxPrice] } }
+        : {}),
       ...(brands.length ? { brand_id: brands } : {}),
       ...(rating ? { rating } : {}),
     };
@@ -246,15 +250,15 @@ const getProductsByCategoryFilter = async (req, res) => {
     const products = await Product.findAll({
       where: whereClause,
       include: [
-        { model: ProductImage, attributes: ['imageUrl'] },
-        { model: Category, attributes: ['name'] },
+        { model: ProductImage, attributes: ["imageUrl"] },
+        { model: Category, attributes: ["name"] },
       ],
     });
 
     res.json(products);
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -275,6 +279,28 @@ const getProductsBySubCat = async (req, res) => {
   }
 };
 
+const incrementProductViews = async (req, res) => {
+  const productId = req.params.id;
+
+  try {
+    // Tìm sản phẩm theo ID
+    const product = await Product.findByPk(productId);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Cập nhật số lượt xem
+    product.views = (product.views || 0) + 1;
+    await product.save();
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Exporting the function
 module.exports = {
   getProducts,
@@ -285,5 +311,6 @@ module.exports = {
   getProductPage,
   getProductsByCategory,
   getProductsBySubCat,
-  getProductsByCategoryFilter
+  getProductsByCategoryFilter,
+  incrementProductViews,
 };

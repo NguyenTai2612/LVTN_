@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Price = ({ amount, className }) => {
   return (
     <p className={className}>{formatCurrency(amount)}</p>
@@ -7,12 +5,15 @@ const Price = ({ amount, className }) => {
 };
 
 const formatCurrency = (amount) => {
-  if (isNaN(amount)) return '0 VND';
+  if (isNaN(amount)) return '0₫';
   
-  return amount
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-    + ' VND';
+  // Chuyển đổi amount về số và làm tròn, rồi chuyển đổi về định dạng tiền tệ
+  const formattedAmount = parseFloat(amount).toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+  
+  return formattedAmount + '₫';
 };
 
 export default Price;

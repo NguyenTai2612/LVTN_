@@ -77,12 +77,28 @@ const OrderController = {
 
   async getAllOrders(req, res) {
     try {
-      const orders = await OrderService.getAllOrders();
+      // Lấy các tham số tìm kiếm từ query params
+      const { orderId, userId, total, status, paymentMethod, paymentStatus } = req.query;
+  
+      // Tạo điều kiện tìm kiếm
+      const where = {};
+  
+      if (orderId) where.id = orderId;
+      if (userId) where.userId = userId;
+      if (total) where.total = total;
+      if (status) where.deliver_status = status;
+      if (paymentMethod) where.paymentMethod = paymentMethod;
+      if (paymentStatus) where.paymentStatus = paymentStatus;
+  
+      // Lấy dữ liệu từ cơ sở dữ liệu với các điều kiện tìm kiếm
+      const orders = await OrderService.getAllOrders(where);
+  
       res.status(200).json(orders); // Trả về dữ liệu
     } catch (error) {
       res.status(500).json({ error: error.message }); // Trả về lỗi nếu có
     }
-  },
+  }
+  ,
 
   async getOrderById(req, res) {
     try {

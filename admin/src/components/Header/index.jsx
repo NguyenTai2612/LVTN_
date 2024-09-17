@@ -57,8 +57,8 @@ const Header = () => {
                                 </span>
                             </div>
                             <div className='user-info'>
-                                <div className="user-name">{context.user?.name}</div>
-                                <div className="user-email">{context.user?.email}</div>
+                                {/* <div className="user-name">{context.user?.name}</div> */}
+                                {/* <div className="user-email">{context.user?.email}</div> */}
                             </div>
                         </div>
 
