@@ -1453,14 +1453,6 @@ input {
   margin-right: auto;
 }
 
-.flex {
-  display: flex;
-  align-items: center;
-}
-
-.gap-4 {
-  gap: 1rem; /* Có thể điều chỉnh khoảng cách giữa các phần tử */
-}
 
 .delete-button1 {
   background-color: #f44336; /* Màu đỏ cho nút xóa */

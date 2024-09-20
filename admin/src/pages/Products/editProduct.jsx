@@ -11,7 +11,8 @@ import {
     apiGetAllSubCategories,
     apiGetProductImages,
     apiAddProductImage,
-    apiDeleteProductImage
+    apiDeleteProductImage,
+    apiGetAllChildSubCategories
 } from '../../services/index'; // Import các API services cần thiết
 const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dilsy0sqq/image/upload';
 import { apiCreateProductSpecification, apiUpdateProductSpecification, apiDeleteProductSpecification, apiGetProductSpecifications } from '../../services/productSpecification';
@@ -54,6 +55,7 @@ const EditProduct = () => {
     const [brandId, setBrandId] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [subCategoryId, setSubCategoryId] = useState('');
+    const [childSubCategoryId, setChildSubCategoryId] = useState('');
     const [countInStock, setCountInStock] = useState('');
     const [rating, setRating] = useState('');
     const [isFeatured, setIsFeatured] = useState(false);
@@ -66,6 +68,7 @@ const EditProduct = () => {
     const [brands, setBrands] = useState([]);
     const [categories, setCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
+    const [childSubCategories, setChildSubCategories] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
 
 
@@ -87,15 +90,18 @@ const EditProduct = () => {
                 const productData = productResponse.data.response;
 
                 // Fetch all brands, categories, and subCategories
-                const [brandsResponse, categoriesResponse, subCategoriesResponse] = await Promise.all([
+                const [brandsResponse, categoriesResponse, subCategoriesResponse, childSubCategoriesData] = await Promise.all([
                     apiGetAllBrand(),
                     apiGetAllCategories(),
-                    apiGetAllSubCategories()
+                    apiGetAllSubCategories(),
+                    apiGetAllChildSubCategories()
                 ]);
 
                 setBrands(brandsResponse || []);
                 setCategories(categoriesResponse || []);
                 setSubCategories(subCategoriesResponse || []);
+                setChildSubCategories(childSubCategoriesData.response || []);
+console.log('childSubCategoriesData',childSubCategoriesData)
 
                 // Set the product details state
                 setName(productData.name);
@@ -105,6 +111,7 @@ const EditProduct = () => {
                 setBrandId(productData.brand_id);
                 setCategoryId(productData.category_id);
                 setSubCategoryId(productData.sub_category_id);
+                setChildSubCategoryId(productData.child_sub_category_id);
                 setCountInStock(productData.countInStock);
                 setRating(productData.rating);
                 setIsFeatured(productData.isFeatured);
@@ -175,6 +182,7 @@ const EditProduct = () => {
         formData.append('brand_id', brandId);
         formData.append('category_id', categoryId);
         formData.append('sub_category_id', subCategoryId);
+        formData.append('child_sub_category_id', childSubCategoryId);
 
         let imageUrls = [];
         if (imgFiles.length > 0) {
@@ -421,6 +429,28 @@ const EditProduct = () => {
                                                 </MenuItem>
                                                 {subCategories.map((subCategory) => (
                                                     <MenuItem key={subCategory.id} value={subCategory.id}>{subCategory.subCat}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                </div>
+
+                                <div className='col-md-4 col_'>
+                                    <h4>Child Sub Category</h4>
+                                    <div className='form-group'>
+                                        <FormControl fullWidth size="small" className="w-100">
+                                            <Select
+                                                value={childSubCategoryId}
+                                                onChange={(e) => setChildSubCategoryId(e.target.value)}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100"
+                                            >
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {childSubCategories.map((childSubCategory) => (
+                                                    <MenuItem key={childSubCategory.id} value={childSubCategory.id}>{childSubCategory.name}</MenuItem>
                                                 ))}
                                             </Select>
                                         </FormControl>

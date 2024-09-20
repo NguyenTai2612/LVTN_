@@ -8,6 +8,7 @@ export * from './review'
 export * from './subCategory'
 export * from './user'
 export * from './order'
+export * from './childSubCategory'
 
 
 

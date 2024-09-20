@@ -39,6 +39,9 @@ import OrderDetails from './pages/Orders/OrderDetails.jsx'
 import ProductStatistics from './pages/Dashboard/ProductStatistics.jsx'
 import Revenue from './pages/Dashboard/Revenue.jsx'
 import Overview from './pages/Dashboard/Overview.jsx'
+import ChildSubCategoryList from './pages/Category/ChildSubCatList.jsx'
+import AddChildSubCategory from './pages/Category/addChildSubCat.jsx'
+import EditChildSubCategory from './pages/Category/editChildSubCat.jsx'
 
 const { store, persistor } = reduxStore();
 
@@ -149,9 +152,15 @@ function App() {
                     <Route path='/category' exact={true} element={<CategoryList />} />
                     <Route path='/category/add' exact={true} element={<CategoryAdd />} />
                     <Route path='/category/edit/:id' exact={true} element={<EditCategory />} />
+
                     <Route path='/subCategory' exact={true} element={<SubCatList />} />
                     <Route path='/subCategory/add' exact={true} element={<SubCatAdd />} />
                     <Route path='/subCategory/edit/:id' exact={true} element={<EditSubCategory />} />
+
+                    <Route path='/childSubCat' exact={true} element={<ChildSubCategoryList />} />
+                    <Route path='/childSubCat/add' exact={true} element={<AddChildSubCategory />} />
+                    <Route path='/childSubCat/edit/:id' exact={true} element={<EditChildSubCategory />} />
+
                     <Route path='/signUp' exact={true} element={<SignUp />} />
                     <Route path='/orders' exact={true} element={<Orders />} />
                     <Route path='/pending' exact={true} element={<Pending />} />

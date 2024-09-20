@@ -380,6 +380,7 @@ const ProductList = () => {
                                 <th>PRODUCTS</th>
                                 <th>CATEGORY</th>
                                 <th>SUB CATEGORY</th>
+                                <th>CHILD SUB CAT</th>
                                 <th>BRAND</th>
                                 <th>PRICE</th>
                                 <th>STOCK</th>
@@ -425,6 +426,7 @@ const ProductList = () => {
                                                 </td>
                                                 <td>{details?.Category?.name || item.category?.name}</td>
                                                 <td>{details?.SubCategory?.subCat || item.subCat?.subCat}</td>
+                                                <td>{details?.ChildSubCategory?.name || item.subCat?.name}</td>
                                                 <td>{details?.Brand?.name || item.brand}</td>
                                                 <td>
                                                     <div className='w-[90px]'>

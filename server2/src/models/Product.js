@@ -1,15 +1,13 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Product extends Model {
     static associate(models) {
-      // define associations here
       Product.belongsTo(models.Brand, { foreignKey: 'brand_id' });
       Product.belongsTo(models.Category, { foreignKey: 'category_id' });
       Product.belongsTo(models.SubCategory, { foreignKey: 'sub_category_id' });
+      Product.belongsTo(models.ChildSubCategory, { foreignKey: 'child_sub_category_id' }); // Thêm dòng này
       Product.hasMany(models.ProductImage, { foreignKey: 'product_id' });
       Product.hasMany(models.OrderItem, { foreignKey: 'product_id' });
       Product.hasMany(models.Review, { foreignKey: 'product_id' });
@@ -17,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       Product.hasMany(models.ProductSpecification, { foreignKey: 'product_id' });
     }
   }
+
   Product.init({
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
@@ -25,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     brand_id: DataTypes.INTEGER,
     category_id: DataTypes.INTEGER,
     sub_category_id: DataTypes.INTEGER,
+    child_sub_category_id: DataTypes.INTEGER, // Thêm trường này
     countInStock: DataTypes.INTEGER,
     rating: DataTypes.DECIMAL(3, 2),
     isFeatured: DataTypes.BOOLEAN,
@@ -32,10 +32,11 @@ module.exports = (sequelize, DataTypes) => {
     views: { 
       type: DataTypes.INTEGER,
       defaultValue: 0
-    } 
+    }
   }, {
     sequelize,
     modelName: 'Product',
   });
+
   return Product;
 };

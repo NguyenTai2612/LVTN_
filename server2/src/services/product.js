@@ -1,5 +1,5 @@
 const db = require("../models");
-const { Product, ProductImage, Brand, Category, SubCategory } = db;
+const { Product, ProductImage, Brand, Category, SubCategory, ChildSubCategory } = db;
 const cloudinary = require("cloudinary").v2;
 const { Op } = require('sequelize');
 
@@ -63,6 +63,7 @@ const getProductDetailsService = async (productId) => {
         { model: Brand, attributes: ["id", "name"] },
         { model: Category, attributes: ["id", "name"] },
         { model: SubCategory, attributes: ["id", "subCat"] },
+        { model: ChildSubCategory, attributes: ["id", "name"] },
       ],
     });
 

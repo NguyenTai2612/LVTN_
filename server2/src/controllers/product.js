@@ -64,6 +64,7 @@ const addProduct = async (req, res) => {
       brand_id,
       category_id,
       sub_category_id,
+      child_sub_category_id,
       countInStock,
       rating,
       isFeatured,
@@ -77,6 +78,8 @@ const addProduct = async (req, res) => {
       !oldPrice ||
       !brand_id ||
       !category_id ||
+      !sub_category_id ||
+      !child_sub_category_id ||
       !countInStock
     ) {
       throw new Error("Missing required fields");
@@ -99,6 +102,7 @@ const addProduct = async (req, res) => {
       brand_id,
       category_id,
       sub_category_id,
+      child_sub_category_id,
       countInStock,
       rating,
       isFeatured,
@@ -134,6 +138,7 @@ const updateProduct = async (req, res) => {
       brand_id,
       category_id,
       sub_category_id,
+      child_sub_category_id,
     } = req.body;
     const images = req.files;
 
@@ -162,6 +167,7 @@ const updateProduct = async (req, res) => {
         brand_id,
         category_id,
         sub_category_id,
+        child_sub_category_id,
       }
     );
 

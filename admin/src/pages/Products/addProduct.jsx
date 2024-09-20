@@ -17,6 +17,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import { emphasize, styled } from '@mui/material/styles';
 import HomeIcon from '@mui/icons-material/Home';
+import { apiGetAllChildSubCategories } from '../../services';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor =
@@ -48,6 +49,7 @@ const AddProduct = () => {
     const [brandId, setBrandId] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [subCategoryId, setSubCategoryId] = useState('');
+    const [childSubCategoryId, setChildSubCategoryId] = useState('');
     const [countInStock, setCountInStock] = useState('');
     const [rating, setRating] = useState('');
     const [isFeatured, setIsFeatured] = useState(false);
@@ -59,7 +61,12 @@ const AddProduct = () => {
 
     const [brands, setBrands] = useState([]);
     const [categories, setCategories] = useState([]);
+
+
     const [subCategories, setSubCategories] = useState([]);
+    const [childSubCategories, setChildSubCategories] = useState([]);
+
+
     const [specifications, setSpecifications] = useState([]); // Add state for specifications
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -74,15 +81,19 @@ const AddProduct = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [brandsData, categoriesData, subCategoriesData] = await Promise.all([
+                const [brandsData, categoriesData, subCategoriesData, childSubCategoriesData] = await Promise.all([
                     apiGetAllBrand(),
                     apiGetAllCategories(),
-                    apiGetAllSubCategories()
+                    apiGetAllSubCategories(),
+                    apiGetAllChildSubCategories()
                 ]);
 
                 setBrands(brandsData || []);
                 setCategories(categoriesData || []);
                 setSubCategories(subCategoriesData || []);
+                setChildSubCategories(childSubCategoriesData.response || []);
+                console.log('childSubCategoriesData',childSubCategoriesData.response)
+                console.log('subCategoriesData',subCategoriesData)
             } catch (error) {
                 console.error('Error fetching data:', error);
                 alert('Error fetching data.');
@@ -123,6 +134,7 @@ const AddProduct = () => {
             formData.append('brand_id', brandId);
             formData.append('category_id', categoryId);
             formData.append('sub_category_id', subCategoryId);
+            formData.append('child_sub_category_id', childSubCategoryId);
             formData.append('countInStock', countInStock);
             formData.append('rating', rating);
             formData.append('isFeatured', isFeatured);
@@ -345,12 +357,12 @@ const AddProduct = () => {
                                 </div>
 
                                 <div className='col-md-4 col_'>
-                                    <h4>Brand</h4>
+                                    <h4>Child Sub Category</h4>
                                     <div className='form-group'>
                                         <FormControl fullWidth size="small" className="w-100">
                                             <Select
-                                                value={brandId}
-                                                onChange={(e) => setBrandId(e.target.value)}
+                                                value={childSubCategoryId}
+                                                onChange={(e) => setChildSubCategoryId(e.target.value)}
                                                 displayEmpty
                                                 inputProps={{ 'aria-label': 'Without label' }}
                                                 labelId="demo-select-small-label"
@@ -358,13 +370,15 @@ const AddProduct = () => {
                                             >
                                                 <MenuItem value=""> <em value={null}>None</em>
                                                 </MenuItem>
-                                                {brands.map((brand) => (
-                                                    <MenuItem key={brand.id} value={brand.id}>{brand.name}</MenuItem>
+                                                {childSubCategories.map((childSubCategory) => (
+                                                    <MenuItem key={childSubCategory.id} value={childSubCategory.id}>{childSubCategory.name}</MenuItem>
                                                 ))}
                                             </Select>
                                         </FormControl>
                                     </div>
                                 </div>
+
+                               
                             </div>
 
                             <div className='row'>
@@ -453,7 +467,29 @@ const AddProduct = () => {
                                 </div>
 
                             </div>
-
+                            <div className='row'>
+                            <div className='col-md-4 col_'>
+                                    <h4>Brand</h4>
+                                    <div className='form-group'>
+                                        <FormControl fullWidth size="small" className="w-100">
+                                            <Select
+                                                value={brandId}
+                                                onChange={(e) => setBrandId(e.target.value)}
+                                                displayEmpty
+                                                inputProps={{ 'aria-label': 'Without label' }}
+                                                labelId="demo-select-small-label"
+                                                className="w-100"
+                                            >
+                                                <MenuItem value=""> <em value={null}>None</em>
+                                                </MenuItem>
+                                                {brands.map((brand) => (
+                                                    <MenuItem key={brand.id} value={brand.id}>{brand.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>

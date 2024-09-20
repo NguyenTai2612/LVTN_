@@ -146,6 +146,12 @@ const Sidebar = () => {
                 <Link to="/subCategory/add">
                   <Button className='w-100 '>Add Sub Category</Button>
                 </Link>
+                <Link to="/childSubCat">
+                  <Button className='w-100 '>Child SubCat List</Button>
+                </Link>
+                <Link to="/childSubCat/add">
+                  <Button className='w-100 '>Add Child SubCat</Button>
+                </Link>
               </div>
             </div>
           </li>
