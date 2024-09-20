@@ -1,4 +1,5 @@
 const ProductImagesService = require('../services/productImage');
+const { ProductImage } = require('../models'); 
 
 const getProductImages = async (req, res) => {
     try {
@@ -68,6 +69,39 @@ const deleteProductImage = async (req, res) => {
     }
 };
 
+// Controller để xóa tất cả hình ảnh của sản phẩm theo product_id
+const deleteProductImagesByProductId = async (req, res) => {
+    const { productId } = req.params;
+
+    try {
+        // Xóa tất cả hình ảnh của sản phẩm có product_id được chỉ định
+        const deletedImagesCount = await ProductImage.destroy({
+            where: {
+                product_id: productId
+            }
+        });
+
+        if (deletedImagesCount > 0) {
+            res.status(200).json({
+                err: 0,
+                msg: `Deleted ${deletedImagesCount} image(s) for product ID ${productId} successfully`
+            });
+        } else {
+            res.status(404).json({
+                err: 1,
+                msg: `No images found for product ID ${productId}`
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            err: 1,
+            msg: 'Error deleting product images',
+            error: error.message
+        });
+    }
+};
+
 
 
 module.exports = {
@@ -75,4 +109,5 @@ module.exports = {
     addProductImage,
     updateProductImage,
     deleteProductImage,
+    deleteProductImagesByProductId
 };

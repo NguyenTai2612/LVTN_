@@ -53,6 +53,19 @@ router.get('/revenue-by-product', statsController.getRevenueByProduct);
 
 // 9. API thống kê doanh thu thực tế 
 router.get('/actualy-revenue', statsController.getActualRevenue);
+
 router.get('/actualy-revenue-by-product', statsController.getActualRevenueByProduct);
+
+// Endpoint để lấy doanh thu theo thời gian
+router.get('/revenue-by-time', statsController.getRevenueByTime);
+// Đối với 7 ngày: http://localhost:5000/api/v1/stats/revenue-by-time?period=7days
+// Đối với tuần: http://localhost:5000/api/v1/stats/revenue-by-time?period=week
+// Đối với tháng: http://localhost:5000/api/v1/stats/revenue-by-time?period=month
+
+// Endpoint để lấy danh sách các sản phẩm bán chạy nhất
+router.get('/top-selling-products', statsController.getTopSellingProducts);
+
+// Endpoint để lấy số lượng người dùng hoạt động
+// router.get('/active-users', statsController.getActiveUsers);
 
 module.exports = router;

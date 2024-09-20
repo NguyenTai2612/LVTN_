@@ -110,9 +110,7 @@ const Sidebar = () => {
                 <Link to="/product/list">
                   <Button className='w-100 '>Product List</Button>
                 </Link>
-                <Link to="/product/details">
-                  <Button className='w-100 '>Product Details</Button>
-                </Link>
+               
                 <Link to="/product/upload">
                   <Button className='w-100 '>Product Upload</Button>
                 </Link>

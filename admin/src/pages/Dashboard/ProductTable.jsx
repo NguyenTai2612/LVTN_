@@ -1,19 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Box, AppBar, Tabs, Tab, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { 
-    apiGetTotalProducts, 
-    apiGetProductsByCategory, 
-    apiGetProductsBySubCategory, 
-    apiGetBestSellingProduct, 
-    apiGetProductsInStock, 
-    apiGetDiscountedProducts, 
-    apiGetTopRatedProducts, 
-    apiGetProductsByBrand 
-} from '../../services/stats'; // Import các API đã tạo
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Grid, Card, CardContent } from '@mui/material';
+import {
+    apiGetNewProducts,
+    apiGetOutOfStockProducts,
+    apiGetProductViews,
+    apiGetMostCanceledProducts,
+    apiGetTotalProducts,
+    apiGetProductsByCategory,
+    apiGetProductsBySubCategory,
+    apiGetProductsInStock,
+    apiGetDiscountedProducts,
+    apiGetTopRatedProducts,
+    apiGetProductsByBrand,
+    apiGetTopSellingProducts
+} from '../../services/stats';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from 'recharts';
+
 import Price from '../../components/Price';
 
 const ProductStatistics = () => {
-    const [value, setValue] = useState(0);
+    const [selectedChip, setSelectedChip] = useState(0);
+    const [newProducts, setNewProducts] = useState([]);
+    const [outOfStockProducts, setOutOfStockProducts] = useState([]);
+    const [productViews, setProductViews] = useState([]);
+    const [mostCanceledProducts, setMostCanceledProducts] = useState([]);
     const [totalProducts, setTotalProducts] = useState(null);
     const [productsByCategory, setProductsByCategory] = useState([]);
     const [productsBySubCategory, setProductsBySubCategory] = useState([]);
@@ -23,8 +33,9 @@ const ProductStatistics = () => {
     const [topRatedProducts, setTopRatedProducts] = useState([]);
     const [productsByBrand, setProductsByBrand] = useState([]);
 
+
     useEffect(() => {
-        // Call tất cả các API khi component được mount
+        // Fetch statistics data when component mounts
         fetchStatisticsData();
     }, []);
 
@@ -33,13 +44,25 @@ const ProductStatistics = () => {
             const total = await apiGetTotalProducts();
             setTotalProducts(total);
 
+            const newProd = await apiGetNewProducts();
+            setNewProducts(newProd);
+
+            const outOfStock = await apiGetOutOfStockProducts();
+            setOutOfStockProducts(outOfStock);
+
+            const views = await apiGetProductViews();
+            setProductViews(views);
+
+            const canceledProducts = await apiGetMostCanceledProducts();
+            setMostCanceledProducts(canceledProducts);
+
             const categoryData = await apiGetProductsByCategory();
             setProductsByCategory(categoryData);
 
             const subCategoryData = await apiGetProductsBySubCategory();
             setProductsBySubCategory(subCategoryData);
 
-            const bestSelling = await apiGetBestSellingProduct();
+            const bestSelling = await apiGetTopSellingProducts();
             setBestSellingProduct(bestSelling);
 
             const inStockData = await apiGetProductsInStock();
@@ -53,41 +76,171 @@ const ProductStatistics = () => {
 
             const brandData = await apiGetProductsByBrand();
             setProductsByBrand(brandData);
+
+
         } catch (error) {
             console.error("Error fetching product statistics:", error);
         }
     };
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
+    const handleChipClick = (index) => {
+        setSelectedChip(index);
     };
+
+    // const maxRevenue = Math.max(...revenueByProduct.map(item => item.totalRevenue));
+
+    const chipLabels = [
+        "Tổng Số Lượng Sản Phẩm",
+        "Sản Phẩm Mới",
+        "Sản Phẩm Hết Hàng",
+        "Lượt Xem Sản Phẩm",
+        "Đơn Hàng Bị Hủy Nhiều Nhất",
+        "Theo Danh Mục",
+        "Theo Tiểu Mục",
+        "Sản Phẩm Bán Chạy",
+        "Sản Phẩm Còn Lại",
+        "Sản Phẩm Giảm Giá",
+        "Sản Phẩm Có Điểm Đánh Giá Cao",
+        "Sản Phẩm Theo Thương Hiệu"
+    ];
+
+    const formatTooltipValue = (value) => <Price amount={value} />;
 
     return (
         <Box sx={{ width: '100%' }}>
-            <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
-                <Tabs value={value} onChange={handleChange} aria-label="product statistics tabs">
-                    <Tab label="Số Lượng" />
-                    <Tab label="Danh Mục" />
-                    <Tab label="Tiểu Mục" />
-                    <Tab label="Bán Chạy Nhất" />
-                    <Tab label="Còn Trong Kho" />
-                    <Tab label="Giảm Giá" />
-                    <Tab label="Lượt Đánh Giá Cao Nhất" />
-                    <Tab label="Thương Hiệu" />
-                </Tabs>
-            </AppBar>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mb: 3 }}>
+                {chipLabels.map((label, index) => (
+                    <Chip
+                        key={index}
+                        label={label}
+                        onClick={() => handleChipClick(index)}
+                        color={selectedChip === index ? 'primary' : 'default'}
+                        sx={{ margin: 1 }}
+                    />
+                ))}
+            </Box>
+            <div className="custom-divider"></div>
 
-            {/* Tab 0: Tổng số sản phẩm */}
-            {value === 0 && (
+
+            {/* Conditional rendering based on selected chip */}
+            {selectedChip === 0 && (
                 <Box p={3}>
-                    <Typography variant="h6">Tổng Số Lượng Sản Phẩm: {totalProducts?.totalProducts}</Typography>
+                    <Typography variant="h6">
+                        Tổng Số Lượng Sản Phẩm: {totalProducts?.totalProducts || 'Đang tải...'}
+                    </Typography>
                 </Box>
             )}
 
-            {/* Tab 1: Sản phẩm theo danh mục */}
-            {value === 1 && (
+            {selectedChip === 1 && (
                 <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Theo Danh Mục</Typography>
+                    <Typography variant="h6">Sản Phẩm Mới</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Sản Phẩm</TableCell>
+                                    <TableCell>Ngày Thêm</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {newProducts.map((product, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 2 && (
+                <Box p={3}>
+                    <Typography variant="h6">Sản Phẩm Hết Hàng</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Sản Phẩm</TableCell>
+                                    <TableCell>Ngày Hết Hàng</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {outOfStockProducts.map((product, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 3 && (
+                <Box p={3}>
+                    <Typography variant="h6">Lượt Xem Sản Phẩm</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Sản Phẩm</TableCell>
+                                    <TableCell>Lượt Xem</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {productViews.map((product, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{product.views}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 4 && (
+                <Box p={3}>
+                    <Typography variant="h6">Đơn Hàng Bị Hủy Nhiều Nhất</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Sản Phẩm</TableCell>
+                                    <TableCell>Số Lượng Bị Hủy</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {mostCanceledProducts.map((product, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{product.Product.name}</TableCell>
+                                        <TableCell>{product.cancelCount}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 5 && (
+                <Box p={3}>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Theo Danh Mục</Typography> */}
+                        {/* <LineChart width={600} height={300} data={monthlySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart> */}
+                    </Box>
+                    <Typography variant="h6">Theo Danh Mục</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
@@ -97,22 +250,39 @@ const ProductStatistics = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {productsByCategory.map((category, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{category.name}</TableCell>
-                                        <TableCell>{category.product_count}</TableCell>
+                                {productsByCategory.length > 0 ? (
+                                    productsByCategory.map((category, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{category.name}</TableCell>
+                                            <TableCell>{category.product_count}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </Box>
             )}
 
-            {/* Tab 2: Sản phẩm theo tiểu mục */}
-            {value === 2 && (
+
+            {selectedChip === 6 && (
                 <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Theo Tiểu Mục</Typography>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tuần</Typography> */}
+                        {/* <BarChart width={600} height={300} data={weeklySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="week" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Bar dataKey="totalSales" fill="#82ca9d" />
+                        </BarChart> */}
+                    </Box>
+                    <Typography variant="h6">Theo Tiểu Mục</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
@@ -122,47 +292,82 @@ const ProductStatistics = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {productsBySubCategory.map((subCategory, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{subCategory.subCat}</TableCell>
-                                        <TableCell>{subCategory.product_count}</TableCell>
+                                {productsBySubCategory.length > 0 ? (
+                                    productsBySubCategory.map((subCategory, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{subCategory.subCat}</TableCell>
+                                            <TableCell>{subCategory.product_count}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </Box>
             )}
 
-            {/* Tab 3: Sản phẩm bán chạy nhất */}
-            {value === 3 && (
+            {selectedChip === 7 && (
                 <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Bán Chạy Nhất</Typography>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
+                        <LineChart width={600} height={300} data={dailySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart> */}
+                    </Box>
+                    <Typography variant="h6">Sản Phẩm Bán Chạy</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Số Lượng Bán</TableCell>
+                                    <TableCell>Đã Bán</TableCell>
+                                    <TableCell>Doanh Thu</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {bestSellingProduct.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.Product.name}</TableCell>
-                                        <TableCell>{product.total_sold}</TableCell>
+                                {bestSellingProduct.length > 0 ? (
+                                    bestSellingProduct.map((product, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{product.Product?.name}</TableCell>
+                                            <TableCell>{product.totalSales}</TableCell>
+                                            <TableCell><Price amount={product.Product?.price} /></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
                 </Box>
             )}
 
-            {/* Tab 4: Sản phẩm còn trong kho */}
-            {value === 4 && (
+            {selectedChip === 8 && (
                 <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Còn Trong Kho</Typography>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
+                        <LineChart width={600} height={300} data={dailySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart> */}
+                    </Box>
+                    <Typography variant="h6">Sản Phẩm Còn Lại</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
@@ -172,51 +377,83 @@ const ProductStatistics = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {productsInStock.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.countInStock}</TableCell>
+                                {productsInStock.length > 0 ? (
+                                    productsInStock.map((product, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{product.name}</TableCell>
+                                            <TableCell>{product.countInStock}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
                 </Box>
             )}
 
-            {/* Tab 5: Sản phẩm đang giảm giá */}
-            {value === 5 && (
+            {selectedChip === 9 && (
                 <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Đang Giảm Giá</Typography>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
+                        <LineChart width={600} height={300} data={dailySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart> */}
+                    </Box>
+                    <Typography variant="h6">Sản Phẩm Giảm Giá</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Giá</TableCell>
-                                    <TableCell>Mức Giảm Giá (%)</TableCell>
+                                    <TableCell>Giá Gốc</TableCell>
+                                    <TableCell>Giá Giảm</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {discountedProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>
-                                            <Price amount={product.price} />
-                                        </TableCell>
-                                        <TableCell>{product.discount}%</TableCell>
+                                {discountedProducts.length > 0 ? (
+                                    discountedProducts.map((product, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{product.name}</TableCell>
+                                            <TableCell><Price amount={product.price} /></TableCell>
+                                            <TableCell> {product.discount}% </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={3}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
                 </Box>
             )}
 
-            {/* Tab 6: Sản phẩm được đánh giá cao nhất */}
-            {value === 6 && (
+            {selectedChip === 10 && (
                 <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Được Đánh Giá Cao Nhất</Typography>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
+                        <LineChart width={600} height={300} data={dailySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart> */}
+                    </Box>
+                    <Typography variant="h6">Sản Phẩm Có Điểm Đánh Giá Cao</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
@@ -226,44 +463,74 @@ const ProductStatistics = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {topRatedProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.rating}</TableCell>
+                                {topRatedProducts.length > 0 ? (
+                                    topRatedProducts.map((product, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{product.name}</TableCell>
+                                            <TableCell>{product.rating}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
                 </Box>
             )}
 
-            {/* Tab 7: Sản phẩm theo thương hiệu */}
-            {value === 7 && (
+            {selectedChip === 11 && (
                 <Box p={3}>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
+                        <LineChart width={600} height={300} data={dailySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart> */}
+                    </Box>
                     <Typography variant="h6">Sản Phẩm Theo Thương Hiệu</Typography>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Thương Hiệu</TableCell>
-                                    <TableCell>Số Lượng</TableCell>
+                                <TableCell>Thương Hiệu</TableCell>
+                                <TableCell>Số Lượng</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {productsByBrand.map((brand, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{brand.name}</TableCell>
-                                        <TableCell>{brand.product_count}</TableCell>
+                            {productsByBrand.length > 0 ? (
+                                    productsByBrand.map((brand, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{brand.name}</TableCell>
+                                            <TableCell>{brand.product_count}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
                 </Box>
             )}
+
         </Box>
     );
 };
 
+export const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+};
+
 export default ProductStatistics;
+//

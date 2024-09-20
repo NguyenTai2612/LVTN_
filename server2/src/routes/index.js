@@ -11,6 +11,8 @@ const subCategoryRouter = require('./subCategory.js');
 const orderRouter = require('./order.js'); 
 const stripeRouter = require('./stripe.js'); 
 const statsRouter = require('./stats.js'); 
+const deleteAllRouter = require('./deleteAll.js'); 
+const uploadCSVRouter = require('./uploadCSV.js'); 
 
 const initRoutes = (app) => {
     app.use('/api/v1/auth', authRouter)
@@ -26,6 +28,8 @@ const initRoutes = (app) => {
     app.use('/api/v1/order', orderRouter);
     app.use('/api/v1/stripe', stripeRouter);
     app.use('/api/v1/stats', statsRouter);
+    app.use('/api/v1/uploadCSV', uploadCSVRouter);
+    app.use('/api/v1/deleteAll', deleteAllRouter);
 
     
     return app.use('/', (req, res) => {

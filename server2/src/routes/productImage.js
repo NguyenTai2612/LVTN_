@@ -9,4 +9,6 @@ router.post('/', productImageController.addProductImage);
 router.put('/:id', productImageController.updateProductImage);
 router.delete('/:id', productImageController.deleteProductImage);
 
+router.delete('/:productId/delete', productImageController.deleteProductImagesByProductId);
+
 module.exports = router;

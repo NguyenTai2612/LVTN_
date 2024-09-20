@@ -1,3 +1,4 @@
+import axios from 'axios';
 import axiosConfig from '../axiosConfig';
 
 // API to get total number of products
@@ -290,6 +291,30 @@ export const apiGetMostCanceledProducts = () => new Promise(async (resolve, reje
         reject(error);
     }
 });
+
+// Hàm lấy doanh thu theo thời gian
+export const apiGetRevenueByTime = async (period) => {
+    try {
+      const response = await axiosConfig.get(`/api/v1/stats/revenue-by-time`, {
+        params: { period }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching revenue by time:', error);
+      throw error;
+    }
+  };
+  
+  // Hàm lấy các sản phẩm bán chạy
+  export const apiGetTopSellingProducts = async () => {
+    try {
+      const response = await axiosConfig.get(`/api/v1/stats/top-selling-products`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching top selling products:', error);
+      throw error;
+    }
+  };
 
 
 

@@ -86,14 +86,9 @@ const ProductStatistics = () => {
 
     const chipLabels = [
         "Doanh Thu Tổng",
-        "Sản Phẩm Mới",
-        "Sản Phẩm Hết Hàng",
-        "Lượt Xem Sản Phẩm",
-        "Đơn Hàng Bị Hủy Nhiều Nhất",
         "Doanh Thu Theo Tháng",
         "Doanh Thu Theo Tuần",
         "Doanh Thu Theo Ngày",
-        "Tổng Đơn Hàng",
         "Doanh Thu Theo Sản Phẩm",
         "Doanh Thu Thực Tế Theo Sản Phẩm"
     ];
@@ -122,106 +117,15 @@ const ProductStatistics = () => {
                     <Typography variant="h6">
                         Doanh Thu Tổng: <Price amount={totalRevenue?.data[0]?.totalActualRevenue} />
                     </Typography>
+                    <br />
+                    <Typography variant="h6">Tổng Số Đơn Hàng: {totalOrders?.totalOrders}</Typography>
+
                 </Box>
             )}
+
+          
 
             {selectedChip === 1 && (
-                <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Mới</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Ngày Thêm</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {newProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
-
-            {selectedChip === 2 && (
-                <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Hết Hàng</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Ngày Hết Hàng</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {outOfStockProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
-
-            {selectedChip === 3 && (
-                <Box p={3}>
-                    <Typography variant="h6">Lượt Xem Sản Phẩm</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Lượt Xem</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {productViews.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.views}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
-
-            {selectedChip === 4 && (
-                <Box p={3}>
-                    <Typography variant="h6">Đơn Hàng Bị Hủy Nhiều Nhất</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Số Lượng Bị Hủy</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {mostCanceledProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.Product.name}</TableCell>
-                                        <TableCell>{product.cancelCount}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
-
-            {selectedChip === 5 && (
                 <Box p={3}>
                     <Box mt={3}>
                         <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tháng</Typography>
@@ -260,7 +164,7 @@ const ProductStatistics = () => {
             )}
 
 
-            {selectedChip === 6 && (
+            {selectedChip === 2 && (
                 <Box p={3}>
                     <Box mt={3}>
                         <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tuần</Typography>
@@ -298,7 +202,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 7 && (
+            {selectedChip === 3 && (
                 <Box p={3}>
                     <Box mt={3}>
                         <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
@@ -318,6 +222,7 @@ const ProductStatistics = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Ngày</TableCell>
+                                    <TableCell>Đã Bán</TableCell>
                                     <TableCell>Doanh Thu</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -325,6 +230,7 @@ const ProductStatistics = () => {
                                 {dailySales.map((sales, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{sales.date}</TableCell>
+                                        <TableCell>{sales.totalProductsSold}</TableCell>
                                         <TableCell><Price amount={sales.totalSales} /></TableCell>
                                     </TableRow>
                                 ))}
@@ -335,13 +241,9 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 8 && (
-                <Box p={3}>
-                    <Typography variant="h6">Tổng Số Đơn Hàng: {totalOrders?.totalOrders}</Typography>
-                </Box>
-            )}
+          
 
-            {selectedChip === 9 && (
+            {selectedChip === 4 && (
                 <Box p={3}>
                     <Typography variant="h6">Doanh Thu Theo Sản Phẩm</Typography>
                     <BarChart width={600} height={300} data={revenueByProduct}>
@@ -367,7 +269,7 @@ const ProductStatistics = () => {
                             <TableBody>
                                 {revenueByProduct.map((product, index) => (
                                     <TableRow key={index}>
-                                        <TableCell>{product.Product.name}</TableCell>
+                                        <TableCell>{product.Product?.name}</TableCell>
                                         <TableCell><Price amount={product.totalRevenue} /></TableCell>
                                     </TableRow>
                                 ))}
@@ -377,7 +279,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 10 && (
+            {selectedChip === 5 && (
                 <Box p={3}>
                     <Typography variant="h6">Doanh Thu Thực Tế Theo Sản Phẩm</Typography>
                     <BarChart width={600} height={300} data={actualRevenueByProduct}>
@@ -385,7 +287,6 @@ const ProductStatistics = () => {
                         <XAxis dataKey="productName" />
                         {/* Custom tick formatter for YAxis */}
                         <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                        {/* Custom Tooltip to format price */}
                         <Tooltip formatter={(value) => formatCurrency(value)} />
                         <Legend />
                         <Bar dataKey="totalActualRevenue" fill="#8884d8" />
@@ -420,3 +321,4 @@ export const formatCurrency = (amount) => {
 };
 
 export default ProductStatistics;
+//

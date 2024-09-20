@@ -13,4 +13,6 @@ router.put('/:id/update', productSpecificationController.updateProductSpecificat
 
 router.delete('/:id/delete', productSpecificationController.deleteProductSpecification);
 
+
+router.delete('/:productId/deletebyProductId', productSpecificationController.deleteProductSpecificationsByProductId);
 module.exports = router;

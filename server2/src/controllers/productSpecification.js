@@ -1,4 +1,5 @@
 const productSpecificationService = require('../services/productSpecification');
+const { ProductSpecification } = require('../models');
 
 const getProductSpecifications = async (req, res) => {
     const productId = parseInt(req.params.productId, 10); // Đổi thành productId
@@ -109,10 +110,33 @@ const deleteProductSpecification = async (req, res) => {
     }
 };
 
+// Controller để xóa tất cả các đặc tả của sản phẩm theo product_id
+const deleteProductSpecificationsByProductId = async (req, res) => {
+    const productId = parseInt(req.params.productId, 10); // Lấy productId từ tham số URL
+
+    try {
+        const result = await productSpecificationService.deleteProductSpecificationsByProductIdService(productId);
+
+        if (result.err === 0) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error('Error in deleteProductSpecificationsByProductId controller:', error);
+        res.status(500).json({
+            err: 1,
+            msg: 'Error deleting product specifications',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getProductSpecifications,
     getProductSpecificationById,
     createProductSpecification,
     updateProductSpecification,
-    deleteProductSpecification
+    deleteProductSpecification,
+    deleteProductSpecificationsByProductId
 };

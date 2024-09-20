@@ -142,7 +142,8 @@ const ProductStatistics = () => {
 
 
         <div className="card shadow my-4 border-0">
-          <div className="flex items-center mb-4 justify-between pt-3 px-4"></div>
+        <div className="flex items-center mb-2 "></div>
+
           <ProductTable />
 
         </div>

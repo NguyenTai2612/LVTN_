@@ -15,7 +15,9 @@ import Chip from '@mui/material/Chip';
 import { Link } from 'react-router-dom';
 import { apiGetBrand, apiDeleteBrand } from '../../services/brand';
 import TooltipBox from '@mui/material/Tooltip';
-import ProductTable from './ProductTable'
+import { LuClipboardCheck } from "react-icons/lu";
+import { LiaMoneyBillWaveSolid } from "react-icons/lia";
+
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
@@ -38,6 +40,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   };
 });
 import { MyContext } from '../../App';
+import { apiGetTotalOrders, apiGetTotalProducts, apiGetTotalRevenue } from '../../services/stats';
 
 
 const data = [
@@ -86,76 +89,83 @@ const data = [
 ];
 
 const Overview = () => {
-
-  const [perPage, setPerPage] = useState(10);
-  const [showBy, setShowBy] = useState(10);
-
-  const [isAllChecked, setIsAllChecked] = useState(false);
-
-  const selectAll = (e) => {
-    if (e.target.checked === true) {
-      setIsAllChecked(true)
-    } else {
-      setIsAllChecked(false)
-
-    }
-  }
-
-
-
-  const handleChange = (event) => {
-    setPerPage(event.target.value);
-    setShowBy(event.target.value)
-  };
-
+  const [totalProducts, setTotalProducts] = useState(null);
+  const [totalRevenue, setTotalRevenue] = useState(null);
+  const [totalOrders, setTotalOrders] = useState(null);
 
   const context = useContext(MyContext);
 
   useEffect(() => {
     context.setIsHeaderFooterShow(false);
+
+    // Gọi API để lấy dữ liệu
+    fetchStatisticsData();
   }, []);
+
+  const fetchStatisticsData = async () => {
+    try {
+      const products = await apiGetTotalProducts();
+      const revenue = await apiGetTotalRevenue();
+      const orders = await apiGetTotalOrders();
+
+      setTotalProducts(products.totalProducts);
+      setTotalRevenue(Number(revenue.data[0].totalActualRevenue));
+
+      setTotalOrders(orders.totalOrders);
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+    }
+  };
+
   return (
     <>
-
       <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
         <div className="flex items-center justify-between">
           <h1 className="font-weight-bold text-white">Overview</h1>
           <div className="ml-auto flex align-items-center gap-3">
             <Breadcrumbs aria-label="breadcrumb">
-              <StyledBreadcrumb
-                component={Link}
-                href="#"
-                label="Dashboard"
-                to="/"
-                icon={<HomeIcon fontSize="small" />}
-              />
+              <StyledBreadcrumb component={Link} href="#" label="Dashboard" to="/" icon={<HomeIcon fontSize="small" />} />
               <StyledBreadcrumb label="Overview" />
             </Breadcrumbs>
-            {/* <Link to={'/brand/add'}>
-              <Button className="btn-blue ml-3 p-5 pr-5">Add Brand</Button>
-            </Link> */}
           </div>
         </div>
       </div>
+
       <div className="section">
-        
-      <div className="dashboardBoxWrapper d-flex">
-          <DashboardBox color={["#1da256", "#48d483"]} icon={<FaUserCircle />} grow={true} />
-          <DashboardBox color={["#c012e2", "#eb64fe"]} icon={<IoMdCart />} />
-          <DashboardBox color={["#2c78e5", "#60aff5"]} icon={<MdShoppingBag />} />
+        <div className="dashboardBoxWrapper d-flex">
+          <DashboardBox
+            color={["#1da256", "#48d483"]}
+            icon={<IoMdCart />}
+            value={totalProducts}  // Truyền tổng sản phẩm
+            label="Tổng Số Sản Phẩm"
+            isCurrency={false}  // Không phải tiền tệ
+          />
+
+          {/* Hiển thị tổng đơn hàng */}
+          <DashboardBox color={["#2c78e5", "#60aff5"]} icon={<LuClipboardCheck />} value={totalOrders} label="Tổng Đơn Hàng" />
+
+          <DashboardBox
+            color={["#c012e2", "#eb64fe"]}
+            icon={<LiaMoneyBillWaveSolid />}
+            value={totalRevenue}  // Truyền tổng doanh thu
+            label="Tổng Doanh Thu"
+            isCurrency={true}  // Là tiền tệ
+          />
+
         </div>
+      </div>
+      <div className="card shadow my-4 border-0">
 
-        <div className="card shadow my-4 border-0">
-          <div className="flex items-center mb-4 justify-between pt-3 px-4"></div>
-      
-
-        </div>
+        <div className="flex items-center mb-4 justify-between pt-3 px-4"></div>
 
 
+      </div>
 
-      </div >
+
+
     </>
   );
-}
+};
+
 
 export default Overview;

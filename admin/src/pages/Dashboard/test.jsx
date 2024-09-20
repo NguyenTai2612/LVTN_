@@ -1,341 +1,240 @@
-import React, { useState, useEffect } from 'react';
-import { Box, AppBar, Tabs, Tab, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { 
-    apiGetTotalRevenue, 
-    apiGetNewProducts, 
-    apiGetOutOfStockProducts, 
-    apiGetProductViews, 
-    apiGetMostCanceledProducts, 
-    apiGetMonthlySales, 
-    apiGetWeeklySales, 
-    apiGetDailySales, 
-    apiGetTotalOrders, 
-    apiGetRevenueByProduct, 
-    apiGetActualRevenueByProduct 
-} from '../../services/stats'; // Import các API đã tạo
-import Price from '../../components/Price';
+import React, { useContext, useEffect, useState } from 'react';
+import DashboardBox from './components/DashboardBox';
+import { FaUserCircle } from "react-icons/fa";
+import { IoMdCart } from "react-icons/io";
+import { MdShoppingBag } from "react-icons/md";
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import HomeIcon from '@mui/icons-material/Home';
+import { emphasize, styled } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
+import { Link } from 'react-router-dom';
+import { MyContext } from '../../App';
+import { apiGetTotalOrders, apiGetTotalProducts, apiGetTotalRevenue, apiGetRevenueByTime, apiGetTopSellingProducts } from '../../services/stats';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, AreaChart, Area } from 'recharts';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 
-const ProductStatistics = () => {
-    const [value, setValue] = useState(0);
-    const [totalRevenue, setTotalRevenue] = useState(null);
-    const [newProducts, setNewProducts] = useState([]);
-    const [outOfStockProducts, setOutOfStockProducts] = useState([]);
-    const [productViews, setProductViews] = useState([]);
-    const [mostCanceledProducts, setMostCanceledProducts] = useState([]);
-    const [monthlySales, setMonthlySales] = useState([]);
-    const [weeklySales, setWeeklySales] = useState([]);
-    const [dailySales, setDailySales] = useState([]);
-    const [totalOrders, setTotalOrders] = useState(null);
-    const [revenueByProduct, setRevenueByProduct] = useState([]);
-    const [actualRevenueByProduct, setActualRevenueByProduct] = useState([]);
+const StyledBreadcrumb = styled(Chip)(({ theme }) => {
+  const backgroundColor =
+    theme.palette.mode === 'light'
+      ? theme.palette.grey[100]
+      : theme.palette.grey[800];
+  return {
+    backgroundColor,
+    height: theme.spacing(3),
+    color: theme.palette.text.primary,
+    fontWeight: theme.typography.fontWeightRegular,
+    '&:hover, &:focus': {
+      backgroundColor: emphasize(backgroundColor, 0.06),
+    },
+    '&:active': {
+      boxShadow: theme.shadows[1],
+      backgroundColor: emphasize(backgroundColor, 0.12),
+    },
+  };
+});
 
-    useEffect(() => {
-        // Call tất cả các API khi component được mount
-        fetchStatisticsData();
-    }, []);
+const Overview = () => {
+  const [totalProducts, setTotalProducts] = useState(null);
+  const [totalRevenue, setTotalRevenue] = useState(null);
+  const [totalOrders, setTotalOrders] = useState(null);
+  const [revenueByTime, setRevenueByTime] = useState([]);
+  const [topSellingProducts, setTopSellingProducts] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [selectedPeriod, setSelectedPeriod] = useState('7days');
 
-    const fetchStatisticsData = async () => {
-        try {
-            const revenue = await apiGetTotalRevenue();
-            setTotalRevenue(revenue);
+  const context = useContext(MyContext);
 
-            const newProd = await apiGetNewProducts();
-            setNewProducts(newProd);
+  useEffect(() => {
+    context.setIsHeaderFooterShow(false);
 
-            const outOfStock = await apiGetOutOfStockProducts();
-            setOutOfStockProducts(outOfStock);
+    // Gọi API để lấy dữ liệu
+    fetchStatisticsData();
+    fetchRevenueByTime(selectedPeriod); // Gọi với khoảng thời gian mặc định
+    fetchTopSellingProducts();
+  }, [selectedPeriod]); // Thêm selectedPeriod vào dependency array
 
-            const views = await apiGetProductViews();
-            setProductViews(views);
 
-            const canceledProducts = await apiGetMostCanceledProducts();
-            setMostCanceledProducts(canceledProducts);
+  const processTopSellingProducts = (data) => {
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(item => ({
+        name: item.Product?.name || 'Tên sản phẩm không xác định', // Lấy tên sản phẩm
+        sales: parseInt(item.totalSales, 10) || 0 // Đảm bảo giá trị là số
+      }));
+    } else {
+      return [];
+    }
+  };
 
-            const monthly = await apiGetMonthlySales();
-            setMonthlySales(monthly);
+  const fetchStatisticsData = async () => {
+    try {
+      const products = await apiGetTotalProducts();
+      const revenue = await apiGetTotalRevenue();
+      const orders = await apiGetTotalOrders();
 
-            const weekly = await apiGetWeeklySales();
-            setWeeklySales(weekly);
+      setTotalProducts(products.totalProducts);
+      setTotalRevenue(Number(revenue.data[0].totalActualRevenue));
+      setTotalOrders(orders.totalOrders);
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+    }
+  };
 
-            const daily = await apiGetDailySales();
-            setDailySales(daily);
+  const processRevenueByTime = (data) => {
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map((item, index) => ({
+        date: `Ngày ${index + 1}`, // Tạo ngày giả
+        revenue: parseInt(item.totalRevenue, 10) || 0 // Đảm bảo giá trị là số
+      }));
+    } else {
+      return [];
+    }
+  };
 
-            const total = await apiGetTotalOrders();
-            setTotalOrders(total);
 
-            const revenueProduct = await apiGetRevenueByProduct();
-            setRevenueByProduct(revenueProduct);
+  const fetchRevenueByTime = async (period) => {
+    try {
+      const response = await apiGetRevenueByTime(period);
+      console.log('Revenue by Time API Response:', response); // In dữ liệu gốc từ API
+      const processedData = processRevenueByTime(response);
+      console.log('Processed Revenue by Time Data:', processedData); // In dữ liệu đã xử lý
+      setRevenueByTime(processedData);
+    } catch (error) {
+      console.error('Error fetching revenue by time:', error);
+      setRevenueByTime([]);
+    }
+  };
 
-            const actualRevenueProduct = await apiGetActualRevenueByProduct();
-            setActualRevenueByProduct(actualRevenueProduct);
-        } catch (error) {
-            console.error("Error fetching product statistics:", error);
-        }
-    };
+  const fetchTopSellingProducts = async () => {
+    try {
+      const response = await apiGetTopSellingProducts();
+      console.log('Top Selling Products API Response:', response); // In dữ liệu gốc từ API
+      const processedData = processTopSellingProducts(response);
+      console.log('Processed Top Selling Products Data:', processedData); // In dữ liệu đã xử lý
+      setTopSellingProducts(processedData);
+    } catch (error) {
+      console.error('Error fetching top selling products:', error);
+      setTopSellingProducts([]);
+    }
+  };
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
 
-    return (
-        <Box sx={{ width: '100%' }}>
-            <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
-                <Tabs value={value} onChange={handleChange} aria-label="product statistics tabs">
-                    <Tab label="Doanh Thu Tổng" />
-                    <Tab label="Sản Phẩm Mới" />
-                    <Tab label="Sản Phẩm Hết Hàng" />
-                    <Tab label="Lượt Xem Sản Phẩm" />
-                    <Tab label="Đơn Hàng Bị Hủy Nhiều Nhất" />
-                    <Tab label="Doanh Thu Theo Tháng" />
-                    <Tab label="Doanh Thu Theo Tuần" />
-                    <Tab label="Doanh Thu Theo Ngày" />
-                    <Tab label="Tổng Đơn Hàng" />
-                    <Tab label="Doanh Thu Theo Sản Phẩm" />
-                    <Tab label="Doanh Thu Thực Tế Theo Sản Phẩm" />
-                </Tabs>
-            </AppBar>
 
-            {/* Tab 0: Doanh Thu Tổng */}
-            {value === 0 && (
-                <Box p={3}>
-                    <Typography variant="h6">Doanh Thu Tổng: <Price amount={totalRevenue?.totalRevenue} /></Typography>
-                </Box>
-            )}
 
-            {/* Tab 1: Sản phẩm mới */}
-            {value === 1 && (
-                <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Mới</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Ngày Thêm</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {newProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{new Date(product.dateAdded).toLocaleDateString()}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
+  useEffect(() => {
+    fetchStatisticsData();
+    fetchRevenueByTime(selectedPeriod); // Gọi với khoảng thời gian mặc định
+    fetchTopSellingProducts();
+  }, [selectedPeriod]); // Thêm selectedPeriod vào dependency array
 
-            {/* Tab 2: Sản phẩm hết hàng */}
-            {value === 2 && (
-                <Box p={3}>
-                    <Typography variant="h6">Sản Phẩm Hết Hàng</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Ngày Hết Hàng</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {outOfStockProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{new Date(product.dateOutOfStock).toLocaleDateString()}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
 
-            {/* Tab 3: Lượt xem sản phẩm */}
-            {value === 3 && (
-                <Box p={3}>
-                    <Typography variant="h6">Lượt Xem Sản Phẩm</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Lượt Xem</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {productViews.map((view, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{view.name}</TableCell>
-                                        <TableCell>{view.views}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
 
-            {/* Tab 4: Đơn hàng bị hủy nhiều nhất */}
-            {value === 4 && (
-                <Box p={3}>
-                    <Typography variant="h6">Đơn Hàng Bị Hủy Nhiều Nhất</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Số Lượng Bị Hủy</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {mostCanceledProducts.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.cancel_count}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
+  const handlePeriodChange = (event) => {
+    const period = event.target.value;
+    setSelectedPeriod(period);
+  };
 
-            {/* Tab 5: Doanh thu theo tháng */}
-            {value === 5 && (
-                <Box p={3}>
-                    <Typography variant="h6">Doanh Thu Theo Tháng</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tháng</TableCell>
-                                    <TableCell>Doanh Thu</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {monthlySales.map((sales, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{sales.month}</TableCell>
-                                        <TableCell><Price amount={sales.revenue} /></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
+  useEffect(() => {
+    console.log('Revenue by Time Data:', revenueByTime);
+    console.log('Top Selling Products Data:', topSellingProducts);
+  }, [revenueByTime, topSellingProducts]);
 
-            {/* Tab 6: Doanh thu theo tuần */}
-            {value === 6 && (
-                <Box p={3}>
-                    <Typography variant="h6">Doanh Thu Theo Tuần</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tuần</TableCell>
-                                    <TableCell>Doanh Thu</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {weeklySales.map((sales, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{sales.week}</TableCell>
-                                        <TableCell><Price amount={sales.revenue} /></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
+  return (
+    <>
+      <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
+        <div className="flex items-center justify-between">
+          <h1 className="font-weight-bold text-white">Overview</h1>
+          <div className="ml-auto flex align-items-center gap-3">
+            <Breadcrumbs aria-label="breadcrumb">
+              <StyledBreadcrumb component={Link} href="#" label="Dashboard" to="/" icon={<HomeIcon fontSize="small" />} />
+              <StyledBreadcrumb label="Overview" />
+            </Breadcrumbs>
+          </div>
+        </div>
+      </div>
 
-            {/* Tab 7: Doanh thu theo ngày */}
-            {value === 7 && (
-                <Box p={3}>
-                    <Typography variant="h6">Doanh Thu Theo Ngày</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Ngày</TableCell>
-                                    <TableCell>Doanh Thu</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {dailySales.map((sales, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{sales.date}</TableCell>
-                                        <TableCell><Price amount={sales.revenue} /></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
+      <div className="card shadow my-4 border-0">
+        <div className="section">
+          <div className="dashboardBoxWrapper d-flex">
+            <DashboardBox
+              color={["#1da256", "#48d483"]}
+              icon={<FaUserCircle />}
+              value={totalProducts}
+              label="Tổng Số Sản Phẩm"
+              isCurrency={false}
+            />
 
-            {/* Tab 8: Tổng đơn hàng */}
-            {value === 8 && (
-                <Box p={3}>
-                    <Typography variant="h6">Tổng Đơn Hàng</Typography>
-                    <Typography variant="h6">Tổng Số Đơn Hàng: {totalOrders?.totalOrders}</Typography>
-                </Box>
-            )}
+            <DashboardBox
+              color={["#c012e2", "#eb64fe"]}
+              icon={<IoMdCart />}
+              value={totalRevenue}
+              label="Tổng Doanh Thu"
+              isCurrency={true}
+            />
 
-            {/* Tab 9: Doanh thu theo sản phẩm */}
-            {value === 9 && (
-                <Box p={3}>
-                    <Typography variant="h6">Doanh Thu Theo Sản Phẩm</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Doanh Thu</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {revenueByProduct.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell><Price amount={product.revenue} /></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
+            <DashboardBox
+              color={["#2c78e5", "#60aff5"]}
+              icon={<MdShoppingBag />}
+              value={totalOrders}
+              label="Tổng Đơn Hàng"
+            />
+          </div>
 
-            {/* Tab 10: Doanh thu thực tế theo sản phẩm */}
-            {value === 10 && (
-                <Box p={3}>
-                    <Typography variant="h6">Doanh Thu Thực Tế Theo Sản Phẩm</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên Sản Phẩm</TableCell>
-                                    <TableCell>Doanh Thu Thực Tế</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {actualRevenueByProduct.map((product, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell><Price amount={product.actualRevenue} /></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
-        </Box>
-    );
+          <div className="period-selector">
+            <FormControl variant="outlined" style={{ minWidth: 120 }}>
+              <InputLabel>Chọn Thời Gian</InputLabel>
+              <Select
+                value={selectedPeriod}
+                onChange={handlePeriodChange}
+                label="Chọn Thời Gian"
+              >
+                <MenuItem value="7days">7 Ngày</MenuItem>
+                <MenuItem value="week">Tuần</MenuItem>
+                <MenuItem value="month">Tháng</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+
+          <div className="charts">
+            <div className="chart-card">
+              <h3>Doanh Thu Theo Thời Gian</h3>
+              <LineChart width={600} height={300} data={revenueByTime}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <Tooltip formatter={(value) => formatCurrency(value)} />
+                <Legend />
+                <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
+              </LineChart>
+            </div>
+
+            <div className="chart-card">
+              <h3>Sản Phẩm Bán Chạy</h3>
+              <BarChart width={600} height={300} data={topSellingProducts}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <Tooltip formatter={(value) => formatCurrency(value)} />
+                <Legend />
+                <Bar dataKey="sales" fill="#82ca9d" />
+              </BarChart>
+
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
-export default ProductStatistics;
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+};
+
+export default Overview;

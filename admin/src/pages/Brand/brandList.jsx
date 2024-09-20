@@ -45,7 +45,7 @@ const BrandList = () => {
 
     const fetchCategories = async (page) => {
         try {
-            const response = await apiGetBrand(page, 3);
+            const response = await apiGetBrand(page, 10);
             setCatData(response); // Đảm bảo cập nhật dữ liệu và totalPages từ phản hồi API
         } catch (error) {
             console.error('Error fetching categories:', error);

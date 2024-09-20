@@ -90,6 +90,9 @@ const Revenue = () => {
   const [perPage, setPerPage] = useState(10);
   const [showBy, setShowBy] = useState(10);
 
+  const [totalProducts, setTotalProducts] = useState(null);
+
+
   const [isAllChecked, setIsAllChecked] = useState(false);
 
   const selectAll = (e) => {

@@ -1446,8 +1446,52 @@ input {
   font-weight: 500;
 }
 
+.css-1jfurrt{
+  gap: 0px !important;
+}
+.mr-auto {
+  margin-right: auto;
+}
 
+.flex {
+  display: flex;
+  align-items: center;
+}
 
+.gap-4 {
+  gap: 1rem; /* Có thể điều chỉnh khoảng cách giữa các phần tử */
+}
+
+.delete-button1 {
+  background-color: #f44336; /* Màu đỏ cho nút xóa */
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button1:disabled {
+  background-color: #ccc; /* Màu xám cho nút bị vô hiệu hóa */
+  cursor: not-allowed;
+}
+
+.delete-button1:hover:not(:disabled) {
+  background-color: #d32f2f; /* Đậm hơn khi hover */
+}
+
+.filter-container {
+  flex: 1; /* Tạo không gian cho các bộ lọc */
+}
+
+h6 {
+  font-weight: bold; /* Làm cho tiêu đề nổi bật */
+}
+
+.w-100 {
+  width: 100%;
+}
 
 
 

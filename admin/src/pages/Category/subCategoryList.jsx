@@ -51,7 +51,7 @@ const SubCategoryList = () => {
 
     const fetchData = async (page) => {
         try {
-            const result = await apiGetSubCategories(page, 10);
+            const result = await apiGetSubCategories(page, 20);
             console.log('Fetched Data:', result);
 
             setSubCatData(result.data || []);
