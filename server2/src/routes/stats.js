@@ -6,6 +6,8 @@ const statsController = require('../controllers/stats');
 router.get('/total-products', statsController.getTotalProducts);
 router.get('/products-by-category', statsController.getProductsByCategory);
 router.get('/products-by-subcategory', statsController.getProductsBySubCategory);
+router.get('/products-by-childsubcategory', statsController.getProductsByChildSubCategory);
+
 router.get('/best-selling-product', statsController.getBestSellingProduct);
 router.get('/products-in-stock', statsController.getProductsInStock);
 router.get('/discounted-products', statsController.getDiscountedProducts);

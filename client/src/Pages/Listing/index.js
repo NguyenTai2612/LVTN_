@@ -17,7 +17,10 @@ import {
   apiGetSubCategoryById,
   apiGetProductsByCat,
   apiGetProductsByCatFilter,
-  getCategoryBySubCategoryId, // Import API call for fetching products by category
+  getCategoryBySubCategoryId,
+  apiGetChildSubCategoryById,
+  apiGetCategoryByChildSubCatId,
+  apiGetProductsByChildSubCategory, // Import API call for fetching products by category
 } from "../../services";
 import { FaHome } from "react-icons/fa";
 
@@ -35,6 +38,7 @@ const Listing = ({ type }) => {
   };
   const [products, setProducts] = useState([]);
   const [subCategoryData, setSubCategoryData] = useState([]);
+  const [childSubCatData, setChildSubCatData] = useState(null);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -45,17 +49,22 @@ const Listing = ({ type }) => {
   const [parentCategory, setParentCategory] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchData = async () => {
       try {
         setIsLoading(true);
 
         if (type === "category") {
+          window.scrollTo(0, 0);
+
           const categoryResponse = await apiGetCategoryById(id);
           setCategoryData(categoryResponse.response);
           setShowSubCat(false);
           const productResponse = await apiGetProductsByCat(id);
           setProductData(productResponse.data.data);
         } else if (type === "subcategory") {
+          window.scrollTo(0, 0);
+
           const subCategoryResponse = await apiGetSubCategoryById(id);
           setSubCatData(subCategoryResponse.response);
           const parentCategoryResponse = await getCategoryBySubCategoryId(id);
@@ -63,6 +72,18 @@ const Listing = ({ type }) => {
           setShowSubCat(true);
           const productResponse = await apiGetProductsBySubCat(id);
           setProductData(productResponse.data.data);
+        } else if (type === "childsubcategory") {
+          window.scrollTo(0, 0);
+
+          const childSubCategoryResponse = await apiGetChildSubCategoryById(id); // Gọi API này
+          setChildSubCatData(childSubCategoryResponse.response); // Thiết lập childSubCatData
+          const parentCategoryResponse = await apiGetCategoryByChildSubCatId(
+            id
+          ); // API lấy danh mục cha
+          setParentCategory(parentCategoryResponse.response);
+          setShowSubCat(true);
+          const productResponse = await apiGetProductsByChildSubCategory(id); // Gọi API này
+          setProductData(productResponse.data);
         }
 
         setIsLoading(false);
@@ -74,29 +95,6 @@ const Listing = ({ type }) => {
 
     fetchData();
   }, [id, type]);
-
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     try {
-  //       setIsLoading(true);
-  //       let productResponse;
-
-  //       if (type === "category") {
-  //         productResponse = await apiGetProductsByCat(id);
-  //       } else if (type === "subcategory") {
-  //         productResponse = await apiGetProductsBySubCat(id);
-  //       }
-
-  //       setProductData(productResponse.data.data);
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchProducts();
-  // }, [id, type]);
 
   const fetchProducts1 = async (subCatId, filters) => {
     try {
@@ -162,7 +160,6 @@ const Listing = ({ type }) => {
               </li>
               {type === "category" && categoryData && (
                 <>
-                 
                   <li>
                     <button
                       className="category-button"
@@ -175,7 +172,6 @@ const Listing = ({ type }) => {
               )}
               {type === "subcategory" && parentCategory && (
                 <>
-                  
                   <li>
                     <span
                       className="category-button"
@@ -187,18 +183,52 @@ const Listing = ({ type }) => {
                   <li>
                     <span className="breadcrumb-separator">›</span>
                   </li>
-                  <li>
-                    <span className="category-button">
-                      {subCatData.subCat}
-                    </span>
-                  </li>
+                  {subCatData?.subCat && (
+                    <li>
+                      <span className="category-button">
+                        {subCatData.subCat}
+                      </span>
+                    </li>
+                  )}
                 </>
               )}
+              {type === "childsubcategory" &&
+                parentCategory &&
+                subCatData &&
+                childSubCatData && (
+                  <>
+                    <li>
+                      <span
+                        className="category-button"
+                        onClick={() => handleCategoryClick(parentCategory.id)}
+                      >
+                        {parentCategory.name}
+                      </span>
+                    </li>
+                    <li>
+                      <span className="breadcrumb-separator">›</span>
+                    </li>
+                    <li>
+                      <span
+                        className="category-button"
+                        onClick={() => handleCategoryClick(subCatData.id)}
+                      >
+                        {subCatData.subCat}
+                      </span>
+                    </li>
+                    <li>
+                      <span className="breadcrumb-separator">›</span>
+                    </li>
+                    <li>
+                      <span className="category-button">
+                        {childSubCatData.name}
+                      </span>
+                    </li>
+                  </>
+                )}
             </ul>
             <div class="custom-divider"></div>
-
           </nav>
-          
 
           <div class="card mb-3">
             <div class="card-body">
@@ -208,6 +238,7 @@ const Listing = ({ type }) => {
                     <h1 class="woocommerce-products-header__title page-title m-0 p-0 text-transform-uppercase font-weight-bold">
                       {type === "category" && categoryData?.name}
                       {type === "subcategory" && subCatData?.subCat}
+                      {type === "childsubcategory" && childSubCatData?.name}
                     </h1>
 
                     <div class="show-and-sort">
@@ -243,7 +274,7 @@ const Listing = ({ type }) => {
               </header>
             </div>
           </div>
-          
+
           <div className="productListing d-flex">
             <SideBar
               filterData={handleFilterData} // Pass filterData handler to Sidebar
@@ -253,8 +284,6 @@ const Listing = ({ type }) => {
             />
 
             <div className="content-right">
-             
-
               <div className="productListing">
                 {isLoading ? (
                   <p>Loading...</p>

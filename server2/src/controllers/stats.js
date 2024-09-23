@@ -7,6 +7,7 @@ const {
   Order,
   Payment,
   sequelize,
+  ChildSubCategory,
   User,
 } = require("../models");
 const { Op } = require("sequelize"); // Import toán tử
@@ -73,6 +74,38 @@ exports.getProductsBySubCategory = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getProductsByChildSubCategory = async (req, res) => {
+  try {
+    const productsByChildSubCategory = await ChildSubCategory.findAll({
+      include: [
+        {
+          model: Product,
+          attributes: ['id'], // Lấy id của sản phẩm để đếm
+        },
+        {
+          model: SubCategory, // Thêm include cho SubCategory
+          attributes: ['subCat'], // Lấy tên subcategory
+          required: true,
+        },
+      ],
+      attributes: ['name'], // Lấy tên của child subcategory
+    });
+
+    // Xử lý kết quả để đếm số lượng sản phẩm theo từng child subcategory
+    const result = productsByChildSubCategory.map((childSubCategory) => ({
+      childSubCat: childSubCategory.name,
+      product_count: childSubCategory.Products.length, // Đếm số lượng sản phẩm trong danh mục con
+      Products: childSubCategory.Products, // Bao gồm danh sách sản phẩm
+      subCategory: childSubCategory.SubCategory ? childSubCategory.SubCategory.subCat : null, // Lấy tên subcategory
+    }));
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 // 4. Thống kê sản phẩm bán chạy nhất
 exports.getBestSellingProduct = async (req, res) => {

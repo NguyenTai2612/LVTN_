@@ -17,7 +17,7 @@ import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Checkout from "./Pages/Checkout";
-import SuccessPage from "./Pages/Checkout/SuccessPage"
+import SuccessPage from "./Pages/Checkout/SuccessPage";
 import Orders from "./Pages/Orders";
 
 import { PersistGate } from "redux-persist/integration/react";
@@ -143,12 +143,18 @@ function App({ children }) {
                 element={<Listing type="subcategory" />} // Truyền giá trị type cho Listing
               />
               <Route
+                path="/listing/childsubcategory/:id"
+                exact={true}
+                element={<Listing type="childsubcategory" />} // Truyền giá trị type cho Listing
+              />
+
+              <Route
                 path="/product/:id"
                 exact={true}
                 element={<ProductDetails />}
               />
               <Route path="/cart" exact={true} element={<Cart />} />
-             
+
               <Route path="/signIn" exact={true} element={<SignIn />} />
               <Route path="/signUp" exact={true} element={<SignUp />} />
               <Route path="/checkout" exact={true} element={<Checkout />} />

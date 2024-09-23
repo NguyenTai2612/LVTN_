@@ -141,7 +141,7 @@ function App() {
                     </>
                   }
                   <Routes>
-                    <Route path='/overview' exact={true} element={<Overview />} />
+                    <Route path='/' exact={true} element={<Overview />} />
                     <Route path='/product_statistics' exact={true} element={<ProductStatistics />} />
                     <Route path='/revenue' exact={true} element={<Revenue />} />
                     

@@ -15,6 +15,8 @@ router.get("/all", productController.getProducts);
 
 router.get("/:id/details", productController.getProductDetails);
 
+router.get("/all-details", productController.getProductDetails2);
+
 
 router.put("/:id/update", upload.array('images'), productController.updateProduct);
 
@@ -29,5 +31,8 @@ router.get('/:categoryId/filter', productController.getProductsByCategoryFilter)
 
 // API để cập nhật số lượt xem sản phẩm
 router.put('/:id/views', productController.incrementProductViews);
+
+// Endpoint để lấy sản phẩm theo childSubCategoryId
+router.get('/:childSubCategoryId/by-child-subcategory', productController.getProductsByChildSubCategory);
 
 module.exports = router;

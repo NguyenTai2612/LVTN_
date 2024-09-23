@@ -7,7 +7,10 @@ import Rating from "@mui/material/Rating";
 import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 import Price from "../Price";
-import { getAllSubCatByCatIdService } from "../../services";
+import {
+  getAllSubCatByCatIdService,
+  apiGetChildSubCategoriesBySubCatId,
+} from "../../services";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ filterData, parentCategory, categoryId }) => {
@@ -15,6 +18,7 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
   const [subCategoryData, setSubCategoryData] = useState([]);
+  const [childSubCategoryData, setChildSubCategoryData] = useState([]);
   const [categoryIdState, setCategoryId] = useState(
     localStorage.getItem("selectedCategoryId") || categoryId
   );
@@ -57,10 +61,24 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
     setSelectedRating(rating);
   };
 
-  const handleCategoryChange = (catId) => {
+  const handleCategoryChange = async (catId) => {
     setCategoryId(catId);
-    localStorage.setItem("selectedCategoryId", catId); // Save selected category to localStorage
+    localStorage.setItem("selectedCategoryId", catId);
     navigate(`/listing/subcategory/${catId}`);
+
+    try {
+      const childResponse = await apiGetChildSubCategoriesBySubCatId(catId);
+      if (childResponse && childResponse.data) {
+        setChildSubCategoryData(childResponse.data.data);
+        console.log("setChildSubCategoryData", childResponse.data.data);
+        console.log(
+          "setChildSubCategoryData",
+          JSON.stringify(childResponse.data)
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy danh mục con:", error);
+    }
   };
 
   return (
@@ -83,6 +101,25 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
             />
           ))}
         </RadioGroup>
+      </div>
+
+      <div className="filterBox">
+        <h6>Danh mục con</h6>
+        <hr className="divider" />
+        <div>
+          {childSubCategoryData.length > 0 ? (
+            childSubCategoryData.map((childCat) => (
+              <FormControlLabel
+                key={childCat.id}
+                control={<Checkbox />}
+                label={childCat.name}
+                onChange={() => {}}
+              />
+            ))
+          ) : (
+            <p>Không có danh mục con nào.</p>
+          )}
+        </div>
       </div>
 
       <div className="filterBox">

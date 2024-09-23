@@ -10,7 +10,10 @@ import { Link, useParams } from "react-router-dom";
 import Price from "../../Components/Price";
 import { MyContext } from "../../App";
 import CircularProgress from "@mui/material/CircularProgress";
-import { apiGetProductDetails, incrementProductViews } from "../../services/product";
+import {
+  apiGetProductDetails,
+  incrementProductViews,
+} from "../../services/product";
 import { apiGetProductSpecifications } from "../../services/productSpecification";
 import { apiGetReviews, apiAddReview } from "../../services/review";
 import { addToCart } from "../../services/cart";
@@ -39,7 +42,7 @@ const ProductDetails = () => {
         const response = await apiGetProductDetails(id);
         setProductData(response.data.response);
         console.log("setProductData", response.data.response);
-        
+
         await incrementProductViews(id);
 
         // Fetch product specifications
@@ -50,7 +53,6 @@ const ProductDetails = () => {
         const reviewResponse = await apiGetReviews(id);
         // console.log(reviewResponse.data.response);
         setReviewData(reviewResponse.data.response);
-
       } catch (error) {
         console.error("Error fetching product details:", error);
       }
@@ -95,9 +97,9 @@ const ProductDetails = () => {
       context.setAlertBox({
         open: true,
         error: false,
-        msg: "Thêm vào giỏ thành công.", 
+        msg: "Thêm vào giỏ thành công.",
       });
-      
+
       setTimeout(() => {
         context.setAddingInCart(false);
       }, 100);
@@ -195,14 +197,15 @@ const ProductDetails = () => {
                 <span class="breadcrumb-separator">›</span>
               </li>
               <li>
-                <Link to={`/listing/subcategory/${productData?.SubCategory?.id}`}>
+                <Link
+                  to={`/listing/subcategory/${productData?.SubCategory?.id}`}
+                >
                   {productData?.SubCategory?.subCat || "Danh mục con"}
                 </Link>
               </li>
               <li class="breadcrumb-current">{productData?.name}</li>
             </ul>
             <div class="custom-divider"></div>
-
           </nav>
 
           <div className="row">
@@ -216,9 +219,13 @@ const ProductDetails = () => {
               <div className="product-info">
                 <div className="product-title">{productData.name}</div>
                 <div className="mt-2">
-                  <span className="badge1 bg-blue text-white mr-3">
-                    {productData.Brand.name}
-                  </span>
+                 
+                    {productData.Brand?.name && (
+                      <span className="badge1 bg-blue text-white mr-3">
+                        {productData.Brand.name}
+                      </span>
+                    )}
+               
                 </div>
                 <div className="rating-review">
                   <Rating
@@ -275,9 +282,7 @@ const ProductDetails = () => {
                     {context.addingInCart === true
                       ? "adding..."
                       : "Thêm vào giỏ hàng"}
-                      
                   </Button>
-                  
                 </div>
 
                 <div className="details-table mt-4">

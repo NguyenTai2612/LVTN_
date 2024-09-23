@@ -27,6 +27,26 @@ export const apiGetProductDetails = (productId) =>
     }
   });
 
+  export const apiGetAllProductDetails2 = () =>
+    new Promise(async (resolve, reject) => {
+      try {
+        const response = await axiosConfig({
+          method: "get",
+          url: `/api/v1/product/all-details`, // Tạo endpoint mới trong server
+        });
+  
+        // Kiểm tra nếu phản hồi thành công
+        if (response && response.data) {
+          resolve(response.data); // Trả về dữ liệu
+        } else {
+          reject(new Error("Unexpected response format"));
+        }
+      } catch (error) {
+        reject(new Error(error.response?.data?.message || "Error fetching all product details"));
+      }
+    });
+  
+
 export const apiGetProductsByCategory = (categoryId) =>
   new Promise(async (resolve, reject) => {
     try {

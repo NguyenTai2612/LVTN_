@@ -1,7 +1,7 @@
 const productService = require("../services/product");
 const ProductImagesService = require("../services/productImage");
 const cloudinary = require("cloudinary").v2;
-const { Product, ProductImage, Category } = require("../models");
+const { Product, ProductImage, Category, ProductSpecification, SubCategory, ChildSubCategory,Brand } = require("../models");
 const { Op } = require("sequelize");
 
 // Cloudinary configuration
@@ -50,6 +50,49 @@ const getProductDetails = async (req, res) => {
     res.status(404).json({ err: 1, message: error.message });
   }
 };
+
+const getProductDetails2 = async (req, res) => {
+  try {
+    // Lấy tất cả các danh mục
+    const categories = await Category.findAll();
+
+    // Kiểm tra xem có danh mục không
+    if (!categories || categories.length === 0) {
+      return res.status(404).json({ error: "No categories found" });
+    }
+
+    // Tạo một danh sách để lưu kết quả
+    const allCategoryProducts = [];
+
+    // Lặp qua từng danh mục để lấy 10 sản phẩm
+    for (const category of categories) {
+      const products = await Product.findAll({
+        where: { category_id: category.id },
+        limit: 10, // Giới hạn số sản phẩm là 10
+        include: [
+          { model: ProductImage, attributes: ["id", "imageUrl"] },
+          { model: Brand, attributes: ["id", "name"] },
+          { model: SubCategory, attributes: ["id", "subCat"] },
+          { model: ChildSubCategory, attributes: ["id", "name"] },
+        ],
+      });
+
+      // Nếu có sản phẩm, thêm vào kết quả
+      if (products.length > 0) {
+        allCategoryProducts.push({
+          categoryId: category.id,
+          products: products,
+        });
+      }
+    }
+
+    // Trả về kết quả
+    res.status(200).json({ err: 0, response: allCategoryProducts });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 const addProduct = async (req, res) => {
   try {
@@ -306,6 +349,27 @@ const incrementProductViews = async (req, res) => {
   }
 };
 
+// Hàm controller để lấy sản phẩm theo childSubCategoryId
+const getProductsByChildSubCategory = async (req, res) => {
+  try {
+    const { childSubCategoryId } = req.params;
+
+    // Gọi service để lấy sản phẩm theo childSubCategoryId
+    const products = await productService.getProductsByChildSubCategory(childSubCategoryId);
+
+    if (!products.length) {
+      return res
+        .status(404)
+        .json({ message: "No products found for this child subcategory." });
+    }
+
+    // Trả về kết quả nếu tìm thấy sản phẩm
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // Exporting the function
 module.exports = {
@@ -319,4 +383,6 @@ module.exports = {
   getProductsBySubCat,
   getProductsByCategoryFilter,
   incrementProductViews,
+  getProductDetails2,
+  getProductsByChildSubCategory
 };

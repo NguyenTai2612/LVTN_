@@ -75,7 +75,7 @@ const ProductList = () => {
     const [productDetails, setProductDetails] = useState({});
 
     const [selectedProducts, setSelectedProducts] = useState([]); // Danh sách sản phẩm được chọn
-
+    const [files, setFiles] = useState([]);
 
     const [open, setOpen] = useState(false)
 
@@ -186,11 +186,7 @@ const ProductList = () => {
         fetchProducts();
     }, [currentPage]);
 
-    const handleChange = (event, value) => {
-        // context.setProgress(40)
-        setPage(value)
 
-    };
 
     const selectAll = (e) => {
         if (e.target.checked === true) {
@@ -207,19 +203,24 @@ const ProductList = () => {
     const handleClose = () => setOpen(false);
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
-    };
+        setFiles(event.target.files); // Đảm bảo sử dụng setFiles thay vì setSelectedFiles
+      };
 
+    // Hàm xử lý khi submit form
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (!file) {
-            alert("Please upload a CSV file.");
+        if (files.length === 0) {
+            alert("Please upload at least one CSV file.");
             return;
         }
 
         const formData = new FormData();
-        formData.append('csvFile', file);
+
+        // Lặp qua danh sách các file và thêm vào FormData
+        for (let i = 0; i < files.length; i++) {
+            formData.append('csvFiles', files[i]);
+        }
 
         try {
             const response = await axios.post('http://localhost:5000/api/v1/uploadCSV/import-csv', formData, {
@@ -227,10 +228,11 @@ const ProductList = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            alert('File uploaded successfully!');
+            alert('Files uploaded successfully!');
             handleClose();
         } catch (error) {
-            alert('Failed to upload the file.');
+            console.error('Error:', error);
+            alert('Failed to upload the files.');
         }
     };
 
@@ -303,9 +305,14 @@ const ProductList = () => {
                 >
                     <h2 id="import-csv-modal">Upload CSV File</h2>
                     <form onSubmit={handleSubmit}>
-                        <input type="file" accept=".csv" onChange={handleFileChange} />
+                        <input
+                            type="file"
+                            accept=".csv"
+                            multiple  // Cho phép chọn nhiều file
+                            onChange={handleFileChange}
+                        />
                         <Button type="submit" variant="contained" color="primary">
-                            Upload CSV
+                            Upload CSVs
                         </Button>
                     </form>
                 </Box>
@@ -431,8 +438,8 @@ const ProductList = () => {
                                                 <td>
                                                     <div className='w-[90px]'>
                                                         {/* <del className="old text-danger">{details.oldPrice || item.oldPrice} VND</del> */}
-                                                        <span className="new font-weight-bold"> 
-                                                            <Price amount={details.price || item.price}/>
+                                                        <span className="new font-weight-bold">
+                                                            <Price amount={details.price || item.price} />
                                                         </span>
                                                     </div>
                                                 </td>

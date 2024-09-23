@@ -201,6 +201,35 @@ const getProductsBySubCat = async (subCatId) => {
   }
 };
 
+const getProductsByChildSubCategory = async (childSubCategoryId) => {
+  try {
+    // Truy vấn sản phẩm theo childSubCategoryId
+    const products = await Product.findAll({
+      where: { child_sub_category_id: childSubCategoryId },
+      include: [
+        {
+          model: ChildSubCategory,
+          attributes: ["name"], // Bao gồm tên của danh mục con
+        },
+        {
+          model: Category,
+          attributes: ["name"], // Bao gồm tên của danh mục cha nếu cần
+        },
+        {
+          model: ProductImage,
+          attributes: ["imageUrl"], // Bao gồm các URL ảnh sản phẩm
+        },
+        // Bạn có thể bao gồm thêm các bảng khác nếu cần, như Review hoặc Brand
+      ],
+    });
+
+    return products;
+  } catch (error) {
+    console.error("Error fetching products from service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   getProductsService,
   getProductDetailsService,
@@ -211,4 +240,5 @@ module.exports = {
   getProductsByCategory,
   getProductsBySubCat,
   getProductsByCategoryFiter,
+  getProductsByChildSubCategory
 };

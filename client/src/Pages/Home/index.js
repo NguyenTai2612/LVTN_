@@ -14,6 +14,7 @@ import GuitarHeader from "../../Components/GuitarHeader";
 import {
   apiGetProducts,
   apiGetProductDetails,
+  apiGetAllProductDetails2,
 } from "../../services/product.js";
 import { apiGetCategories } from "../../services/category.js";
 import * as actions from "../../store/actions/index.js";
@@ -40,7 +41,7 @@ const Home = () => {
   const { currentData } = useSelector((state) => state.user);
 
   useEffect(() => {
-     window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
     const fetchSubCategories = async () => {
       try {
         // Giả sử apiGetSubCategories() là hàm gọi API của bạn
@@ -51,15 +52,15 @@ const Home = () => {
 
         if (response.data?.err === 0 && Array.isArray(response.data.response)) {
           // Lọc subcategories cho guitar
-          const guitarSubCats = response.data.response.filter(
-            (subCat) => subCat.category_id === 1
-          );
+          const guitarSubCats = response.data.response
+            .filter((subCat) => subCat.category_id === 1)
+            .slice(0, 4); // Giới hạn chỉ lấy tối đa 4 subcategories
           setGuitarSubCats(guitarSubCats);
 
           // Lọc subcategories cho piano
-          const pianoSubCats = response.data.response.filter(
-            (subCat) => subCat.category_id === 2
-          );
+          const pianoSubCats = response.data.response
+            .filter((subCat) => subCat.category_id === 2)
+            .slice(0, 4); // Giới hạn chỉ lấy tối đa 4 subcategories
           setPianoSubCats(pianoSubCats);
         } else {
           console.warn("Invalid response:", response);
@@ -73,18 +74,24 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (isLoggedIn) {
       dispatch(actions.getCurrent());
     }
   }, [isLoggedIn, dispatch]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (currentData) {
       localStorage.setItem("user", JSON.stringify(currentData));
     }
   }, [currentData]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const fetchCategories = async () => {
       try {
         const response = await apiGetCategories();
@@ -99,30 +106,32 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    window.scrollTo(0, 0);
+
+    const fetchProductsDetails = async () => {
       try {
-        const response = await apiGetProducts();
-        if (response?.data.err === 0) {
-          setProducts(response.data.response);
-          // Fetch details for all products
-          const detailsPromises = response.data.response.map((product) =>
-            apiGetProductDetails(product.id)
-          );
-          const detailsResults = await Promise.all(detailsPromises);
-          const details = {};
-          detailsResults.forEach((result) => {
-            if (result.data.err === 0) {
-              details[result.data.response.id] = result.data.response;
-            }
-          });
-          setProductDetails(details);
-          console.log('details',details)
+        // Gọi API để lấy tất cả sản phẩm và chi tiết
+        const response2 = await apiGetAllProductDetails2();
+        console.log("setProducts", response2.response);
+
+        if (response2?.err === 0) {
+          const allProducts = response2.response.reduce((acc, category) => {
+            // Gộp tất cả sản phẩm từ các category vào một mảng
+            return [...acc, ...category.products];
+          }, []);
+
+          setProducts(allProducts); // Đặt lại tất cả sản phẩm vào state
+          const productDetails = allProducts.reduce((acc, product) => {
+            acc[product.id] = product; // Lưu thông tin chi tiết cho từng sản phẩm
+            return acc;
+          }, {});
+          setProductDetails(productDetails);
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching product details:", error);
       }
     };
-    fetchProducts();
+    fetchProductsDetails();
   }, []);
 
   useEffect(() => {
@@ -130,11 +139,6 @@ const Home = () => {
       setSelectCat(categories[0]?.id); // Ensure to set the default category based on the available categories
     }
   }, [categories]);
-
-  useEffect(() => {
-    console.log('Loading Products and Details:', products);
-    console.log('Product Details:', productDetails);
-  }, [products, productDetails]);
 
   useEffect(() => {
     if (selectedCat) {
@@ -166,8 +170,6 @@ const Home = () => {
     const selectedCategory = categories[newValue]?.id;
     setSelectCat(selectedCategory);
   };
-
-  
 
   return (
     <div>

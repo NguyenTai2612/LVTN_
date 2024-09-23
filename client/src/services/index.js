@@ -6,6 +6,7 @@ export * from './productImage'
 export * from './productSpecification'
 export * from './review'
 export * from './user'
+export * from './childSubCategory'
 
 
 

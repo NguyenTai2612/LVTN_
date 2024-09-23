@@ -40,6 +40,20 @@ export const apiGetProductsBySubCategory = () => new Promise(async (resolve, rej
     }
 });
 
+export const apiGetProductsByChildSubCategory = () => 
+    new Promise(async (resolve, reject) => {
+      try {
+        const response = await axiosConfig({
+          method: 'get',
+          url: '/api/v1/stats/products-by-childsubcategory', // URL của API phía backend
+        });
+        resolve(response.data);
+      } catch (error) {
+        reject(error);
+      }
+  });
+  
+
 // API to get best-selling products
 export const apiGetBestSellingProduct = () => new Promise(async (resolve, reject) => {
     try {

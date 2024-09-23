@@ -130,4 +130,69 @@ const getAllSubCatByCatId = async (req, res) => {
     }
   };
 
-module.exports = { getSubCategories, getAllSubCatByCatId, getCatBySubCatId, getAllSubCategories, getSubCategoryById, createSubCategory, updateSubCategory, deleteSubCategory };
+  const getAllSubCatsByChildSubCatId = async (req, res) => {
+    const { childSubCatId } = req.params;
+
+    try {
+        const subcategories = await subCatService.getAllSubCatsByChildId(childSubCatId);
+
+        if (!subcategories || subcategories.length === 0) {
+            return res.status(404).json({ err: 1, msg: "No subcategories found" });
+        }
+
+        return res.status(200).json({
+            err: 0,
+            msg: "Success",
+            response: subcategories
+        });
+    } catch (error) {
+        console.error("Error in getAllSubCatsByChildSubCatId:", error);
+        return res.status(500).json({ err: 1, msg: "Internal Server Error" });
+    }
+};
+
+const getCategoryByChildSubCatId = async (req, res) => {
+    const { childSubCatId } = req.params;
+
+    try {
+        const category = await subCatService.findCategoryByChildId(childSubCatId);
+
+        if (!category) {
+            return res.status(404).json({ err: 1, msg: "Category not found" });
+        }
+
+        return res.status(200).json({
+            err: 0,
+            msg: "Success",
+            response: category
+        });
+    } catch (error) {
+        console.error("Error in fetching Category:", error);
+        return res.status(500).json({ err: 1, msg: "Internal Server Error" });
+    }
+};
+
+const getChildSubCategoriesBySubCatId = async (req, res) => {
+  try {
+    const { subCatId } = req.params;
+
+    // Gọi service để lấy child subcategories từ subCatId
+    const childSubCategories = await subCatService.getChildSubCategoriesBySubCatId(subCatId);
+
+    if (!childSubCategories.length) {
+      return res
+        .status(404)
+        .json({ message: "No child subcategories found for this subcategory." });
+    }
+
+    res.json({ data: childSubCategories });
+  } catch (error) {
+    console.error("Error fetching child subcategories:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { getChildSubCategoriesBySubCatId };
+
+
+module.exports = { getChildSubCategoriesBySubCatId, getSubCategories,getCategoryByChildSubCatId,getAllSubCatsByChildSubCatId ,getAllSubCatByCatId, getCatBySubCatId, getAllSubCategories, getSubCategoryById, createSubCategory, updateSubCategory, deleteSubCategory };

@@ -12,7 +12,8 @@ import {
     apiGetDiscountedProducts,
     apiGetTopRatedProducts,
     apiGetProductsByBrand,
-    apiGetTopSellingProducts
+    apiGetTopSellingProducts,
+    apiGetProductsByChildSubCategory
 } from '../../services/stats';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from 'recharts';
 
@@ -27,6 +28,7 @@ const ProductStatistics = () => {
     const [totalProducts, setTotalProducts] = useState(null);
     const [productsByCategory, setProductsByCategory] = useState([]);
     const [productsBySubCategory, setProductsBySubCategory] = useState([]);
+    const [productsByChildSubCategory, setProductsByChildSubCategory] = useState([]);
     const [bestSellingProduct, setBestSellingProduct] = useState([]);
     const [productsInStock, setProductsInStock] = useState([]);
     const [discountedProducts, setDiscountedProducts] = useState([]);
@@ -58,9 +60,12 @@ const ProductStatistics = () => {
 
             const categoryData = await apiGetProductsByCategory();
             setProductsByCategory(categoryData);
-
+            
             const subCategoryData = await apiGetProductsBySubCategory();
             setProductsBySubCategory(subCategoryData);
+
+            const childSubCategoryData = await apiGetProductsByChildSubCategory();
+            setProductsByChildSubCategory(childSubCategoryData);
 
             const bestSelling = await apiGetTopSellingProducts();
             setBestSellingProduct(bestSelling);
@@ -97,6 +102,7 @@ const ProductStatistics = () => {
         "Đơn Hàng Bị Hủy Nhiều Nhất",
         "Theo Danh Mục",
         "Theo Tiểu Mục",
+        "Danh mục con của tiểu mục",
         "Sản Phẩm Bán Chạy",
         "Sản Phẩm Còn Lại",
         "Sản Phẩm Giảm Giá",
@@ -310,7 +316,51 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
+
             {selectedChip === 7 && (
+                <Box p={3}>
+                    <Box mt={3}>
+                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tuần</Typography> */}
+                        {/* <BarChart width={600} height={300} data={weeklySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="week" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Bar dataKey="totalSales" fill="#82ca9d" />
+                        </BarChart> */}
+                    </Box>
+                    <Typography variant="h6">Danh mục con của tiểu mục</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tiểu mục</TableCell>
+                                    <TableCell>Danh mục con của tiểu mục</TableCell>
+                                    <TableCell>Số Lượng</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {productsByChildSubCategory.length > 0 ? (
+                                    productsByChildSubCategory.map((subCategory, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{subCategory.subCategory}</TableCell>
+                                            <TableCell>{subCategory.childSubCat}</TableCell>
+                                            <TableCell>{subCategory.product_count}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Không có dữ liệu</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 8 && (
                 <Box p={3}>
                     <Box mt={3}>
                         {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
@@ -354,7 +404,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 8 && (
+            {selectedChip === 9 && (
                 <Box p={3}>
                     <Box mt={3}>
                         {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
@@ -396,7 +446,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 9 && (
+            {selectedChip === 10 && (
                 <Box p={3}>
                     <Box mt={3}>
                         {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
@@ -440,7 +490,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 10 && (
+            {selectedChip === 11 && (
                 <Box p={3}>
                     <Box mt={3}>
                         {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
@@ -482,7 +532,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 11 && (
+            {selectedChip === 12 && (
                 <Box p={3}>
                     <Box mt={3}>
                         {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
@@ -500,12 +550,12 @@ const ProductStatistics = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                <TableCell>Thương Hiệu</TableCell>
-                                <TableCell>Số Lượng</TableCell>
+                                    <TableCell>Thương Hiệu</TableCell>
+                                    <TableCell>Số Lượng</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                            {productsByBrand.length > 0 ? (
+                                {productsByBrand.length > 0 ? (
                                     productsByBrand.map((brand, index) => (
                                         <TableRow key={index}>
                                             <TableCell>{brand.name}</TableCell>

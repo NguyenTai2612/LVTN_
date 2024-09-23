@@ -57,7 +57,7 @@ const Sidebar = () => {
 
       <div className='sidebarTabs px-2'>
         <ul className='flex gap-3 flex-col'>
-         
+
 
           <li className={`${activeTab === 0 && isToggleSubmenu ? 'colapse' : 'colapsed'}`}>
             <Button className={`w-100 ${activeTab === 0 ? 'active' : ''}`} onClick={() => isOpenSubmenu(0)}>
@@ -74,10 +74,7 @@ const Sidebar = () => {
               : "colapsed"
               }`}
             >
-              <div className='submenu'>
-              <Link to="/overview">
-                  <Button className='w-100 '>Overview</Button>
-                </Link>
+              <div className='submenu'>              
                 <Link to="/product_statistics">
                   <Button className='w-100 '>Product Statistics</Button>
                 </Link>
@@ -110,7 +107,7 @@ const Sidebar = () => {
                 <Link to="/product/list">
                   <Button className='w-100 '>Product List</Button>
                 </Link>
-               
+
                 <Link to="/product/upload">
                   <Button className='w-100 '>Product Upload</Button>
                 </Link>
@@ -187,7 +184,7 @@ const Sidebar = () => {
             <Button className={`w-100 ${activeTab === 3 ? 'active' : ''}`} onClick={() => isOpenSubmenu(3)}>
               <span className='icon w-[30px] h-[30px] flex items-center justify-center 
                  rounded-md'><LuClipboardCheck /></span> &nbsp;
-                Order
+              Order
               <span className={`arrow ml-auto w-[25px] h-[25px] flex items-center
               justify-center ${activeTab === 3 && isToggleSubmenu ? 'rotate' : ''}`}>
                 <FaAngleRight /></span>

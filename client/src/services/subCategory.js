@@ -40,6 +40,48 @@ export const apiGetSubCategoryById = (id) => new Promise(async (resolve, reject)
     }
 });
 
+
+
+export const apiGetProductsByChildSubCategory = (childSubCategoryId) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const response = await axiosConfig({
+        method: 'get',
+        url: `/api/v1/product/${childSubCategoryId}/by-child-subcategory`,
+      });
+      resolve(response.data);
+    } catch (error) {
+      reject({ err: -1, msg: 'Failed to fetch products by child subcategory' });
+    }
+  });
+
+  export const apiGetAllSubCatsByChildSubCatId = (childSubCatId) =>
+    new Promise(async (resolve, reject) => {
+      try {
+        const response = await axiosConfig({
+          method: 'get',
+          url: `/api/v1/subCategory/${childSubCatId}/subcategories`,
+        });
+        resolve(response.data);
+      } catch (error) {
+        reject({ err: -1, msg: 'Failed to fetch subcategories by child subcategory ID' });
+      }
+    });
+    
+    export const apiGetCategoryByChildSubCatId = (childSubCatId) =>
+        new Promise(async (resolve, reject) => {
+          try {
+            const response = await axiosConfig({
+              method: 'get',
+              url: `/api/v1/subCategory/child-subcategories/${childSubCatId}/category`,
+            });
+            resolve(response.data);
+          } catch (error) {
+            reject({ err: -1, msg: 'Failed to fetch category by child subcategory ID' });
+          }
+        });
+      
+
 export const getCategoryBySubCategoryId = (id) => new Promise(async (resolve, reject) => {
     try {
         const response = await axiosConfig({
@@ -63,6 +105,19 @@ export const getAllSubCatByCatIdService = (id) => new Promise(async (resolve, re
         reject({ err: -1, msg: 'Failed to fetch subcategory' });
     }
 });
+
+export const apiGetChildSubCategoriesBySubCatId = (subCatId) => 
+    new Promise(async (resolve, reject) => {
+      try {
+        const response = await axiosConfig({
+          method: 'get',
+          url: `/api/v1/subCategory/${subCatId}/child-subcategories`,
+        });
+        resolve(response);
+      } catch (error) {
+        reject({ err: -1, msg: 'Failed to fetch child subcategories' });
+      }
+  });
 
 // Create a new subcategory
 export const apiCreateSubCategory = (data) => new Promise(async (resolve, reject) => {
