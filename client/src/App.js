@@ -24,6 +24,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import reduxStore from "./redux";
 import { getCartItems } from "./services/cart";
+import SearchPage from "./Components/Header/SearchPage";
 
 const { store, persistor } = reduxStore();
 
@@ -147,6 +148,8 @@ function App({ children }) {
                 exact={true}
                 element={<Listing type="childsubcategory" />} // Truyền giá trị type cho Listing
               />
+
+              <Route path="/search" element={<SearchPage />} />
 
               <Route
                 path="/product/:id"

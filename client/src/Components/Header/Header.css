@@ -24,7 +24,8 @@
 .search-wrap {
     display: flex;
 }
-.cartTab{
+
+.cartTab {
     margin-top: 5px;
 }
 
@@ -48,12 +49,15 @@
 }
 
 .contact-item:last-child {
-    border-right: none; /* Bỏ gạch ở contact-item cuối cùng */
-  }
-  p {
+    border-right: none;
+    /* Bỏ gạch ở contact-item cuối cùng */
+}
+
+p {
     margin-top: 0;
     margin-bottom: 0px;
 }
+
 .header-contact .contact-item span {
     display: block;
     margin-bottom: 0px;
@@ -83,10 +87,11 @@
 }
 
 .header-icon {
-    margin-right: 8px; /* Tạo khoảng cách giữa icon và văn bản */
+    margin-right: 8px;
+    /* Tạo khoảng cách giữa icon và văn bản */
     font-size: 18px;
     color: #333;
-  }
+}
 
 .header-cart {
     display: flex;
@@ -139,10 +144,10 @@
     color: #000 !important;
     text-transform: capitalize !important;
     border: none !important;
-    padding: 5px 11px !important;
+    padding: 5px 1px 4px 3px !important;
     font-weight: normal !important;
-    border-radius:0px !important;
-    font-weight:bold !important;
+    border-radius: 0px !important;
+    font-weight: bold !important;
 }
 
 .btn-white:hover {
@@ -150,15 +155,16 @@
     color: #fff !important;
     text-transform: capitalize !important;
     border: none !important;
-    padding: 5px 11px !important;
+    padding: 5px 1px 4px 3px !important;
     font-weight: normal !important;
-    border-radius:0px !important;
-    font-weight:bold !important;
+    border-radius: 0px !important;
+    font-weight: bold !important;
 
 }
 
 /* Media queries cho thiết bị nhỏ hơn hoặc bằng 991px */
 @media (max-width: 991px) {
+
     /* Header và các phần tử chính */
     .header {
         padding: 10px;
@@ -178,7 +184,8 @@
     }
 
     .custom-logo {
-        max-width: 100%; /* Đảm bảo logo không vượt quá kích thước của .custom-logo-link */
+        max-width: 100%;
+        /* Đảm bảo logo không vượt quá kích thước của .custom-logo-link */
         height: auto;
         margin-left: 0;
     }
@@ -190,7 +197,8 @@
     }
 
     #search-input {
-        width: calc(100% - 50px); /* Đảm bảo ô tìm kiếm không vượt quá màn hình */
+        width: calc(100% - 50px);
+        /* Đảm bảo ô tìm kiếm không vượt quá màn hình */
         padding: 8px;
     }
 
@@ -200,7 +208,7 @@
     }
 
     /* Ẩn contact và cart trên các màn hình nhỏ */
-    .header-contact, 
+    .header-contact,
     .header-cart {
         display: none;
     }
@@ -224,25 +232,27 @@
     .header-contact .contact-item {
         display: flex;
         align-items: center;
-        flex-direction: row; /* Hiển thị các phần tử theo hàng */
+        flex-direction: row;
+        /* Hiển thị các phần tử theo hàng */
         padding-right: 0;
-        border-right: none; /* Loại bỏ gạch bên phải */
-        margin-bottom: 10px; /* Thêm khoảng cách dưới mỗi contact-item */
+        border-right: none;
+        /* Loại bỏ gạch bên phải */
+        margin-bottom: 10px;
+        /* Thêm khoảng cách dưới mỗi contact-item */
     }
 
     .contact-item:last-child {
-        border-right: none; /* Bỏ gạch ở contact-item cuối cùng */
+        border-right: none;
+        /* Bỏ gạch ở contact-item cuối cùng */
     }
 
     .contact-item span {
-        font-size: 12px; /* Giảm kích thước font */
+        font-size: 12px;
+        /* Giảm kích thước font */
         color: #555;
     }
 
-    /* Button */
-    .btn-white {
-        font-size: 14px; /* Giảm kích thước font cho button */
-    }
+
 
     .btn-white:hover {
         background: #000 !important;
@@ -252,9 +262,11 @@
 
 /* Media queries cho thiết bị nhỏ hơn 576px */
 @media (max-width: 576px) {
+
     /* Định dạng cho logo */
     .custom-logo-link {
-        max-width: 120px; /* Kích thước logo nhỏ hơn */
+        max-width: 120px;
+        /* Kích thước logo nhỏ hơn */
     }
 
     /* Tìm kiếm */
@@ -263,7 +275,8 @@
     }
 
     #search-input {
-        width: calc(100% - 40px); /* Giảm width để phù hợp với kích thước nhỏ hơn */
+        width: calc(100% - 40px);
+        /* Giảm width để phù hợp với kích thước nhỏ hơn */
     }
 
     #search-submit {
@@ -278,6 +291,109 @@
 
     /* Button */
     .btn-white {
-        font-size: 13px; /* Giảm kích thước font */
+        font-size: 13px;
+        /* Giảm kích thước font */
     }
+}
+
+
+.suggestions-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    /* Hiệu ứng chuyển màu khi hover */
+}
+
+.suggestions-list li img {
+    width: 50px;
+    /* Kích thước hình ảnh */
+    height: 50px;
+    margin-right: 10px;
+    /* Khoảng cách giữa hình ảnh và tên sản phẩm */
+}
+
+.suggestions-list li div {
+    flex-grow: 1;
+    /* Cho phép tên sản phẩm mở rộng */
+}
+
+.suggestions-list li h4 {
+    margin: 0;
+    font-size: 14px;
+    /* Kích thước chữ nhỏ hơn cho tên sản phẩm */
+    color: #333;
+    /* Màu chữ */
+}
+
+.suggestions-list li p {
+    margin: 0;
+    font-size: 12px;
+    /* Kích thước chữ cho giá */
+    color: #d30b0b;
+    /* Màu chữ cho giá */
+}
+
+
+
+
+.suggestions-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.suggestions-list {
+    border: 1px solid #ccc;
+    background-color: white;
+    position: absolute;
+    z-index: 1000;
+    width: 94.9%;
+    max-height: 283px;
+    overflow-y: auto;
+    margin-top: 40px;
+}
+
+.search-wrap {
+    position: relative;
+}
+
+#search-input {
+    padding-right: 40px;
+    /* Để có chỗ cho nút xóa */
+}
+
+.clear-button {
+    position: absolute;
+    right: 71px;
+    /* Cách lề phải */
+    top: 50%;
+    /* Giữa theo chiều dọc */
+    transform: translateY(-50%);
+    /* Định vị chính xác giữa */
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    /* Màu chữ */
+    font-size: 18px;
+    /* Kích thước chữ */
+    cursor: pointer;
+    display: flex;
+    /* Hiện thị nút xóa khi có nội dung */
+}
+
+.clear-button:hover {
+    color: #c0392b;
+    /* Màu chữ khi hover */
+}
+
+
+.camemra svg {
+    overflow: hidden;
+    vertical-align: middle;
+    font-size: xx-large;
+}
+.camemra {
+    margin-right: -18px;
+    margin-left: 8px;
+    cursor: pointer;
 }
