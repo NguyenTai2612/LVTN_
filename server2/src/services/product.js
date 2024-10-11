@@ -129,30 +129,56 @@ const deleteProductService = async (productId) => {
   }
 };
 
-const getProductsByCategory = async (categoryId) => {
+const getProductsByCategory = async (categoryId, page = 1, limit = 10) => {
   try {
-    // Truy vấn các sản phẩm theo categoryId
-    const products = await Product.findAll({
+    const offset = (page - 1) * limit;
+
+    // Tìm sản phẩm dựa trên category_id và bao gồm các bảng liên kết
+    const { count, rows } = await Product.findAndCountAll({
       where: { category_id: categoryId },
+      offset,
+      limit,
       include: [
         {
           model: Category,
-          attributes: ["name"], // Bao gồm thông tin danh mục nếu cần
+          attributes: ["name"], // Chỉ lấy trường "name" từ bảng Category
         },
         {
           model: ProductImage,
-          attributes: ["imageUrl"], // Bao gồm các thông tin ảnh sản phẩm
+          attributes: ["imageUrl"], // Chỉ lấy trường "imageUrl" từ bảng ProductImage
         },
-        // Bao gồm các mô hình khác ở đây nếu cần
       ],
+      distinct: true, // Đảm bảo chỉ tính sản phẩm không bị trùng do join
     });
 
-    return products;
+    console.log("Count of products:", count);
+    console.log("Limit per page:", limit);
+    const totalPages = Math.ceil(count / limit); // Tính tổng số trang dựa trên tổng sản phẩm và limit
+    console.log("Total Pages Calculated:", totalPages);
+
+    if (count === 0) {
+      return { err: 1, message: "No products found for this category." };
+    }
+
+    return {
+      err: 0,
+      msg: "OK",
+      response: {
+        totalPages,               // Tổng số trang
+        currentPage: page,        // Trang hiện tại
+        totalProducts: count,     // Tổng số sản phẩm
+        data: rows,               // Dữ liệu sản phẩm
+      },
+    };
   } catch (error) {
     console.error("Error fetching products from service:", error);
-    throw error;
+    throw new Error(error.message);
   }
 };
+
+
+
+
 
 const getProductsByCategoryFiter = async (categoryId, priceRange, rating) => {
     try {
@@ -178,33 +204,48 @@ const getProductsByCategoryFiter = async (categoryId, priceRange, rating) => {
     }
 };
 
-const getProductsBySubCat = async (subCatId) => {
+const getProductsBySubCat = async (subCatId, page = 1, limit = 10) => {
   try {
-    // Lấy tất cả sản phẩm theo sub_category_id và bao gồm hình ảnh
-    const products = await Product.findAll({
+    const offset = (page - 1) * limit; // Đảm bảo limit là số nguyên
+
+    const { count, rows } = await Product.findAndCountAll({
       where: {
         sub_category_id: subCatId,
       },
       include: [
         {
           model: ProductImage,
-          as: "ProductImages", // Tên bí danh, sử dụng cùng tên với tên bí danh trong model
+          as: "ProductImages",
+          attributes: ["imageUrl"],
         },
       ],
+      offset,
+      limit: Number(limit), // Đảm bảo limit là số nguyên
+      distinct: true,
     });
 
-    // Trả về danh sách sản phẩm cùng với hình ảnh
-    return products;
+    const totalPages = Math.ceil(count / limit);
+    
+    return {
+      totalPages,
+      currentPage: page,
+      totalProducts: count,
+      data: rows,
+    };
   } catch (error) {
     console.error("Error fetching products from database:", error);
     throw new Error("Database error");
   }
 };
 
-const getProductsByChildSubCategory = async (childSubCategoryId) => {
+
+
+const getProductsByChildSubCategory = async (childSubCategoryId, page = 1, limit = 10) => {
   try {
+    const offset = (page - 1) * limit;
+
     // Truy vấn sản phẩm theo childSubCategoryId
-    const products = await Product.findAll({
+    const { count, rows } = await Product.findAndCountAll({
       where: { child_sub_category_id: childSubCategoryId },
       include: [
         {
@@ -219,16 +260,26 @@ const getProductsByChildSubCategory = async (childSubCategoryId) => {
           model: ProductImage,
           attributes: ["imageUrl"], // Bao gồm các URL ảnh sản phẩm
         },
-        // Bạn có thể bao gồm thêm các bảng khác nếu cần, như Review hoặc Brand
       ],
+      offset,
+      limit: Number(limit), // Đảm bảo limit là số nguyên
+      distinct: true,
     });
 
-    return products;
+    const totalPages = Math.ceil(count / limit);
+
+    return {
+      totalPages,
+      currentPage: page,
+      totalProducts: count,
+      data: rows,
+    };
   } catch (error) {
     console.error("Error fetching products from service:", error);
     throw error;
   }
 };
+
 
 module.exports = {
   getProductsService,

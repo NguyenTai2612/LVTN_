@@ -989,17 +989,20 @@ font-size:medium;} */
   display: inline-block;
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   color: white;
   background-color: #D60000;
   padding: 4px 12px;
   font-weight: bold;
   font-size: 13px;
-  clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+  clip-path: polygon(100% 0, 15% 0, 0 50%, 15% 100%, 100% 100%); /* Thay đổi mũi tên */
   text-align: center;
   line-height: 1;
 }
 
+.tabContent p {
+  white-space: pre-wrap; /* Giữ các ký tự xuống dòng và khoảng trắng */
+}
 
 
 .product_item_2_row .badge-custom {

@@ -183,17 +183,24 @@ const updateProduct = async (req, res) => {
       sub_category_id,
       child_sub_category_id,
     } = req.body;
+
     const images = req.files;
 
+    // Kiểm tra nếu không có productId
     if (!productId) {
       return res.status(400).json({ err: -1, msg: "Product ID is required" });
     }
 
-    if (!name || !description || !price || !countInStock) {
+    // Kiểm tra các trường bắt buộc
+    if (!name || !price || !countInStock) {
       return res
         .status(400)
         .json({ err: -1, msg: "No valid data provided for update" });
     }
+
+    // Đặt điều kiện nếu sub_category_id hoặc child_sub_category_id không được chọn thì mặc định là null
+    const subCategoryId = sub_category_id || null;
+    const childSubCategoryId = child_sub_category_id || null;
 
     // Cập nhật thông tin sản phẩm qua service
     const updatedProduct = await productService.updateProductService(
@@ -209,8 +216,8 @@ const updateProduct = async (req, res) => {
         discount,
         brand_id,
         category_id,
-        sub_category_id,
-        child_sub_category_id,
+        sub_category_id: subCategoryId,        // Sử dụng giá trị đã kiểm tra
+        child_sub_category_id: childSubCategoryId,  // Sử dụng giá trị đã kiểm tra
       }
     );
 
@@ -224,6 +231,7 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ err: -1, msg: error.message });
   }
 };
+
 
 const deleteProductAndImages = async (req, res) => {
   const productId = req.params.id;
@@ -262,22 +270,23 @@ const deleteProductAndImages = async (req, res) => {
 const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
+    const page = parseInt(req.query.page) || 1; // Trang mặc định là 1
+    const limit = parseInt(req.query.limit) || 20; // Giới hạn mặc định là 10 sản phẩm mỗi trang
 
     // Gọi service để lấy sản phẩm theo categoryId
-    const products = await productService.getProductsByCategory(categoryId);
+    const response = await productService.getProductsByCategory(categoryId, page, limit);
 
-    if (!products.length) {
-      return res
-        .status(404)
-        .json({ message: "No products found for this category." });
+    if (response.err) {
+      return res.status(404).json({ message: response.message });
     }
 
-    res.json({ data: products });
+    res.json(response);
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 const getProductsByCategoryFilter = async (req, res) => {
   try {
@@ -314,7 +323,9 @@ const getProductsByCategoryFilter = async (req, res) => {
 const getProductsBySubCat = async (req, res) => {
   try {
     const { subCatId } = req.params;
-    const products = await productService.getProductsBySubCat(subCatId);
+    const { page = 1, limit = 10 } = req.query; // Nhận page và limit từ query params
+
+    const products = await productService.getProductsBySubCat(subCatId, page, limit);
     res.status(200).json({
       success: true,
       data: products,
@@ -327,6 +338,7 @@ const getProductsBySubCat = async (req, res) => {
     });
   }
 };
+
 
 const incrementProductViews = async (req, res) => {
   const productId = req.params.id;
@@ -353,23 +365,28 @@ const incrementProductViews = async (req, res) => {
 const getProductsByChildSubCategory = async (req, res) => {
   try {
     const { childSubCategoryId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Lấy page và limit từ query parameters
 
     // Gọi service để lấy sản phẩm theo childSubCategoryId
-    const products = await productService.getProductsByChildSubCategory(childSubCategoryId);
+    const products = await productService.getProductsByChildSubCategory(childSubCategoryId, page, limit);
 
-    if (!products.length) {
-      return res
-        .status(404)
-        .json({ message: "No products found for this child subcategory." });
+    if (products.totalProducts === 0) {
+      return res.status(404).json({ message: "No products found for this child subcategory." });
     }
 
     // Trả về kết quả nếu tìm thấy sản phẩm
-    res.status(200).json({ data: products });
+    res.status(200).json({
+      totalPages: products.totalPages,
+      currentPage: products.currentPage,
+      totalProducts: products.totalProducts,
+      data: products.data,
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Exporting the function
 module.exports = {

@@ -20,7 +20,7 @@ exports.searchProductsByName = async (req, res) => {
         }
       },
       include: [{ model: ProductImage }], // Bao gồm ảnh sản phẩm (nếu có)
-      attributes: ['id', 'name', 'price', 'oldPrice', 'rating', 'discount'] // Thêm rating và discount
+      attributes: ['id', 'name', 'price', 'oldPrice', 'rating', 'discount', 'countInStock'] // Thêm rating và discount
     });
 
     // Trả về kết quả

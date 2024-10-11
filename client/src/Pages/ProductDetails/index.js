@@ -219,13 +219,11 @@ const ProductDetails = () => {
               <div className="product-info">
                 <div className="product-title">{productData.name}</div>
                 <div className="mt-2">
-                 
-                    {productData.Brand?.name && (
-                      <span className="badge1 bg-blue text-white mr-3">
-                        {productData.Brand.name}
-                      </span>
-                    )}
-               
+                  {productData.Brand?.name && (
+                    <span className="badge1 bg-blue text-white mr-3">
+                      {productData.Brand.name}
+                    </span>
+                  )}
                 </div>
                 <div className="rating-review">
                   <Rating
@@ -241,16 +239,25 @@ const ProductDetails = () => {
                     style={{ marginLeft: "17px" }}
                   >
                     <div className="d-flex align-items-center mr-4">
-                      <span className="badge bg-success text-white mr-3">
-                        IN STOCK
+                      <span
+                        className={`badge ${
+                          productData.countInStock > 0 ? "bg-success" : "bg-danger"
+                        } text-white mr-3`}
+                      >
+                        {productData.countInStock > 0 ? "IN STOCK" : "OUT OF STOCK"}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="product-price mt-3 mr-2">
-                  <Price amount={productData.price} />
+                  {productData.price === 0 ? (
+                    <span className="text-danger">Vui lòng liên hệ</span>
+                  ) : (
+                    <Price amount={productData.price} />
+                  )}
                 </div>
+
                 <div className="d-flex align-items-center">
                   <span className="mb-3"> Giá gốc:</span>
                   <span className="original-price ml-4">
@@ -258,9 +265,7 @@ const ProductDetails = () => {
                       <Price amount={productData.oldPrice} />
                     </div>
                   </span>
-                  <span className="discount mr-auto">
-                    -{productData.discount} %
-                  </span>
+                  <span className="discount mr-auto">-{Math.floor(productData.discount)} %</span>
                 </div>
 
                 <div className="warranty">
@@ -285,19 +290,7 @@ const ProductDetails = () => {
                   </Button>
                 </div>
 
-                <div className="details-table mt-4">
-                  <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6>
-                  <table>
-                    <tbody>
-                      {specifications.map((spec, index) => (
-                        <tr key={index}>
-                          <th>{spec.spec_key}</th>
-                          <td>{spec.spec_value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              
               </div>
               <div className="gift-section">
                 <Gift />
@@ -307,7 +300,7 @@ const ProductDetails = () => {
 
           <br />
 
-          <div className="card mt-5 p-5 detailsPageTabs">
+          <div className="card p-5 detailsPageTabs">
             <div className="customTabs">
               <ul className="list list-inline">
                 <li className="list-inline-item">
@@ -315,7 +308,7 @@ const ProductDetails = () => {
                     className={`${activeTabs === 0 ? "active" : ""}`}
                     onClick={() => setActiveTabs(0)}
                   >
-                    Description
+                    Mô Tả Sản Phẩm
                   </Button>
                 </li>
                 <li className="list-inline-item">
@@ -323,7 +316,7 @@ const ProductDetails = () => {
                     className={`${activeTabs === 1 ? "active" : ""}`}
                     onClick={() => setActiveTabs(1)}
                   >
-                    Additional info
+                    thông số kỹ thuật
                   </Button>
                 </li>
                 <li className="list-inline-item">
@@ -331,7 +324,7 @@ const ProductDetails = () => {
                     className={`${activeTabs === 2 ? "active" : ""}`}
                     onClick={() => setActiveTabs(2)}
                   >
-                    Reviews ({reviewData.length})
+                    Đánh giá ({reviewData.length})
                   </Button>
                 </li>
               </ul>
@@ -344,9 +337,19 @@ const ProductDetails = () => {
               {activeTabs === 1 && (
                 <div className="tabContent">
                   <div className="table-responsive">
-                    <table className="table table-bordered">
-                      <tbody>{/* Render additional info here */}</tbody>
-                    </table>
+                  <div className="details-table">
+                  {/* <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6> */}
+                  <table>
+                    <tbody>
+                      {specifications.map((spec, index) => (
+                        <tr key={index}>
+                          <th>{spec.spec_key}</th>
+                          <td>{spec.spec_value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                   </div>
                 </div>
               )}
@@ -354,7 +357,7 @@ const ProductDetails = () => {
                 <div className="tab-content">
                   <div className="row">
                     <div className="col-md-8">
-                      <h6 className="review-title">Product Reviews</h6>
+                      <h6 className="review-title">Đánh giá sản phẩm</h6>
                       {reviewData
                         .slice(0)
                         .reverse()
@@ -395,10 +398,10 @@ const ProductDetails = () => {
                           </div>
                         ))}
                       <br />
-                      <h5 className="write-review-title">Write a Review</h5>
+                      <h5 className="write-review-title">Viết đánh giá</h5>
                       <form onSubmit={addReview}>
                         <div className="form-group">
-                          <label>Your Rating</label>
+                          <label>Chất lượng sản phẩm</label>
                           <select
                             name="customerRating"
                             className="form-control"
@@ -413,7 +416,7 @@ const ProductDetails = () => {
                           </select>
                         </div>
                         <div className="form-group">
-                          <label>Your Review</label>
+                          <label>Đánh giá của bạn</label>
                           <textarea
                             name="review"
                             className="form-control"
@@ -428,7 +431,7 @@ const ProductDetails = () => {
                           color="primary"
                           disabled={isLoading}
                         >
-                          {isLoading ? "Submitting..." : "Submit Review"}
+                          {isLoading ? "Submitting..." : "Gửi"}
                         </Button>
                       </form>
                     </div>

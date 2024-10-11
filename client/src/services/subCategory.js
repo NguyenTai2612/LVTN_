@@ -42,18 +42,18 @@ export const apiGetSubCategoryById = (id) => new Promise(async (resolve, reject)
 
 
 
-export const apiGetProductsByChildSubCategory = (childSubCategoryId) =>
-  new Promise(async (resolve, reject) => {
+export const apiGetProductsByChildSubCategory = (childSubCatId, page = 1, limit = 10) => new Promise(async (resolve, reject) => {
     try {
-      const response = await axiosConfig({
-        method: 'get',
-        url: `/api/v1/product/${childSubCategoryId}/by-child-subcategory`,
-      });
-      resolve(response.data);
+        const response = await axiosConfig({
+            method: 'get',
+            url: `/api/v1/product/${childSubCatId}/by-child-subcategory?page=${page}&limit=${limit}`,
+        });
+        resolve(response); // Đảm bảo trả về đúng dữ liệu từ API
     } catch (error) {
-      reject({ err: -1, msg: 'Failed to fetch products by child subcategory' });
+        console.error('Error fetching products by child subcategory:', error.response || error.message || error);
+        reject(error.response ? error.response.data : error.message || 'Unknown error');
     }
-  });
+});
 
   export const apiGetAllSubCatsByChildSubCatId = (childSubCatId) =>
     new Promise(async (resolve, reject) => {

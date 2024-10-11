@@ -14,7 +14,9 @@
 .custom-logo {
     max-width: 97%;
     height: auto;
-    margin-left: 6px;
+    margin-left: 23px;
+    margin-bottom: -20px;
+    margin-top: -15px;
 }
 
 .search-form {
@@ -347,7 +349,7 @@ p {
     background-color: white;
     position: absolute;
     z-index: 1000;
-    width: 94.9%;
+    width: 84.5%;
     max-height: 283px;
     overflow-y: auto;
     margin-top: 40px;
@@ -364,7 +366,7 @@ p {
 
 .clear-button {
     position: absolute;
-    right: 71px;
+    right: 98px;
     /* Cách lề phải */
     top: 50%;
     /* Giữa theo chiều dọc */
@@ -392,8 +394,47 @@ p {
     vertical-align: middle;
     font-size: xx-large;
 }
+
 .camemra {
     margin-right: -18px;
     margin-left: 8px;
     cursor: pointer;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+}
+
+.modal-actions {
+    margin-top: 20px;
+}
+
+
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+}
+
+.camera-icon {
+    font-size: 28px;
+    margin-right: -10px;
+    margin-left: 11px;
 }

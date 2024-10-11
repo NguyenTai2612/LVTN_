@@ -6,7 +6,7 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import Navigation from "./Navigation";
-import Logo from "../../assets/images/logo.jpg";
+import Logo from "../../assets/images/logo4.jpg";
 import "./Header.css";
 import { Avatar, Button } from "@mui/material";
 import { MyContext } from "../../App";
@@ -68,11 +68,11 @@ const Header = () => {
                 <div className="contact-item">
                   <div className="contact-line">
                     <FaPhone className="header-icon" />
-                    <span>HOTLINE: 0943 683 790</span>
+                    <span>HOTLINE: 0899 064 193</span>
                   </div>
                   <div className="contact-line">
                     <FaMapMarkerAlt className="header-icon" />
-                    <span>301 Hoàng Văn Thụ, P.2, Tân Bình, HCM</span>
+                    <span>217 Đường 3/2, Quận Ninh Kiều, Cần Thơ</span>
                   </div>
                 </div>
                 <div className="contact-item d-flex align-items-center">

@@ -47,45 +47,32 @@ export const apiGetProductDetails = (productId) =>
     });
   
 
-export const apiGetProductsByCategory = (categoryId) =>
-  new Promise(async (resolve, reject) => {
-    try {
-      const response = await axiosConfig({
-        method: "get",
-        url: `/api/v1/product/by-category`,
-        params: { categoryId }, // Sử dụng `params` để gửi query string
-      });
-      resolve(response.data);
-    } catch (error) {
-      reject(error);
-    }
+
+    export const apiGetProductsBySubCat = (subCatId, page = 1, limit = 10) => new Promise(async (resolve, reject) => {
+      try {
+          const response = await axiosConfig({
+              method: 'get',
+              url: `/api/v1/product/${subCatId}/by-subCat?page=${page}&limit=${limit}`,
+          });
+          resolve(response); // Đảm bảo trả về đúng dữ liệu từ API
+      } catch (error) {
+          console.error('Error fetching products by subcategory:', error.response || error.message || error);
+          reject(error.response ? error.response.data : error.message || 'Unknown error');
+      }
   });
 
-export const apiGetProductsBySubCat = (subCatId) =>
-  new Promise(async (resolve, reject) => {
+  export const apiGetProductsByCat = (categoryId, page = 1, limit = 10) => new Promise(async (resolve, reject) => {
     try {
-      const response = await axiosConfig({
-        method: "get",
-        url: `/api/v1/product/${subCatId}/by-subCat`, // Adjust URL according to your backend endpoint
-      });
-      resolve(response); // Resolves with the data from the response
+        const response = await axiosConfig({
+            method: 'get',
+            url: `/api/v1/product/${categoryId}/by-category?page=${page}&limit=${limit}`,
+        });
+        resolve(response); // Đảm bảo trả về đúng dữ liệu từ API
     } catch (error) {
-      reject(error); // Rejects with error information
+        console.error('Error fetching products by category:', error.response || error.message || error);
+        reject(error.response ? error.response.data : error.message || 'Unknown error');
     }
-  });
-
-export const apiGetProductsByCat = (catId) =>
-  new Promise(async (resolve, reject) => {
-    try {
-      const response = await axiosConfig({
-        method: "get",
-        url: `/api/v1/product/${catId}/by-category`, // Adjust URL according to your backend endpoint
-      });
-      resolve(response); // Resolves with the data from the response
-    } catch (error) {
-      reject(error); // Rejects with error information
-    }
-  });
+});
 
 export const apiGetProductsByCatFilter = async (catId, filters = {}) => {
   try {

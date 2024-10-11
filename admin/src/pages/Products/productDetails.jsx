@@ -356,6 +356,16 @@ const ProductDetails = () => {
                 </div>
             </div>
 
+            <Link to={`/product/edit/${id}`}>
+                <Button className="btn-blue btn-lg btn-big w-100"
+    
+                ><FaCloudUploadAlt /> &nbsp;
+                    {
+                        isLoading === true ?
+                            <CircularProgress color="inherit" className="loader" /> : 'UPDATE PRODUCT'
+                    }</Button>
+            </Link>
+
             <br />
             <br />
             <br />

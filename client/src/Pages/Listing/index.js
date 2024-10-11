@@ -48,83 +48,103 @@ const Listing = ({ type }) => {
   const [productData, setProductData] = useState([]);
   const [parentCategory, setParentCategory] = useState(null);
 
+  const [page, setPage] = useState(1); // Trang hiện tại
+  const [limit, setLimit] = useState(20); // Số sản phẩm mỗi trang
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+
+      if (type === "category") {
+        window.scrollTo(0, 0);
+
+        const categoryResponse = await apiGetCategoryById(id);
+        setCategoryData(categoryResponse.response);
+        setShowSubCat(false);
+        const productResponse = await apiGetProductsByCat(id, page, limit);
+        setProductData(productResponse.data.response.data);
+        setTotalProducts(
+          productResponse.data.response.totalProducts ||
+            productResponse.data.response.count
+        );
+        console.log("setProductData", productResponse);
+      } else if (type === "subcategory") {
+        window.scrollTo(0, 0);
+
+        const subCategoryResponse = await apiGetSubCategoryById(id);
+        setSubCatData(subCategoryResponse.response);
+        const parentCategoryResponse = await getCategoryBySubCategoryId(id);
+        setParentCategory(parentCategoryResponse.response);
+        setShowSubCat(true);
+        const productResponse = await apiGetProductsBySubCat(id, page, limit);
+        setProductData(productResponse.data.data.data);
+        console.log('apiGetProductsBySubCat',productResponse)
+        setTotalProducts(
+          productResponse.data.data.totalProducts ||
+            productResponse.data.response.count
+        );
+      } else if (type === "childsubcategory") {
+        window.scrollTo(0, 0);
+
+        const childSubCategoryResponse = await apiGetChildSubCategoryById(id); // Gọi API này
+        setChildSubCatData(childSubCategoryResponse.response); // Thiết lập childSubCatData
+        const parentCategoryResponse = await apiGetCategoryByChildSubCatId(id); // API lấy danh mục cha
+        setParentCategory(parentCategoryResponse.response);
+        setShowSubCat(true);
+        const productResponse = await apiGetProductsByChildSubCategory(id, page, limit); // Gọi API này
+        setProductData(productResponse.data.data);
+        console.log('apiGetProductsBySubCat',productResponse)
+
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu:", error);
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-
-        if (type === "category") {
-          window.scrollTo(0, 0);
-
-          const categoryResponse = await apiGetCategoryById(id);
-          setCategoryData(categoryResponse.response);
-          setShowSubCat(false);
-          const productResponse = await apiGetProductsByCat(id);
-          setProductData(productResponse.data.data);
-        } else if (type === "subcategory") {
-          window.scrollTo(0, 0);
-
-          const subCategoryResponse = await apiGetSubCategoryById(id);
-          setSubCatData(subCategoryResponse.response);
-          const parentCategoryResponse = await getCategoryBySubCategoryId(id);
-          setParentCategory(parentCategoryResponse.response);
-          setShowSubCat(true);
-          const productResponse = await apiGetProductsBySubCat(id);
-          setProductData(productResponse.data.data);
-        } else if (type === "childsubcategory") {
-          window.scrollTo(0, 0);
-
-          const childSubCategoryResponse = await apiGetChildSubCategoryById(id); // Gọi API này
-          setChildSubCatData(childSubCategoryResponse.response); // Thiết lập childSubCatData
-          const parentCategoryResponse = await apiGetCategoryByChildSubCatId(
-            id
-          ); // API lấy danh mục cha
-          setParentCategory(parentCategoryResponse.response);
-          setShowSubCat(true);
-          const productResponse = await apiGetProductsByChildSubCategory(id); // Gọi API này
-          setProductData(productResponse.data);
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu:", error);
-        setIsLoading(false);
-      }
-    };
 
     fetchData();
   }, [id, type]);
 
+  const handlePageChange = (event, value) => {
+    setPage(value); // Cập nhật trang hiện tại
+    fetchData(); // Gọi lại hàm fetchData để lấy dữ liệu cho trang mới
+  };
+
   const fetchProducts1 = async (subCatId, filters) => {
-    try {
-      const response = await apiGetProductsBySubCat(subCatId);
-      let filteredProducts = response.data.data;
+    // try {
+    //   const response = await apiGetProductsBySubCat(subCatId);
+    //   let filteredProducts = response.data.data;
 
-      if (filters.priceRange) {
-        filteredProducts = filteredProducts.filter(
-          (product) =>
-            product.price >= filters.priceRange[0] &&
-            product.price <= filters.priceRange[1]
-        );
-      }
+    //   if (filters.priceRange) {
+    //     filteredProducts = filteredProducts.filter(
+    //       (product) =>
+    //         product.price >= filters.priceRange[0] &&
+    //         product.price <= filters.priceRange[1]
+    //     );
+    //   }
 
-      if (filters.brands.length > 0) {
-        filteredProducts = filteredProducts.filter((product) =>
-          filters.brands.includes(product.brand)
-        );
-      }
+    //   if (filters.brands.length > 0) {
+    //     filteredProducts = filteredProducts.filter((product) =>
+    //       filters.brands.includes(product.brand)
+    //     );
+    //   }
 
-      if (filters.rating) {
-        filteredProducts = filteredProducts.filter(
-          (product) => Math.floor(product.rating) === filters.rating
-        );
-      }
+    //   if (filters.rating) {
+    //     filteredProducts = filteredProducts.filter(
+    //       (product) => Math.floor(product.rating) === filters.rating
+    //     );
+    //   }
 
-      setProducts(filteredProducts);
-    } catch (error) {
-      console.error("Lỗi khi lấy sản phẩm theo danh mục phụ:", error);
-    }
+    //   setProducts(filteredProducts);
+    // } catch (error) {
+    //   console.error("Lỗi khi lấy sản phẩm theo danh mục phụ:", error);
+    // }
   };
 
   // Handle filter change from Sidebar
@@ -268,7 +288,9 @@ const Listing = ({ type }) => {
                     </div>
                   </div>
                   <p class="woocommerce-result-count">
-                    Hiển thị 1–20 của 164 kết quả
+                    Hiển thị {Math.min((page - 1) * limit + 1, totalProducts)}–
+                    {Math.min(page * limit, totalProducts)} của {totalProducts}{" "}
+                    kết quả
                   </p>
                 </div>
               </header>
@@ -301,7 +323,13 @@ const Listing = ({ type }) => {
               </div>
 
               <div className="d-flex align-items-center justify-content-center mt-5">
-                <Pagination count={10} color="primary" size="large" />
+                <Pagination
+                  count={Math.ceil(totalProducts / limit)} // Tổng số trang dựa trên tổng sản phẩm
+                  page={page} // Trang hiện tại
+                  onChange={handlePageChange} // Hàm xử lý thay đổi trang
+                  color="primary"
+                  size="large"
+                />
               </div>
             </div>
           </div>

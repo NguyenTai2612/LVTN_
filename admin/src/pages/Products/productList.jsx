@@ -332,43 +332,9 @@ const ProductList = () => {
                             Xóa các sản phẩm đã chọn
                         </button>
 
-                        <div className='filter-container col-md-5'>
-                            <h6 className='mb-2'>Show By</h6>
-                            <FormControl size="small" className="w-100">
-                                <Select
-                                    value={showBy}
-                                    onChange={(e) => setShowBy(e.target.value)}
-                                    displayEmpty
-                                    inputProps={{ 'aria-label': 'Without label' }}
-                                    labelId="show-by-label"
-                                    className="w-100"
-                                >
-                                    <MenuItem value="None">
-                                        <em>None</em>
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
-                        </div>
+                     
 
-                        <div className='filter-container col-md-5'>
-                            <h6 className='mb-2'>Category By</h6>
-                            <FormControl size="small" className="w-100">
-                                <Select
-                                    value={categoryBy}
-                                    onChange={(e) => setCategoryBy(e.target.value)}
-                                    displayEmpty
-                                    inputProps={{ 'aria-label': 'Without label' }}
-                                    labelId="category-by-label"
-                                    className="w-100"
-                                >
-                                    <MenuItem value="None">
-                                        <em>None</em>
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
-                        </div>
-
-                        <SearchBox />
+                        {/* <SearchBox /> */}
                     </div>
 
 

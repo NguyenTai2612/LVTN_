@@ -134,20 +134,21 @@ function App({ children }) {
             <Routes>
               <Route path="/" exact={true} element={<Home />} />
               <Route
-                path="/product/category/:id"
-                exact={true}
-                element={<Listing type="category" />} // Truyền giá trị type cho Listing
-              />
-              <Route
-                path="/listing/subcategory/:id"
-                exact={true}
-                element={<Listing type="subcategory" />} // Truyền giá trị type cho Listing
-              />
-              <Route
-                path="/listing/childsubcategory/:id"
-                exact={true}
-                element={<Listing type="childsubcategory" />} // Truyền giá trị type cho Listing
-              />
+  path="/product/category/:id"
+  exact={true}
+  element={<Listing type="category" />} // Truyền giá trị type cho Listing
+/>
+<Route
+  path="/listing/subcategory/:id"
+  exact={true}
+  element={<Listing type="subcategory" />} // Truyền giá trị type cho Listing
+/>
+<Route
+  path="/listing/childsubcategory/:id"
+  exact={true}
+  element={<Listing type="childsubcategory" />} // Truyền giá trị type cho Listing
+/>
+
 
               <Route path="/search" element={<SearchPage />} />
 

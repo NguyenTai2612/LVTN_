@@ -165,7 +165,7 @@ console.log('childSubCategoriesData',childSubCategoriesData)
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!name || !description || !price || !countInStock) {
+        if (!name || !price ) {
             alert('Please fill in all required fields.');
             return;
         }

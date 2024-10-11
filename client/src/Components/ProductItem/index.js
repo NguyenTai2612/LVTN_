@@ -25,31 +25,48 @@ const ProductItem = (props) => {
             />
           </Link>
 
-          <span className="badge-custom">-{item?.discount} %</span>
-          <div className="actions">
+          {item?.discount > 0 && (
+            <span className="badge-custom">-{Math.floor(item.discount)} %</span>
+          )}
+
+          {/* <div className="actions">
             <Button>
               <TfiFullscreen />
             </Button>
-          </div>
+          </div> */}
         </div>
         <div className="info">
           <h4>{item?.name?.substr(0, 200) + ""}</h4>
           <div className="d-flex align-items-center mt-2">
-            <span className="badge bg-success text-white d-block">
-              In Stock
+            <span
+              className={`badge ${
+                item?.countInStock > 0 ? "bg-success" : "bg-danger"
+              } text-white d-block`}
+            >
+              {item?.countInStock > 0 ? "In Stock" : "Out of Stock"}
             </span>
           </div>
+
           <Rating
-            className="mt-2 mb-2"
-            name="read-only"
-            value={item?.rating || 0} // Đảm bảo giá trị không phải là undefined hoặc null
-            readOnly
-            size="small"
-            precision={0.5}
-          />
+  className="mt-2 mb-2"
+  name="read-only"
+  value={Number(item?.rating) || 0} // Đảm bảo giá trị luôn là số
+  readOnly
+  size="small"
+  precision={0.5}
+/>
+
           <div className="d-flex">
-            <Price amount={item?.price} className="netPrice text-danger ml-1" />
+            {item?.price === 0 ? (
+              <span className="text-danger">Vui lòng liên hệ</span>
+            ) : (
+              <Price
+                amount={item?.price}
+                className="netPrice text-danger ml-1"
+              />
+            )}
           </div>
+
           <div className="d-flex">
             <Price amount={item?.oldPrice} className="oldPrice ml-1" />
           </div>

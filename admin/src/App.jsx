@@ -42,6 +42,7 @@ import Overview from './pages/Dashboard/Overview.jsx'
 import ChildSubCategoryList from './pages/Category/ChildSubCatList.jsx'
 import AddChildSubCategory from './pages/Category/addChildSubCat.jsx'
 import EditChildSubCategory from './pages/Category/editChildSubCat.jsx'
+import SearchPage from './components/SearchBox/SearchPage.jsx'
 
 const { store, persistor } = reduxStore();
 
@@ -144,7 +145,7 @@ function App() {
                     <Route path='/' exact={true} element={<Overview />} />
                     <Route path='/product_statistics' exact={true} element={<ProductStatistics />} />
                     <Route path='/revenue' exact={true} element={<Revenue />} />
-                    
+
                     <Route path='/product/list' exact={true} element={<ProductList />} />
                     <Route path='/product/upload' exact={true} element={<ProductUpload />} />
                     <Route path='/product/detail/:id' exact={true} element={<ProductDetails />} />
@@ -176,6 +177,9 @@ function App() {
 
                     <Route path='/user/list' exact={true} element={<UserList />} />
                     <Route path='/user/edit/:id' exact={true} element={<EditUser />} />
+
+                    <Route path="/search" element={<SearchPage />} />
+
 
                   </Routes>
                 </div>

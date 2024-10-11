@@ -1484,7 +1484,218 @@ h6 {
 .w-100 {
   width: 100%;
 }
+.product_row {
+  display: flex;
+  flex-wrap: wrap; /* Cho phép các sản phẩm xuống dòng nếu không đủ chỗ */
+  justify-content: space-between; /* Căn giữa không gian giữa các sản phẩm */
+}
+
+.productItem {
+  width: calc(25% - 10px); /* 4 sản phẩm trên 1 dòng, trừ đi khoảng cách giữa các sản phẩm */
+  margin-bottom: 20px; /* Khoảng cách dưới mỗi sản phẩm */
+}
+
+/* Nếu muốn kiểm soát các sản phẩm trên màn hình nhỏ hơn */
+@media (max-width: 768px) {
+  .productItem {
+    width: calc(50% - 10px); /* 2 sản phẩm trên 1 dòng */
+  }
+}
+
+
+.productListing .productItem {
+  transition: all 0.3s ease-in-out;
+}
+
+.productListing {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.productListing .productItem.four {
+  width: 23%;
+}
+
+.productListing .productItem.three {
+  width: 31.5%;
+}
+
+.productListing .productItem.one {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.productListing .productItem.one .img_rapper {
+  width: 25%;
+}
+
+.product_Listing_Page .productListing {
+  gap: 8px;
+}
+.productItem .actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px !important;
+  height: 40px !important;
+  width: 40px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%) !important;
+}
+
+.productItem .actions button svg {
+  color: #000 !important;
+  opacity: 1;
+  /* Ensure the icons are fully visible */
+  pointer-events: none;
+  font-size: 15px;
+}
+
+.productItem .actions button:hover {
+  background: #1565C0 !important;
+}
+
+.productItem .actions button:hover svg {
+  color: #fff !important;
+  opacity: 1 !important;
+  /* Ensure the icons are fully visible on hover */
+}
+.productListing .productItem.four {
+  width: 23%;
+}
 
 
 
+.productItem .imgWrapper {
+  overflow: hidden;
+  position: relative;
+  height: 150px;
+  /* Chiều cao cố định cho khung hình ảnh */
+}
 
+.productItem .imgWrapper img {
+  transition: transform 0.3s ease-in-out;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Đảm bảo hình ảnh lấp đầy khung */
+}
+
+.productItem:hover {
+  transition: all 0.3s ease-in-out;
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.productItem .info {
+  padding: 2px;
+  flex-grow: 1;
+  /* Cho phép phần info chiếm hết không gian trống */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.productItem .info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  height: 40px;
+  /* Fixed height to fit 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* Show up to 2 lines */
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  text-align: left;
+  /* Align text to the left */
+}
+
+
+.productItem .info .netPrice {
+  font-family: Roboto, 'Nunito', sans-serif;
+  margin-bottom: 0;
+  text-decoration: none;
+  color: #ff0000;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.productItem .info .netPrice.lg {
+  font-size: 20px;
+}
+
+.productItem .info .oldPrice {
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.7);
+  text-decoration: line-through;
+  margin-bottom: 0;
+}
+
+.productItem .info .oldPrice.lg {
+  font-size: 20px;
+}
+
+.product_row .productContent {
+  transition: transform 0.3s ease;
+}
+
+.productItem:hover .productContent {
+  transform: scale(1.05);
+}
+
+.product_row .productItem img {
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.product_row .productItem:hover img {
+  transform: scale(1.05);
+}
+
+.productItem .actions {
+  position: absolute;
+  top: 10px;
+  right: -50px;
+  opacity: 0;
+  transition: opacity 0.3s ease, right 0.3s ease;
+}
+
+.productItem:hover .actions {
+  opacity: 1;
+  right: 10px;
+}
+
+.productItem {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  /* Ensures borders and padding are included in the width/height */
+  padding: 15px;
+  background-color: #fff;
+  margin-right: 10px;
+  /* Spacing between products */
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.badge-custom {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: white;
+  background-color: #D60000;
+  padding: 4px 12px;
+  font-weight: bold;
+  font-size: 13px;
+  clip-path: polygon(100% 0, 15% 0, 0 50%, 15% 100%, 100% 100%); /* Thay đổi mũi tên */
+  text-align: center;
+  line-height: 1;
+}
