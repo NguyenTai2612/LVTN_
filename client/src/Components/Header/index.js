@@ -22,6 +22,7 @@ import Divider from "@mui/material/Divider";
 import { useSelector, useDispatch } from "react-redux";
 import * as action from "../../store/actions";
 import SearchBar from "./SearchBar";
+import { RiCharacterRecognitionLine } from "react-icons/ri";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -89,12 +90,14 @@ const Header = () => {
                         open={open}
                         onClose={handleClose}
                       >
-                        <MenuItem onClick={handleClose}>
-                          <ListItemIcon>
-                            <FiUser style={{ fontSize: "20" }} />
-                          </ListItemIcon>
-                          Thông tin cá nhân
-                        </MenuItem>
+                       <Link to="/user">
+                          <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                              <FiUser style={{ fontSize: "20" }} />
+                            </ListItemIcon>
+                            Thông tin cá nhân
+                          </MenuItem>
+                       </Link>
                         <Divider />
                         <Link to="/orders">
                           <MenuItem onClick={handleClose}>
@@ -104,6 +107,16 @@ const Header = () => {
                             Đơn hàng
                           </MenuItem>
                         </Link>
+
+                        <Link to="/nhan-dang">
+                          <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                              <RiCharacterRecognitionLine style={{ fontSize: "20" }} />
+                            </ListItemIcon>
+                            Nhận dạng nhạc cụ
+                          </MenuItem>
+                        </Link>
+
                         <MenuItem onClick={() => dispatch(action.logout())}>
                           <ListItemIcon>
                             <MdLogout style={{ fontSize: "20" }} />

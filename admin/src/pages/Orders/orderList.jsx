@@ -89,15 +89,25 @@ const Orders = () => {
     setSelectedStatus(steps[newStep]);
   };
 
-  const confirmStatusChange = async () => {
-    try {
+  // Orders.js
+
+const confirmStatusChange = async () => {
+  try {
+    if (selectedStatus === "Đã xác nhận") {
+      // Gọi API cập nhật trạng thái và trừ số lượng sản phẩm khi chọn "Đã xác nhận"
       await apiUpdateOrderStatus(selectedOrderId, selectedStatus);
-      setIsOpenStatusModal(false); // Đóng modal sau khi cập nhật trạng thái
-      fetchOrders(); // Refresh danh sách đơn hàng
-    } catch (error) {
-      console.error("Error updating order status:", error);
+    } else {
+      // Gọi API cập nhật trạng thái thông thường
+      await apiUpdateOrderStatus(selectedOrderId, selectedStatus);
     }
-  };
+
+    setIsOpenStatusModal(false); // Đóng modal sau khi cập nhật trạng thái
+    fetchOrders(); // Refresh danh sách đơn hàng
+  } catch (error) {
+    console.error("Error updating order status:", error);
+  }
+};
+
 
   // Hiển thị modal xem sản phẩm
   const showProducts = async (orderId) => {
@@ -185,7 +195,7 @@ const Orders = () => {
     <>
       <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
         <div className="flex items-center justify-between">
-          <h1 className="font-weight-bold text-white">Quản lý đơn hàng</h1>
+          <h1 className="font-weight-bold text-white">Order Management</h1>
           <div className="ml-auto flex align-items-center gap-3">
             <Breadcrumbs aria-label="breadcrumb">
               <StyledBreadcrumb

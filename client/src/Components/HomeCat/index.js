@@ -16,8 +16,8 @@ const HomeCat = ({catData }) => {
       <section className="homeCat">
         <div className="auto">
           <Swiper
-            slidesPerView={10}
-            spaceBetween={122}
+            slidesPerView={5}
+            spaceBetween={5}
             navigation={true}
             slidesPerGroup={4}
             modules={[Navigation]}

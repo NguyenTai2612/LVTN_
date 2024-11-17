@@ -170,7 +170,7 @@ const Cart = () => {
 
   return (
     <div className="cartPage">
-      <section className="container">
+      <section>
         <div className="container pt-3">
           <nav className="woocommerce-breadcrumb" aria-label="Breadcrumb">
             <ul className="breadcrumb-list">

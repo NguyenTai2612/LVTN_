@@ -13,3 +13,7 @@ export const apiGetCurrent = () => new Promise(async (resolve, reject) => {
         reject(error);
     }
 });
+
+export const apiUpdateUser = (userId, userData) => {
+    return axiosConfig.put(`/api/v1/user/${userId}`, userData);
+};

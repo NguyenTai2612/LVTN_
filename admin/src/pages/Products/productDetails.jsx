@@ -212,6 +212,14 @@ const ProductDetails = () => {
                                                 </li>
 
                                                 <li>
+                                                    <TbCategoryPlus className="icon" />
+                                                    <span className="label">InStock</span>
+                                                    <span className="colon">:</span>
+                                                    <span className="value">{productData?.countInStock}</span>
+                                                </li>
+                                                
+
+                                                <li>
                                                     <GoCodeReview className="icon" />
                                                     <span className="label">Review</span>
                                                     <span className="colon">:</span>

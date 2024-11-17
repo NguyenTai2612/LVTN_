@@ -20,6 +20,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+  const [isCancelable, setIsCancelable] = useState({});
   const [products, setProducts] = useState([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -107,6 +108,27 @@ const Orders = () => {
       const response = await apiGetOrdersByUserId(userId);
       const { data } = response;
       setOrders(data);
+
+      // Check for each order if cancel button should be disabled based on time
+      const cancelableStatus = data.reduce((acc, order) => {
+        const createdTime = new Date(order.createdAt).getTime();
+        const currentTime = Date.now();
+        const isOrderCancelable = currentTime - createdTime < 5 * 60 * 1000;
+        acc[order.id] = isOrderCancelable;
+        return acc;
+      }, {});
+      setIsCancelable(cancelableStatus);
+
+      // Set timeout for each order to disable cancel button after 5 minutes
+      data.forEach((order) => {
+        const createdTime = new Date(order.createdAt).getTime();
+        const timeRemaining = 5 * 60 * 1000 - (Date.now() - createdTime);
+        if (timeRemaining > 0) {
+          setTimeout(() => {
+            setIsCancelable((prev) => ({ ...prev, [order.id]: false }));
+          }, timeRemaining);
+        }
+      });
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
@@ -158,8 +180,8 @@ const Orders = () => {
 
   return (
     <>
-      <section className="cartPage">
-        <div className="container">
+    
+        <div className="cartPage">
           <div className="container pt-3">
             <nav class="woocommerce-breadcrumb" aria-label="Breadcrumb">
               <ul class="breadcrumb-list">
@@ -232,10 +254,25 @@ const Orders = () => {
                           <Price amount={order.total} />
                         </td>
                         <td>
-                          {order.Payments && order.Payments.length > 0
-                            ? order.Payments[0].paymentStatus
-                            : "N/A"}
+                          {order.Payments && order.Payments.length > 0 ? (
+                            order.Payments[0].paymentStatus ===
+                            "Đã thanh toán" ? (
+                              <span className="payment-completed">
+                                {order.Payments[0].paymentStatus}
+                              </span>
+                            ) : order.Payments[0].paymentStatus ===
+                              "Chưa thanh toán" ? (
+                              <span className="payment-pending">
+                                {order.Payments[0].paymentStatus}
+                              </span>
+                            ) : (
+                              order.Payments[0].paymentStatus
+                            )
+                          ) : (
+                            "N/A"
+                          )}
                         </td>
+
                         {/* <td>{order.payment_status}</td> */}
                         <td>
                           <span
@@ -280,7 +317,10 @@ const Orders = () => {
                           <Button
                             variant="contained"
                             color="secondary"
-                            disabled={order.deliver_status === "Đã hủy"}
+                            disabled={
+                              !isCancelable[order.id] ||
+                              order.deliver_status === "Đã hủy"
+                            }
                             onClick={() => handleCancelOrder(order.id)}
                           >
                             Hủy đơn
@@ -311,7 +351,7 @@ const Orders = () => {
             )}
           </div>
         </div>
-      </section>
+   
 
       <Dialog
         className="productModal"
@@ -429,7 +469,7 @@ const Orders = () => {
               />
             </label>
             <label>
-            Số điện thoại:
+              Số điện thoại:
               <input
                 type="text"
                 value={contactDetails.phone}

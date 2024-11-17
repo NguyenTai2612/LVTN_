@@ -36,17 +36,21 @@ const getUserById = async (req, res) => {
 };
 
 // Update user by id
+// userController.js
 const updateUser = async (req, res) => {
   try {
     const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found or not updated" });
     }
-    res.status(200).json(updatedUser);
+    res.status(200).json(updatedUser); // Trả về người dùng đã cập nhật
   } catch (error) {
     res.status(500).json({ message: "Error updating user", error });
   }
 };
+
+module.exports = { updateUser };
+
 
 // Delete user by id
 const deleteUser = async (req, res) => {

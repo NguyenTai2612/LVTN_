@@ -1,89 +1,108 @@
-import os
-import numpy as np
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+import pymysql
+import numpy as np
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array
+from PIL import Image
+from scipy.spatial.distance import cosine
 
-# Đường dẫn đến file CSV và thư mục chứa ảnh
-csv_file_path = 'C:\\Users\\Tai Nguyen\\Desktop\\fullstack-ecom\\server2\\src\\data\\product_images.csv'
-image_folder = 'C:\\Users\\Tai Nguyen\\Desktop\\fullstack-ecom\\server2\\src\\data\\images'
-
-# Khởi tạo mô hình VGG16
-model = VGG16(weights='imagenet', include_top=False, pooling='avg')
-
+# Khởi tạo ứng dụng Flask
 app = Flask(__name__)
+CORS(app)  # Để cho phép giao tiếp giữa frontend (React) và backend
 
-# Hàm tải và tiền xử lý ảnh
-def load_and_preprocess_image(image_name):
-    img_path = os.path.join(image_folder, image_name)
-    if not os.path.exists(img_path):
-        print(f"File {image_name} not found, skipping.")
-        return None  # Bỏ qua ảnh này nếu không tìm thấy
+# Kết nối cơ sở dữ liệu
+def get_connection():
+    return pymysql.connect(
+        host="127.0.0.1",
+        user="root",
+        password="",
+        database="website_nhac",
+        charset="utf8mb4",
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
-    img = image.load_img(img_path, target_size=(224, 224))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)  # Thêm chiều
-    img_array = preprocess_input(img_array)  # Chuẩn hóa
-    return img_array
+# Tải mô hình VGG16
+base_model = VGG16(weights='imagenet')
+model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
 
-# Tính toán độ tương đồng cosine
-def find_similar_product(uploaded_image):
-    db_features = load_features()
-    if db_features is None:
-        return None
+# Hàm trích xuất đặc trưng từ ảnh
+def extract_features(image):
+    img = image.resize((224, 224))  # Resize ảnh về đúng kích thước
+    img_array = img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)  # Tiền xử lý ảnh
+    features = model.predict(img_array)  # Trích xuất đặc trưng
+    return features.flatten()
 
-    processed_image = load_and_preprocess_image(uploaded_image)
-    if processed_image is None:
-        return None
+# API tìm kiếm sản phẩm bằng văn bản
+@app.route('/api/v1/search-product', methods=['GET'])
+def search_product():
+    search_term = request.args.get('name', '').strip()  # Lấy từ khóa tìm kiếm từ query params
+    if not search_term:
+        return jsonify({"error": "Search term is required"}), 400
 
-    # Trích xuất đặc trưng ảnh tải lên
-    uploaded_image_features = model.predict(processed_image)
-    
-    # Tính độ tương đồng cosine
-    similarities = cosine_similarity(uploaded_image_features.reshape(1, -1), db_features)
-    
-    # Tìm chỉ số có độ tương đồng cao nhất
-    max_similarity_index = np.argmax(similarities)
-    max_similarity_score = similarities[0, max_similarity_index]
-
-    # Đặt ngưỡng tương đồng, ví dụ: 0.8
-    if max_similarity_score < 0.8:
-        return None  # Không trả về sản phẩm nếu không đủ tương đồng
-
-    df = pd.read_csv(csv_file_path)
-    return df.iloc[max_similarity_index]['Product Name']
-
-
-# Tải các đặc trưng từ file numpy
-def load_features():
     try:
-        db_features = np.load('product_features.npy', allow_pickle=True)
-        print(f"Database features loaded, shape: {db_features.shape}")
-        return db_features
-    except FileNotFoundError:
-        print("Error: Could not load product_features.npy. Please ensure the file exists.")
-        return None
+        connection = get_connection()
+        cursor = connection.cursor()
 
-@app.route('/find-similar', methods=['POST'])
-def find_similar():
+        # Tìm sản phẩm bằng tên
+        query = """
+        SELECT p.id, p.name, p.price, pi.imageUrl 
+        FROM Products p 
+        JOIN ProductImages pi ON p.id = pi.product_id 
+        WHERE p.name LIKE %s
+        LIMIT 10
+        """
+        cursor.execute(query, (f"%{search_term}%",))
+        products = cursor.fetchall()
+
+        return jsonify(products)  # Trả về danh sách sản phẩm
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        connection.close()
+
+# API tìm kiếm sản phẩm bằng ảnh
+@app.route('/api/v1/search-image', methods=['POST'])
+def search_image():
     if 'image' not in request.files:
-        return jsonify({'error': 'No image provided'}), 400
+        return jsonify({"error": "No image file provided"}), 400
 
-    file = request.files['image']
-    
-    # Lưu tệp hình ảnh tạm thời để xử lý
-    uploaded_image_path = os.path.join(image_folder, file.filename)
-    file.save(uploaded_image_path)
+    try:
+        image_file = request.files['image']
+        image = Image.open(image_file)
 
-    # Tìm sản phẩm tương tự
-    similar_product_name = find_similar_product(file.filename)
+        # Trích xuất đặc trưng từ ảnh đầu vào
+        query_features = extract_features(image)
 
-    if similar_product_name:
-        return jsonify({'similar_product': similar_product_name}), 200
-    else:
-        return jsonify({'error': 'Failed to find similar product.'}), 500
+        connection = get_connection()
+        cursor = connection.cursor()
 
-if __name__ == '__main__':
-    app.run(port=5001)
+        # Lấy danh sách đặc trưng sản phẩm từ cơ sở dữ liệu
+        cursor.execute("SELECT id, features FROM Products WHERE features IS NOT NULL")
+        products = cursor.fetchall()
+
+        # So sánh đặc trưng với ảnh đầu vào
+        results = []
+        for product in products:
+            product_id = product['id']
+            features = np.array(list(map(float, product['features'].split(','))))
+            similarity = 1 - cosine(query_features, features)  # Tính độ tương đồng
+            results.append((product_id, similarity))
+
+        # Sắp xếp sản phẩm theo độ tương đồng
+        results.sort(key=lambda x: x[1], reverse=True)
+        top_results = [{"product_id": r[0], "similarity": r[1]} for r in results[:10]]
+
+        return jsonify({"similarProducts": top_results})  # Trả về kết quả
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        connection.close()
+
+# Khởi động server Flask
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

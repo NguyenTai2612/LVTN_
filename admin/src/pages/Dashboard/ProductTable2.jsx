@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Grid, Card, CardContent } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Card, CardContent, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import {
     apiGetTotalRevenue,
     apiGetNewProducts,
@@ -31,7 +31,6 @@ const ProductStatistics = () => {
     const [revenueByProduct, setRevenueByProduct] = useState([]);
     const [actualRevenueByProduct, setActualRevenueByProduct] = useState([]);
 
-
     useEffect(() => {
         // Fetch statistics data when component mounts
         fetchStatisticsData();
@@ -40,7 +39,7 @@ const ProductStatistics = () => {
     const fetchStatisticsData = async () => {
         try {
             const revenue = await apiGetTotalRevenue();
-            console.log('revenue', revenue)
+            console.log('revenue', revenue);
             setTotalRevenue(revenue);
 
             const newProd = await apiGetNewProducts();
@@ -69,7 +68,7 @@ const ProductStatistics = () => {
 
             const revenueProduct = await apiGetRevenueByProduct();
             setRevenueByProduct(revenueProduct);
-            console.log('revenueProduct', revenueProduct)
+            console.log('revenueProduct', revenueProduct);
 
             const actualRevenueProduct = await apiGetActualRevenueByProduct();
             setActualRevenueByProduct(actualRevenueProduct);
@@ -78,8 +77,8 @@ const ProductStatistics = () => {
         }
     };
 
-    const handleChipClick = (index) => {
-        setSelectedChip(index);
+    const handleChipChange = (event) => {
+        setSelectedChip(event.target.value);
     };
 
     const maxRevenue = Math.max(...revenueByProduct.map(item => item.totalRevenue));
@@ -97,19 +96,23 @@ const ProductStatistics = () => {
 
     return (
         <Box sx={{ width: '100%' }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mb: 3 }}>
-                {chipLabels.map((label, index) => (
-                    <Chip
-                        key={index}
-                        label={label}
-                        onClick={() => handleChipClick(index)}
-                        color={selectedChip === index ? 'primary' : 'default'}
-                        sx={{ margin: 1 }}
-                    />
-                ))}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 3 }}>
+                <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+                    <InputLabel>Chọn Thống Kê</InputLabel>
+                    <Select
+                        value={selectedChip}
+                        onChange={handleChipChange}
+                        label="Chọn Thống Kê"
+                    >
+                        {chipLabels.map((label, index) => (
+                            <MenuItem key={index} value={index}>
+                                {label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
             <div className="custom-divider"></div>
-
 
             {/* Conditional rendering based on selected chip */}
             {selectedChip === 0 && (
@@ -312,6 +315,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
+            {/* Other conditional render blocks for other statistics */}
         </Box>
     );
 };
@@ -321,4 +325,3 @@ export const formatCurrency = (amount) => {
 };
 
 export default ProductStatistics;
-//

@@ -33,7 +33,6 @@ const createOrder = async (customer, data) => {
     subTotal: data.amount_subtotal,
     total: data.amount_total,
     shipping: data.customer_details,
-    payment_status: data.payment_status,
     date: new Date(),
   });
 
@@ -103,7 +102,6 @@ router.put("/:id", async (req, res) => {
         userId: req.body.userId,
         products: req.body.products,
         total: req.body.total,
-        payment_status: req.body.payment_status,
         deliver_status: req.body.deliver_status,
       },
       { new: true }

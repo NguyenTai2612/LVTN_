@@ -5,6 +5,7 @@ const {
   Brand,
   ProductImage,
   Product,
+  sequelize ,
 } = require("../models"); // Giả định bạn đã có model
 
 const OrderService = {
@@ -135,13 +136,59 @@ const OrderService = {
   },
   async updateOrderStatus(orderId, status) {
     if (typeof status !== "string") {
-      throw new Error("deliver_status phải là chuỗi");
+      throw new Error("Trạng thái phải là chuỗi");
     }
-
-    return await Order.update(
-      { deliver_status: status },
-      { where: { id: orderId } }
-    );
+  
+    const transaction = await sequelize.transaction();
+    try {
+      // Cập nhật trạng thái đơn hàng
+      const order = await Order.findByPk(orderId, { transaction });
+      if (!order) {
+        throw new Error("Không tìm thấy đơn hàng");
+      }
+  
+      order.deliver_status = status;
+      await order.save({ transaction });
+  
+      // Nếu trạng thái là "Đã xác nhận", trừ số lượng sản phẩm trong kho
+      if (status === "Đã xác nhận") {
+        const orderItems = await OrderItem.findAll({
+          where: { order_id: orderId },
+          include: [Product],
+          transaction,
+        });
+  
+        for (const item of orderItems) {
+          const product = item.Product;
+          if (product && product.countInStock >= item.quantity) {
+            product.countInStock -= item.quantity;
+            await product.save({ transaction });
+          } else {
+            throw new Error(`Sản phẩm với ID ${item.product_id} không đủ hàng`);
+          }
+        }
+      }
+  
+      // Nếu trạng thái là "Đã giao", kiểm tra và cập nhật trạng thái thanh toán và amount
+      if (status === "Đã giao") {
+        const payment = await Payment.findOne({
+          where: { order_id: orderId },
+          transaction,
+        });
+  
+        if (payment && payment.paymentStatus === "Chưa thanh toán") {
+          payment.paymentStatus = "Đã thanh toán";
+          payment.amount = order.total; // Cập nhật amount thành tổng tiền của đơn hàng
+          await payment.save({ transaction });
+        }
+      }
+  
+      await transaction.commit();
+      return await Order.findByPk(orderId, { include: [Payment] }); // Trả về đơn hàng đã cập nhật
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   },
 
   // Dịch vụ xóa đơn hàng

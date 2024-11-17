@@ -366,11 +366,11 @@ p {
 
 .clear-button {
     position: absolute;
-    right: 98px;
+    right: 125px;
     /* Cách lề phải */
-    top: 50%;
+    top: 49%;
     /* Giữa theo chiều dọc */
-    transform: translateY(-50%);
+    transform: translateY(-49%);
     /* Định vị chính xác giữa */
     background: transparent;
     border: none;
@@ -380,6 +380,7 @@ p {
     /* Kích thước chữ */
     cursor: pointer;
     display: flex;
+    padding: 8px 8px;
     /* Hiện thị nút xóa khi có nội dung */
 }
 

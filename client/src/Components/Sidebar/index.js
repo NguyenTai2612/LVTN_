@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import RadioGroup from "@mui/material/RadioGroup";
-import Radio from "@mui/material/Radio";
-import Rating from "@mui/material/Rating";
+import { FormControlLabel, Checkbox, RadioGroup, Radio, Rating } from "@mui/material";
 import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 import Price from "../Price";
@@ -13,15 +9,13 @@ import {
 } from "../../services";
 import { useNavigate } from "react-router-dom";
 
-const Sidebar = ({ filterData, parentCategory, categoryId }) => {
+const Sidebar = ({ filterData, categoryId }) => {
   const [priceRange, setPriceRange] = useState([100000, 20000000]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
   const [subCategoryData, setSubCategoryData] = useState([]);
   const [childSubCategoryData, setChildSubCategoryData] = useState([]);
-  const [categoryIdState, setCategoryId] = useState(
-    localStorage.getItem("selectedCategoryId") || categoryId
-  );
+  const [categoryIdState, setCategoryId] = useState(categoryId);
 
   const navigate = useNavigate();
 
@@ -31,7 +25,7 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
         const response = await getAllSubCatByCatIdService(categoryId);
         setSubCategoryData(response.response);
       } catch (error) {
-        console.error("Lỗi khi lấy danh mục phụ:", error);
+        console.error("Error fetching subcategories:", error);
       }
     };
 
@@ -46,7 +40,7 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
       brands: selectedBrands,
       rating: selectedRating,
     });
-  }, [priceRange, selectedBrands, selectedRating, categoryIdState]);
+  }, [priceRange, selectedBrands, selectedRating, categoryIdState, filterData]);
 
   const handleBrandChange = (event) => {
     const brand = event.target.value;
@@ -63,32 +57,24 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
 
   const handleCategoryChange = async (catId) => {
     setCategoryId(catId);
-    localStorage.setItem("selectedCategoryId", catId);
     navigate(`/listing/subcategory/${catId}`);
-
     try {
       const childResponse = await apiGetChildSubCategoriesBySubCatId(catId);
-      if (childResponse && childResponse.data) {
-        setChildSubCategoryData(childResponse.data.data);
-        console.log("setChildSubCategoryData", childResponse.data.data);
-        console.log(
-          "setChildSubCategoryData",
-          JSON.stringify(childResponse.data)
-        );
-      }
+      setChildSubCategoryData(childResponse.data.data);
     } catch (error) {
-      console.error("Lỗi khi lấy danh mục con:", error);
+      console.error("Error fetching child categories:", error);
     }
   };
 
   return (
     <div className="sidebar">
+      {/* Subcategory Filter */}
       <div className="filterBox">
         <h6>Danh mục phụ</h6>
         <hr className="divider" />
         <RadioGroup
           aria-labelledby="product-category-radio-group"
-          name="controlled-radio-buttons-group"
+          name="category-radio-group"
           value={categoryIdState}
           onChange={(event) => handleCategoryChange(event.target.value)}
         >
@@ -103,6 +89,7 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
         </RadioGroup>
       </div>
 
+      {/* Child Subcategory Filter */}
       <div className="filterBox">
         <h6>Danh mục con</h6>
         <hr className="divider" />
@@ -122,6 +109,7 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
         </div>
       </div>
 
+      {/* Price Range Filter */}
       <div className="filterBox">
         <h6>Filter by Price</h6>
         <RangeSlider
@@ -129,12 +117,9 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
           onInput={setPriceRange}
           min={100000}
           max={20000000}
-          step={5}
+          step={50000}
         />
-        <div
-          className="d-flex pt-2 pb-2 priceRange"
-          style={{ fontSize: "Smaller" }}
-        >
+        <div className="d-flex pt-2 pb-2 priceRange" style={{ fontSize: "Smaller" }}>
           <span>
             <strong className="text-dark">
               <Price amount={priceRange[0]} />
@@ -148,36 +133,36 @@ const Sidebar = ({ filterData, parentCategory, categoryId }) => {
         </div>
       </div>
 
+      {/* Rating Filter */}
       <div className="filterBox">
         <h6>Filter by Rating</h6>
         <div className="scroll pl-0">
           {[5, 4, 3, 2, 1].map((rating) => (
-            <li key={rating} onClick={() => handleRatingChange(rating)}>
+            <div key={rating} onClick={() => handleRatingChange(rating)}>
               <Rating name="read-only" value={rating} readOnly size="small" />
-            </li>
+            </div>
           ))}
         </div>
       </div>
 
+      {/* Brands Filter */}
       <div className="filterBox">
         <h6>Brands</h6>
         <div className="scroll">
-          {["Yamaha", "Casio", "Kawai", "Roland", "Suzuki", "Hãng khác"].map(
-            (brand) => (
-              <FormControlLabel
-                key={brand}
-                className="w-100"
-                control={
-                  <Checkbox
-                    value={brand}
-                    checked={selectedBrands.includes(brand)}
-                    onChange={handleBrandChange}
-                  />
-                }
-                label={brand}
-              />
-            )
-          )}
+          {["Yamaha", "Casio", "Kawai", "Roland", "Suzuki", "Hãng khác"].map((brand) => (
+            <FormControlLabel
+              key={brand}
+              className="w-100"
+              control={
+                <Checkbox
+                  value={brand}
+                  checked={selectedBrands.includes(brand)}
+                  onChange={handleBrandChange}
+                />
+              }
+              label={brand}
+            />
+          ))}
         </div>
       </div>
     </div>

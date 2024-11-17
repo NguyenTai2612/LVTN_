@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Grid, Card, CardContent } from '@mui/material';
+import {
+    Box,
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+} from '@mui/material';
 import {
     apiGetNewProducts,
     apiGetOutOfStockProducts,
@@ -15,12 +29,10 @@ import {
     apiGetTopSellingProducts,
     apiGetProductsByChildSubCategory
 } from '../../services/stats';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from 'recharts';
-
 import Price from '../../components/Price';
 
 const ProductStatistics = () => {
-    const [selectedChip, setSelectedChip] = useState(0);
+    const [selectedOption, setSelectedOption] = useState(0);
     const [newProducts, setNewProducts] = useState([]);
     const [outOfStockProducts, setOutOfStockProducts] = useState([]);
     const [productViews, setProductViews] = useState([]);
@@ -35,9 +47,7 @@ const ProductStatistics = () => {
     const [topRatedProducts, setTopRatedProducts] = useState([]);
     const [productsByBrand, setProductsByBrand] = useState([]);
 
-
     useEffect(() => {
-        // Fetch statistics data when component mounts
         fetchStatisticsData();
     }, []);
 
@@ -45,56 +55,24 @@ const ProductStatistics = () => {
         try {
             const total = await apiGetTotalProducts();
             setTotalProducts(total);
-
-            const newProd = await apiGetNewProducts();
-            setNewProducts(newProd);
-
-            const outOfStock = await apiGetOutOfStockProducts();
-            setOutOfStockProducts(outOfStock);
-
-            const views = await apiGetProductViews();
-            setProductViews(views);
-
-            const canceledProducts = await apiGetMostCanceledProducts();
-            setMostCanceledProducts(canceledProducts);
-
-            const categoryData = await apiGetProductsByCategory();
-            setProductsByCategory(categoryData);
-            
-            const subCategoryData = await apiGetProductsBySubCategory();
-            setProductsBySubCategory(subCategoryData);
-
-            const childSubCategoryData = await apiGetProductsByChildSubCategory();
-            setProductsByChildSubCategory(childSubCategoryData);
-
-            const bestSelling = await apiGetTopSellingProducts();
-            setBestSellingProduct(bestSelling);
-
-            const inStockData = await apiGetProductsInStock();
-            setProductsInStock(inStockData);
-
-            const discountedData = await apiGetDiscountedProducts();
-            setDiscountedProducts(discountedData);
-
-            const topRated = await apiGetTopRatedProducts();
-            setTopRatedProducts(topRated);
-
-            const brandData = await apiGetProductsByBrand();
-            setProductsByBrand(brandData);
-
-
+            setNewProducts(await apiGetNewProducts());
+            setOutOfStockProducts(await apiGetOutOfStockProducts());
+            setProductViews(await apiGetProductViews());
+            setMostCanceledProducts(await apiGetMostCanceledProducts());
+            setProductsByCategory(await apiGetProductsByCategory());
+            setProductsBySubCategory(await apiGetProductsBySubCategory());
+            setProductsByChildSubCategory(await apiGetProductsByChildSubCategory());
+            setBestSellingProduct(await apiGetTopSellingProducts());
+            setProductsInStock(await apiGetProductsInStock());
+            setDiscountedProducts(await apiGetDiscountedProducts());
+            setTopRatedProducts(await apiGetTopRatedProducts());
+            setProductsByBrand(await apiGetProductsByBrand());
         } catch (error) {
             console.error("Error fetching product statistics:", error);
         }
     };
 
-    const handleChipClick = (index) => {
-        setSelectedChip(index);
-    };
-
-    // const maxRevenue = Math.max(...revenueByProduct.map(item => item.totalRevenue));
-
-    const chipLabels = [
+    const optionLabels = [
         "Tổng Số Lượng Sản Phẩm",
         "Sản Phẩm Mới",
         "Sản Phẩm Hết Hàng",
@@ -110,34 +88,45 @@ const ProductStatistics = () => {
         "Sản Phẩm Theo Thương Hiệu"
     ];
 
-    const formatTooltipValue = (value) => <Price amount={value} />;
+    const handleOptionChange = (event) => {
+        setSelectedOption(event.target.value);
+    };
 
     return (
         <Box sx={{ width: '100%' }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mb: 3 }}>
-                {chipLabels.map((label, index) => (
-                    <Chip
-                        key={index}
-                        label={label}
-                        onClick={() => handleChipClick(index)}
-                        color={selectedChip === index ? 'primary' : 'default'}
-                        sx={{ margin: 1 }}
-                    />
-                ))}
+            {/* Dropdown for selecting a category */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 3 }}>
+                <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+                    <InputLabel>Chọn Thống Kê</InputLabel> {/* Chèn nhãn cho Select */}
+                    <Select
+                        value={selectedOption}
+                        onChange={handleOptionChange}
+                        displayEmpty
+                        sx={{ minWidth: 200 }}
+                        label="Chọn Thống Kê" // Liên kết nhãn với Select
+                    >
+                        {optionLabels.map((label, index) => (
+                            <MenuItem key={index} value={index}>
+                                {label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
+
+
+
             <div className="custom-divider"></div>
 
-
-            {/* Conditional rendering based on selected chip */}
-            {selectedChip === 0 && (
+            {/* Conditional rendering based on selected option */}
+            {selectedOption === 0 && (
                 <Box p={3}>
                     <Typography variant="h6">
                         Tổng Số Lượng Sản Phẩm: {totalProducts?.totalProducts || 'Đang tải...'}
                     </Typography>
                 </Box>
             )}
-
-            {selectedChip === 1 && (
+            {selectedOption === 1 && (
                 <Box p={3}>
                     <Typography variant="h6">Sản Phẩm Mới</Typography>
                     <TableContainer component={Paper}>
@@ -160,8 +149,9 @@ const ProductStatistics = () => {
                     </TableContainer>
                 </Box>
             )}
+            {/* Các tùy chọn khác sẽ được hiển thị tương tự */}
 
-            {selectedChip === 2 && (
+            {selectedOption === 2 && (
                 <Box p={3}>
                     <Typography variant="h6">Sản Phẩm Hết Hàng</Typography>
                     <TableContainer component={Paper}>
@@ -185,7 +175,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 3 && (
+            {selectedOption === 3 && (
                 <Box p={3}>
                     <Typography variant="h6">Lượt Xem Sản Phẩm</Typography>
                     <TableContainer component={Paper}>
@@ -209,7 +199,7 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 4 && (
+            {selectedOption === 4 && (
                 <Box p={3}>
                     <Typography variant="h6">Đơn Hàng Bị Hủy Nhiều Nhất</Typography>
                     <TableContainer component={Paper}>
@@ -233,18 +223,10 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 5 && (
+            {selectedOption === 5 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Theo Danh Mục</Typography> */}
-                        {/* <LineChart width={600} height={300} data={monthlySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        </LineChart> */}
+
                     </Box>
                     <Typography variant="h6">Theo Danh Mục</Typography>
                     <TableContainer component={Paper}>
@@ -275,18 +257,10 @@ const ProductStatistics = () => {
             )}
 
 
-            {selectedChip === 6 && (
+            {selectedOption === 6 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tuần</Typography> */}
-                        {/* <BarChart width={600} height={300} data={weeklySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="week" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Bar dataKey="totalSales" fill="#82ca9d" />
-                        </BarChart> */}
+
                     </Box>
                     <Typography variant="h6">Theo Tiểu Mục</Typography>
                     <TableContainer component={Paper}>
@@ -317,18 +291,10 @@ const ProductStatistics = () => {
             )}
 
 
-            {selectedChip === 7 && (
+            {selectedOption === 7 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tuần</Typography> */}
-                        {/* <BarChart width={600} height={300} data={weeklySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="week" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Bar dataKey="totalSales" fill="#82ca9d" />
-                        </BarChart> */}
+
                     </Box>
                     <Typography variant="h6">Danh mục con của tiểu mục</Typography>
                     <TableContainer component={Paper}>
@@ -360,18 +326,10 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 8 && (
+            {selectedOption === 8 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
-                        <LineChart width={600} height={300} data={dailySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        </LineChart> */}
+
                     </Box>
                     <Typography variant="h6">Sản Phẩm Bán Chạy</Typography>
                     <TableContainer component={Paper}>
@@ -404,18 +362,10 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 9 && (
+            {selectedOption === 9 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
-                        <LineChart width={600} height={300} data={dailySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        </LineChart> */}
+
                     </Box>
                     <Typography variant="h6">Sản Phẩm Còn Lại</Typography>
                     <TableContainer component={Paper}>
@@ -446,18 +396,10 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 10 && (
+            {selectedOption === 10 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
-                        <LineChart width={600} height={300} data={dailySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        </LineChart> */}
+
                     </Box>
                     <Typography variant="h6">Sản Phẩm Giảm Giá</Typography>
                     <TableContainer component={Paper}>
@@ -490,18 +432,10 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 11 && (
+            {selectedOption === 11 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
-                        <LineChart width={600} height={300} data={dailySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        </LineChart> */}
+
                     </Box>
                     <Typography variant="h6">Sản Phẩm Có Điểm Đánh Giá Cao</Typography>
                     <TableContainer component={Paper}>
@@ -532,18 +466,10 @@ const ProductStatistics = () => {
                 </Box>
             )}
 
-            {selectedChip === 12 && (
+            {selectedOption === 12 && (
                 <Box p={3}>
                     <Box mt={3}>
-                        {/* <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
-                        <LineChart width={600} height={300} data={dailySales}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                            <Legend />
-                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        </LineChart> */}
+
                     </Box>
                     <Typography variant="h6">Sản Phẩm Theo Thương Hiệu</Typography>
                     <TableContainer component={Paper}>
@@ -578,9 +504,4 @@ const ProductStatistics = () => {
     );
 };
 
-export const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-};
-
 export default ProductStatistics;
-//

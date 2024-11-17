@@ -28,17 +28,25 @@ const RelatedProduct = (props) => {
             modules={[Navigation]}
             className="mySwiper"
           >
-            {props?.data?.length !== 0 &&
-              props?.data?.map((item, index) => {
+           {props?.data?.length ? (
+  <Swiper
+    slidesPerView={6}
+    spaceBetween={10}
+    navigation={true}
+    slidesPerGroup={3}
+    modules={[Navigation]}
+    className="mySwiper"
+  >
+    {props.data.map((item, index) => (
+      <SwiperSlide key={index}>
+        <ProductItem item={item} itemView={props.itemView} />
+      </SwiperSlide>
+    ))}
+  </Swiper>
+) : (
+  <p>Không có sản phẩm liên quan.</p>
+)}
 
-                return (
-                  <SwiperSlide key={index}>
-                    <ProductItem item={item} itemView={props.itemView}/>
-                  </SwiperSlide>
-                  
-                );
-
-              })}
           </Swiper>
         </div>
       </div>

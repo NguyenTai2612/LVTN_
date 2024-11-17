@@ -239,12 +239,23 @@ const ProductDetails = () => {
                     style={{ marginLeft: "17px" }}
                   >
                     <div className="d-flex align-items-center mr-4">
-                      <span
+                      {/* <span
                         className={`badge ${
                           productData.countInStock > 0 ? "bg-success" : "bg-danger"
                         } text-white mr-3`}
                       >
                         {productData.countInStock > 0 ? "IN STOCK" : "OUT OF STOCK"}
+                      </span> */}
+                      <span
+                        className={`badge ${
+                          productData.countInStock > 0
+                            ? "bg-success"
+                            : "bg-danger"
+                        } text-white mr-3`}
+                      >
+                        {productData.countInStock > 0
+                          ? `Còn ${productData.countInStock} sản phẩm`
+                          : "Hết hàng"}
                       </span>
                     </div>
                   </div>
@@ -265,7 +276,9 @@ const ProductDetails = () => {
                       <Price amount={productData.oldPrice} />
                     </div>
                   </span>
-                  <span className="discount mr-auto">-{Math.floor(productData.discount)} %</span>
+                  <span className="discount mr-auto">
+                    -{Math.floor(productData.discount)} %
+                  </span>
                 </div>
 
                 <div className="warranty">
@@ -289,8 +302,6 @@ const ProductDetails = () => {
                       : "Thêm vào giỏ hàng"}
                   </Button>
                 </div>
-
-              
               </div>
               <div className="gift-section">
                 <Gift />
@@ -337,19 +348,19 @@ const ProductDetails = () => {
               {activeTabs === 1 && (
                 <div className="tabContent">
                   <div className="table-responsive">
-                  <div className="details-table">
-                  {/* <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6> */}
-                  <table>
-                    <tbody>
-                      {specifications.map((spec, index) => (
-                        <tr key={index}>
-                          <th>{spec.spec_key}</th>
-                          <td>{spec.spec_value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    <div className="details-table">
+                      {/* <h6 className="font-bold mb-3">THÔNG SỐ KỸ THUẬT</h6> */}
+                      <table>
+                        <tbody>
+                          {specifications.map((spec, index) => (
+                            <tr key={index}>
+                              <th>{spec.spec_key}</th>
+                              <td>{spec.spec_value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
@@ -441,7 +452,7 @@ const ProductDetails = () => {
             </div>
           </div>
           <br />
-          <RelatedProduct />
+          {/* <RelatedProduct /> */}
         </div>
       </section>
     </div>

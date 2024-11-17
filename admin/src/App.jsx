@@ -164,6 +164,7 @@ function App() {
 
                     <Route path='/signUp' exact={true} element={<SignUp />} />
                     <Route path='/orders' exact={true} element={<Orders />} />
+                    <Route path='/user' exact={true} element={<Orders />} />
                     <Route path='/pending' exact={true} element={<Pending />} />
                     <Route path='/confirmed' exact={true} element={<Confirmed />} />
                     <Route path='/shipping' exact={true} element={<Shipping />} />

@@ -32,14 +32,24 @@ const getUserById = async (id) => {
 };
 
 // Update user by id
+// userService.js
 const updateUser = async (id, data) => {
   const user = await User.findByPk(id);
   if (!user) {
-    return null;
+    return null; // Trả về null nếu không tìm thấy người dùng
   }
-  await user.update(data);
+
+  // Chỉ cập nhật các trường name và phone nếu chúng có trong data
+  const { name, phone } = data;
+  if (name) user.name = name;
+  if (phone) user.phone = phone;
+
+  await user.save(); // Lưu lại các thay đổi vào DB
   return user;
 };
+
+module.exports = { updateUser };
+
 
 // Delete user by id
 const deleteUser = async (userId) => {

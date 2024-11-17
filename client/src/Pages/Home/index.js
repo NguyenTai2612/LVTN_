@@ -53,7 +53,7 @@ const Home = () => {
         if (response.data?.err === 0 && Array.isArray(response.data.response)) {
           // Lọc subcategories cho guitar
           const guitarSubCats = response.data.response
-            .filter((subCat) => subCat.category_id === 1)
+            .filter((subCat) => subCat.category_id === 5)
             .slice(0, 4); // Giới hạn chỉ lấy tối đa 4 subcategories
           setGuitarSubCats(guitarSubCats);
 
@@ -152,7 +152,7 @@ const Home = () => {
   useEffect(() => {
     // Filter products with category_id = 1
     const filteredGuitarProductsCat1 = products.filter(
-      (product) => product.category_id === 1
+      (product) => product.category_id === 5
     );
     setGuitarProductsCat1(filteredGuitarProductsCat1);
   }, [products]);
@@ -173,15 +173,15 @@ const Home = () => {
 
   return (
     <div>
-      <HomeCat catData={categories} />
+      {/* <HomeCat catData={categories} /> */}
 
       <section className="homeProducts">
         <div className="container">
-          <div className="guitar-header1">
+          <div className="guitar-header1 mt-3">
             <div className="row">
               <div className="col-md-3 logo">SẢN PHẨM NỔI BẬT</div>
               <div className="col-md-9 links">
-                <div className="ml-auto">
+                <div className="ml-5">
                   <Tabs
                     value={value}
                     onChange={handleChange}
@@ -243,7 +243,7 @@ const Home = () => {
           </div>
 
           <GuitarHeader
-            logoText="ĐÀN GUITAR"
+            logoText="AMPLIFIER"
             links={guitarSubCats.map((subCat) => ({
               text: subCat.subCat,
               href: `/listing/subcategory/${subCat.id}`,
@@ -270,7 +270,7 @@ const Home = () => {
           </div>
 
           <GuitarHeader
-            logoText="ĐÀN PIANO"
+            logoText="TRỐNG"
             links={pianoSubCats.map((subCat) => ({
               text: subCat.subCat,
               href: `/listing/subcategory/${subCat.id}`,

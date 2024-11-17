@@ -25,6 +25,13 @@ import { Provider } from "react-redux";
 import reduxStore from "./redux";
 import { getCartItems } from "./services/cart";
 import SearchPage from "./Components/Header/SearchPage";
+import UserProfile from "./Pages/User";
+import AboutUs from "./Components/Header/Navigation/about";
+import PianoArticlesPage from "./Components/Header/Navigation/Article/Piano";
+import ViolinArticlesPage from "./Components/Header/Navigation/Article/Violin";
+import DrumArticlesPage from "./Components/Header/Navigation/Article/Drum";
+import ContactPage from "./Components/Header/Navigation/Contact";
+import InstrumentRecognition from "./Pages/InstrumentRecognition";
 
 const { store, persistor } = reduxStore();
 
@@ -158,11 +165,18 @@ function App({ children }) {
                 element={<ProductDetails />}
               />
               <Route path="/cart" exact={true} element={<Cart />} />
+              <Route path="/gioi-thieu" exact={true} element={<AboutUs />} />
+              <Route path="/bai-viet-ve-dan-piano" exact={true} element={<PianoArticlesPage />} />
+              <Route path="/bai-viet-ve-dan-violin" exact={true} element={<ViolinArticlesPage />} />
+              <Route path="/bai-viet-ve-bo-trong" exact={true} element={<DrumArticlesPage />} />
+              <Route path="/lien-he" exact={true} element={<ContactPage />} />
+              <Route path="/nhan-dang" exact={true} element={<InstrumentRecognition />} />
 
               <Route path="/signIn" exact={true} element={<SignIn />} />
               <Route path="/signUp" exact={true} element={<SignUp />} />
               <Route path="/checkout" exact={true} element={<Checkout />} />
               <Route path="/orders" exact={true} element={<Orders />} />
+              <Route path="/user" exact={true} element={<UserProfile />} />
               <Route path="/success" exact={true} element={<SuccessPage />} />
             </Routes>
             {isHeaderFooterShow && <Footer />}

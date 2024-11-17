@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       Product.belongsTo(models.Brand, { foreignKey: 'brand_id' });
       Product.belongsTo(models.Category, { foreignKey: 'category_id' });
       Product.belongsTo(models.SubCategory, { foreignKey: 'sub_category_id' });
-      Product.belongsTo(models.ChildSubCategory, { foreignKey: 'child_sub_category_id' }); // Thêm dòng này
+      Product.belongsTo(models.ChildSubCategory, { foreignKey: 'child_sub_category_id' });
       Product.hasMany(models.ProductImage, { foreignKey: 'product_id' });
       Product.hasMany(models.OrderItem, { foreignKey: 'product_id' });
       Product.hasMany(models.Review, { foreignKey: 'product_id' });
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     brand_id: DataTypes.INTEGER,
     category_id: DataTypes.INTEGER,
     sub_category_id: DataTypes.INTEGER,
-    child_sub_category_id: DataTypes.INTEGER, // Thêm trường này
+    child_sub_category_id: DataTypes.INTEGER,
     countInStock: DataTypes.INTEGER,
     rating: DataTypes.DECIMAL(3, 2),
     isFeatured: DataTypes.BOOLEAN,
@@ -32,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
     views: { 
       type: DataTypes.INTEGER,
       defaultValue: 0
-    }
+    },
+    features: DataTypes.TEXT // Thêm trường này
   }, {
     sequelize,
     modelName: 'Product',

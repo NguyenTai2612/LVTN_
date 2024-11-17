@@ -1,240 +1,324 @@
-import React, { useContext, useEffect, useState } from 'react';
-import DashboardBox from './components/DashboardBox';
-import { FaUserCircle } from "react-icons/fa";
-import { IoMdCart } from "react-icons/io";
-import { MdShoppingBag } from "react-icons/md";
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import HomeIcon from '@mui/icons-material/Home';
-import { emphasize, styled } from '@mui/material/styles';
-import Chip from '@mui/material/Chip';
-import { Link } from 'react-router-dom';
-import { MyContext } from '../../App';
-import { apiGetTotalOrders, apiGetTotalProducts, apiGetTotalRevenue, apiGetRevenueByTime, apiGetTopSellingProducts } from '../../services/stats';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, AreaChart, Area } from 'recharts';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Grid, Card, CardContent } from '@mui/material';
+import {
+    apiGetTotalRevenue,
+    apiGetNewProducts,
+    apiGetOutOfStockProducts,
+    apiGetProductViews,
+    apiGetMostCanceledProducts,
+    apiGetMonthlySales,
+    apiGetWeeklySales,
+    apiGetDailySales,
+    apiGetTotalOrders,
+    apiGetRevenueByProduct,
+    apiGetActualRevenueByProduct
+} from '../../services/stats';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from 'recharts';
 
-const StyledBreadcrumb = styled(Chip)(({ theme }) => {
-  const backgroundColor =
-    theme.palette.mode === 'light'
-      ? theme.palette.grey[100]
-      : theme.palette.grey[800];
-  return {
-    backgroundColor,
-    height: theme.spacing(3),
-    color: theme.palette.text.primary,
-    fontWeight: theme.typography.fontWeightRegular,
-    '&:hover, &:focus': {
-      backgroundColor: emphasize(backgroundColor, 0.06),
-    },
-    '&:active': {
-      boxShadow: theme.shadows[1],
-      backgroundColor: emphasize(backgroundColor, 0.12),
-    },
-  };
-});
+import Price from '../../components/Price';
 
-const Overview = () => {
-  const [totalProducts, setTotalProducts] = useState(null);
-  const [totalRevenue, setTotalRevenue] = useState(null);
-  const [totalOrders, setTotalOrders] = useState(null);
-  const [revenueByTime, setRevenueByTime] = useState([]);
-  const [topSellingProducts, setTopSellingProducts] = useState([]);
-  const [activeUsers, setActiveUsers] = useState([]);
-  const [selectedPeriod, setSelectedPeriod] = useState('7days');
-
-  const context = useContext(MyContext);
-
-  useEffect(() => {
-    context.setIsHeaderFooterShow(false);
-
-    // Gọi API để lấy dữ liệu
-    fetchStatisticsData();
-    fetchRevenueByTime(selectedPeriod); // Gọi với khoảng thời gian mặc định
-    fetchTopSellingProducts();
-  }, [selectedPeriod]); // Thêm selectedPeriod vào dependency array
+const ProductStatistics = () => {
+    const [selectedChip, setSelectedChip] = useState(0);
+    const [totalRevenue, setTotalRevenue] = useState(null);
+    const [newProducts, setNewProducts] = useState([]);
+    const [outOfStockProducts, setOutOfStockProducts] = useState([]);
+    const [productViews, setProductViews] = useState([]);
+    const [mostCanceledProducts, setMostCanceledProducts] = useState([]);
+    const [monthlySales, setMonthlySales] = useState([]);
+    const [weeklySales, setWeeklySales] = useState([]);
+    const [dailySales, setDailySales] = useState([]);
+    const [totalOrders, setTotalOrders] = useState(null);
+    const [revenueByProduct, setRevenueByProduct] = useState([]);
+    const [actualRevenueByProduct, setActualRevenueByProduct] = useState([]);
 
 
-  const processTopSellingProducts = (data) => {
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map(item => ({
-        name: item.Product?.name || 'Tên sản phẩm không xác định', // Lấy tên sản phẩm
-        sales: parseInt(item.totalSales, 10) || 0 // Đảm bảo giá trị là số
-      }));
-    } else {
-      return [];
-    }
-  };
+    useEffect(() => {
+        // Fetch statistics data when component mounts
+        fetchStatisticsData();
+    }, []);
 
-  const fetchStatisticsData = async () => {
-    try {
-      const products = await apiGetTotalProducts();
-      const revenue = await apiGetTotalRevenue();
-      const orders = await apiGetTotalOrders();
+    const fetchStatisticsData = async () => {
+        try {
+            const revenue = await apiGetTotalRevenue();
+            console.log('revenue', revenue)
+            setTotalRevenue(revenue);
 
-      setTotalProducts(products.totalProducts);
-      setTotalRevenue(Number(revenue.data[0].totalActualRevenue));
-      setTotalOrders(orders.totalOrders);
-    } catch (error) {
-      console.error('Error fetching statistics:', error);
-    }
-  };
+            const newProd = await apiGetNewProducts();
+            setNewProducts(newProd);
 
-  const processRevenueByTime = (data) => {
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map((item, index) => ({
-        date: `Ngày ${index + 1}`, // Tạo ngày giả
-        revenue: parseInt(item.totalRevenue, 10) || 0 // Đảm bảo giá trị là số
-      }));
-    } else {
-      return [];
-    }
-  };
+            const outOfStock = await apiGetOutOfStockProducts();
+            setOutOfStockProducts(outOfStock);
 
+            const views = await apiGetProductViews();
+            setProductViews(views);
 
-  const fetchRevenueByTime = async (period) => {
-    try {
-      const response = await apiGetRevenueByTime(period);
-      console.log('Revenue by Time API Response:', response); // In dữ liệu gốc từ API
-      const processedData = processRevenueByTime(response);
-      console.log('Processed Revenue by Time Data:', processedData); // In dữ liệu đã xử lý
-      setRevenueByTime(processedData);
-    } catch (error) {
-      console.error('Error fetching revenue by time:', error);
-      setRevenueByTime([]);
-    }
-  };
+            const canceledProducts = await apiGetMostCanceledProducts();
+            setMostCanceledProducts(canceledProducts);
 
-  const fetchTopSellingProducts = async () => {
-    try {
-      const response = await apiGetTopSellingProducts();
-      console.log('Top Selling Products API Response:', response); // In dữ liệu gốc từ API
-      const processedData = processTopSellingProducts(response);
-      console.log('Processed Top Selling Products Data:', processedData); // In dữ liệu đã xử lý
-      setTopSellingProducts(processedData);
-    } catch (error) {
-      console.error('Error fetching top selling products:', error);
-      setTopSellingProducts([]);
-    }
-  };
+            const monthly = await apiGetMonthlySales();
+            setMonthlySales(monthly);
 
+            const weekly = await apiGetWeeklySales();
+            setWeeklySales(weekly);
 
+            const daily = await apiGetDailySales();
+            setDailySales(daily);
 
+            const total = await apiGetTotalOrders();
+            setTotalOrders(total);
 
-  useEffect(() => {
-    fetchStatisticsData();
-    fetchRevenueByTime(selectedPeriod); // Gọi với khoảng thời gian mặc định
-    fetchTopSellingProducts();
-  }, [selectedPeriod]); // Thêm selectedPeriod vào dependency array
+            const revenueProduct = await apiGetRevenueByProduct();
+            setRevenueByProduct(revenueProduct);
+            console.log('revenueProduct', revenueProduct)
 
+            const actualRevenueProduct = await apiGetActualRevenueByProduct();
+            setActualRevenueByProduct(actualRevenueProduct);
+        } catch (error) {
+            console.error("Error fetching product statistics:", error);
+        }
+    };
 
+    const handleChipClick = (index) => {
+        setSelectedChip(index);
+    };
 
-  const handlePeriodChange = (event) => {
-    const period = event.target.value;
-    setSelectedPeriod(period);
-  };
+    const maxRevenue = Math.max(...revenueByProduct.map(item => item.totalRevenue));
 
-  useEffect(() => {
-    console.log('Revenue by Time Data:', revenueByTime);
-    console.log('Top Selling Products Data:', topSellingProducts);
-  }, [revenueByTime, topSellingProducts]);
+    const chipLabels = [
+        "Doanh Thu Tổng",
+        "Doanh Thu Theo Tháng",
+        "Doanh Thu Theo Tuần",
+        "Doanh Thu Theo Ngày",
+        "Doanh Thu Theo Sản Phẩm",
+        "Doanh Thu Thực Tế Theo Sản Phẩm"
+    ];
 
-  return (
-    <>
-      <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
-        <div className="flex items-center justify-between">
-          <h1 className="font-weight-bold text-white">Overview</h1>
-          <div className="ml-auto flex align-items-center gap-3">
-            <Breadcrumbs aria-label="breadcrumb">
-              <StyledBreadcrumb component={Link} href="#" label="Dashboard" to="/" icon={<HomeIcon fontSize="small" />} />
-              <StyledBreadcrumb label="Overview" />
-            </Breadcrumbs>
-          </div>
-        </div>
-      </div>
+    const formatTooltipValue = (value) => <Price amount={value} />;
 
-      <div className="card shadow my-4 border-0">
-        <div className="section">
-          <div className="dashboardBoxWrapper d-flex">
-            <DashboardBox
-              color={["#1da256", "#48d483"]}
-              icon={<FaUserCircle />}
-              value={totalProducts}
-              label="Tổng Số Sản Phẩm"
-              isCurrency={false}
-            />
-
-            <DashboardBox
-              color={["#c012e2", "#eb64fe"]}
-              icon={<IoMdCart />}
-              value={totalRevenue}
-              label="Tổng Doanh Thu"
-              isCurrency={true}
-            />
-
-            <DashboardBox
-              color={["#2c78e5", "#60aff5"]}
-              icon={<MdShoppingBag />}
-              value={totalOrders}
-              label="Tổng Đơn Hàng"
-            />
-          </div>
-
-          <div className="period-selector">
-            <FormControl variant="outlined" style={{ minWidth: 120 }}>
-              <InputLabel>Chọn Thời Gian</InputLabel>
-              <Select
-                value={selectedPeriod}
-                onChange={handlePeriodChange}
-                label="Chọn Thời Gian"
-              >
-                <MenuItem value="7days">7 Ngày</MenuItem>
-                <MenuItem value="week">Tuần</MenuItem>
-                <MenuItem value="month">Tháng</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-
-          <div className="charts">
-            <div className="chart-card">
-              <h3>Doanh Thu Theo Thời Gian</h3>
-              <LineChart width={600} height={300} data={revenueByTime}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                <Tooltip formatter={(value) => formatCurrency(value)} />
-                <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
-              </LineChart>
-            </div>
-
-            <div className="chart-card">
-              <h3>Sản Phẩm Bán Chạy</h3>
-              <BarChart width={600} height={300} data={topSellingProducts}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                <Tooltip formatter={(value) => formatCurrency(value)} />
-                <Legend />
-                <Bar dataKey="sales" fill="#82ca9d" />
-              </BarChart>
-
-            </div>
+    return (
+        <Box sx={{ width: '100%' }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mb: 3 }}>
+                {chipLabels.map((label, index) => (
+                    <Chip
+                        key={index}
+                        label={label}
+                        onClick={() => handleChipClick(index)}
+                        color={selectedChip === index ? 'primary' : 'default'}
+                        sx={{ margin: 1 }}
+                    />
+                ))}
+            </Box>
+            <div className="custom-divider"></div>
 
 
-          </div>
-        </div>
-      </div>
-    </>
-  );
+            {/* Conditional rendering based on selected chip */}
+            {selectedChip === 0 && (
+                <Box p={3}>
+                    <Typography variant="h6">
+                        Doanh Thu Tổng: <Price amount={totalRevenue?.data[0]?.totalActualRevenue} />
+                    </Typography>
+                    <br />
+                    <Typography variant="h6">Tổng Số Đơn Hàng: {totalOrders?.totalOrders}</Typography>
+
+                </Box>
+            )}
+
+          
+
+            {selectedChip === 1 && (
+                <Box p={3}>
+                    <Box mt={3}>
+                        <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tháng</Typography>
+                        <LineChart width={600} height={300} data={monthlySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            {/* Custom Tooltip to format price */}
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart>
+                    </Box>
+                    <Typography variant="h6">Doanh Thu Theo Tháng</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tháng</TableCell>
+                                    <TableCell>Doanh Thu</TableCell>
+                                    <TableCell>Tổng số sản phẩm</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {monthlySales.map((sales, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{sales.month}</TableCell>
+                                        <TableCell><Price amount={sales.totalSales} /></TableCell>
+                                        <TableCell>{sales.totalProductsSold}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+
+            {selectedChip === 2 && (
+                <Box p={3}>
+                    <Box mt={3}>
+                        <Typography variant="h6">Biểu Đồ Doanh Thu Theo Tuần</Typography>
+                        <BarChart width={600} height={300} data={weeklySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="week" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            {/* Custom Tooltip to format price */}
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Bar dataKey="totalSales" fill="#82ca9d" />
+                        </BarChart>
+                    </Box>
+                    <Typography variant="h6">Doanh Thu Theo Tuần</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tuần</TableCell>
+                                    <TableCell>Doanh Thu</TableCell>
+                                    <TableCell>Tổng số sản phẩm</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {weeklySales.map((sales, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{sales.week}</TableCell>
+                                        <TableCell><Price amount={sales.totalSales} /></TableCell>
+                                        <TableCell>{sales.totalProductsSold}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 3 && (
+                <Box p={3}>
+                    <Box mt={3}>
+                        <Typography variant="h6">Biểu Đồ Doanh Thu Theo Ngày</Typography>
+                        <LineChart width={600} height={300} data={dailySales}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                            {/* Custom Tooltip to format price */}
+                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="totalSales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </LineChart>
+                    </Box>
+                    <Typography variant="h6">Doanh Thu Theo Ngày</Typography>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Ngày</TableCell>
+                                    <TableCell>Đã Bán</TableCell>
+                                    <TableCell>Doanh Thu</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {dailySales.map((sales, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{sales.date}</TableCell>
+                                        <TableCell>{sales.totalProductsSold}</TableCell>
+                                        <TableCell><Price amount={sales.totalSales} /></TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                </Box>
+            )}
+
+          
+
+            {selectedChip === 4 && (
+                <Box p={3}>
+                    <Typography variant="h6">Doanh Thu Theo Sản Phẩm</Typography>
+                    <BarChart width={600} height={300} data={revenueByProduct}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="Product.name" />
+                        <YAxis
+                            tickFormatter={(value) => formatCurrency(value)}
+                            domain={[0, maxRevenue * 1.1]} // Thêm một khoảng dư để hiển thị đầy đủ cột
+                        />
+                        <Tooltip formatter={(value) => formatCurrency(value)} />
+                        <Legend />
+                        <Bar dataKey="totalRevenue" fill="#8884d8" />
+                    </BarChart>
+
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Sản Phẩm</TableCell>
+                                    <TableCell>Doanh Thu</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {revenueByProduct.map((product, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{product.Product?.name}</TableCell>
+                                        <TableCell><Price amount={product.totalRevenue} /></TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {selectedChip === 5 && (
+                <Box p={3}>
+                    <Typography variant="h6">Doanh Thu Thực Tế Theo Sản Phẩm</Typography>
+                    <BarChart width={600} height={300} data={actualRevenueByProduct}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="productName" />
+                        {/* Custom tick formatter for YAxis */}
+                        <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                        <Tooltip formatter={(value) => formatCurrency(value)} />
+                        <Legend />
+                        <Bar dataKey="totalActualRevenue" fill="#8884d8" />
+                    </BarChart>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Sản Phẩm</TableCell>
+                                    <TableCell>Doanh Thu</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {actualRevenueByProduct.map((product, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{product.productName}</TableCell>
+                                        <TableCell><Price amount={product.totalActualRevenue} /></TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+        </Box>
+    );
 };
 
 export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
-export default Overview;
+export default ProductStatistics;
+//

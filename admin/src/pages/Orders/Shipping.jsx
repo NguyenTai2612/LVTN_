@@ -111,7 +111,7 @@ const Orders = () => {
     <>
       <div className="card shadow my-4 border-0 flex-center p-3" style={{ backgroundColor: '#343A40' }}>
         <div className="flex items-center justify-between">
-          <h1 className="font-weight-bold text-white">Quản lý đơn hàng</h1>
+          <h1 className="font-weight-bold text-white">Order Management</h1>
           <div className="ml-auto flex align-items-center gap-3">
             <Breadcrumbs aria-label="breadcrumb">
               <StyledBreadcrumb
