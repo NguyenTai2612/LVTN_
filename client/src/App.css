@@ -2183,7 +2183,7 @@ tr:nth-child(even) {
   background: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding-bottom: 100px;
+  padding-bottom: 275px;
 }
 
 .cartPage .table {
@@ -3166,19 +3166,7 @@ input[type="radio"]:checked {
 }
 
 /* Common style for all buttons */
-.edit-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: #007bff; /* Button color */
-  color: #ffffff; /* Icon color */
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
+
 
 /* Button hover effect */
 .edit-button:hover {
@@ -3590,4 +3578,24 @@ button:hover {
   font-size: 20px;
   color: #007bff;
   font-weight: bold;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

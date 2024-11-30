@@ -2,7 +2,6 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.applications import VGG16
-from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
@@ -22,9 +21,9 @@ def get_connection():
         cursorclass=pymysql.cursors.DictCursor
     )
 
-# Tải mô hình đã huấn luyện sẵn từ file
-model_path = r"C:\Users\Tai Nguyen\Desktop\fullstack-ecom\server2\src\data\vgg16_model.h5"
-model = load_model(model_path)
+# 2. Tải mô hình VGG16
+base_model = VGG16(weights='imagenet')
+model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
 
 # 3. Hàm trích xuất đặc trưng từ hình ảnh
 def extract_features(image_path_or_url, is_url=False):

@@ -151,10 +151,16 @@ const Orders = () => {
     }
   };
 
-  const paginatedOrders = orders.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+  // const paginatedOrders = orders.slice(
+  //   (page - 1) * itemsPerPage,
+  //   page * itemsPerPage
+  // );
+
+  const paginatedOrders = orders
+  .slice() // Tạo một bản sao của mảng orders để không thay đổi trực tiếp mảng gốc
+  .reverse() // Đảo ngược mảng
+  .slice((page - 1) * itemsPerPage, page * itemsPerPage); // Phân trang
+
 
   // Mở modal và lưu lại thông tin đơn hàng được chọn
   const handleEditAddressClick = (order) => {

@@ -40,7 +40,6 @@ function App() {
 
       // Kiểm tra dữ liệu trả về và hiển thị kết quả
       if (response.status === 200) {
-        console.log("API response:", response.data); // In ra dữ liệu trả về từ API
         const similarProductIds = response.data.similarProducts.map(
           (product) => product.product_id
         );
@@ -67,7 +66,6 @@ function App() {
           axios.get(`http://localhost:5000/api/v1/product/${id}/details`)
         )
       );
-      console.log("Fetched product details:", responses); // In ra các phản hồi khi lấy chi tiết sản phẩm
       return responses.map((response) => response.data.response); // Trả về danh sách sản phẩm chi tiết
     } catch (error) {
       console.error("Error fetching product details:", error);
@@ -84,9 +82,9 @@ function App() {
   }, [similarProducts]); // Chạy khi similarProducts thay đổi
 
   return (
-    <div className="cartPage1">
+    <div className="cartPage">
       <div className="container pt-3">
-        <h1>Product Search by Image</h1>
+        <h1>Tìm kiếm sản phẩm theo hình ảnh</h1>
 
         {/* Form để tải ảnh lên */}
         <form onSubmit={handleSubmit}>
@@ -108,19 +106,23 @@ function App() {
             </div>
           )}
 
-          <button type="submit">Search</button>
+          {/* Nút submit với hiệu ứng loading */}
+          <button type="submit" disabled={loading}>
+            {loading ? (
+              <span className="spinner"></span> // Có thể thay bằng Spinner library như Material-UI, Bootstrap, hoặc CSS
+            ) : (
+              "Search"
+            )}
+          </button>
         </form>
 
         {/* Hiển thị thông báo lỗi nếu có */}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {/* Hiển thị hiệu ứng loading khi tìm kiếm */}
-        {loading && <p>Loading...</p>}
-
         {/* Hiển thị kết quả tìm kiếm sản phẩm tương tự */}
         {similarProducts.length > 0 && (
           <div>
-            <h2>Similar Products</h2>
+            <h2>Sản phẩm tương tự</h2>
             <div className="productListing">
               {similarProducts.map((product) => (
                 <ProductItem
@@ -138,4 +140,3 @@ function App() {
 }
 
 export default App;
-//okkk
